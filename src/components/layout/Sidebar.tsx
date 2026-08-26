@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useAuthStore } from '@/stores/use-auth-store';
-import { useRoleThemeStore } from '@/stores/use-role-theme-store';
+import * as React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useAuthStore } from "@/stores/use-auth-store";
+import { useRoleThemeStore } from "@/stores/use-role-theme-store";
 import {
   LayoutDashboard,
   FileCheck2,
@@ -13,9 +13,9 @@ import {
   FileSpreadsheet,
   PlusCircle,
   X,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 export function Sidebar({
   isOpen,
@@ -31,21 +31,51 @@ export function Sidebar({
   const currentRole = user?.role || activeRole;
 
   const navItems = [
-    { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, roles: ['TEACHER', 'STUDENT', 'PARENT'] },
-    { label: 'Assessments', href: '/assessments', icon: FileCheck2, roles: ['TEACHER', 'STUDENT', 'PARENT'] },
-    { label: 'Submissions', href: '/submissions', icon: FileSpreadsheet, roles: ['TEACHER', 'STUDENT', 'PARENT'] },
-    { label: 'Classes', href: '/classes', icon: School, roles: ['TEACHER', 'PARENT'] },
-    { label: 'Subjects & Topics', href: '/subjects', icon: BookOpen, roles: ['TEACHER', 'STUDENT', 'PARENT'] },
+    {
+      label: "Dashboard",
+      href: "/dashboard",
+      icon: LayoutDashboard,
+      roles: ["TEACHER", "STUDENT", "PARENT"],
+    },
+    {
+      label: "Assessments",
+      href: "/assessments",
+      icon: FileCheck2,
+      roles: ["TEACHER", "STUDENT", "PARENT"],
+    },
+    {
+      label: "Submissions",
+      href: "/submissions",
+      icon: FileSpreadsheet,
+      roles: ["TEACHER", "STUDENT", "PARENT"],
+    },
+    {
+      label: "Classes",
+      href: "/classes",
+      icon: School,
+      roles: ["TEACHER", "PARENT"],
+    },
+    {
+      label: "Subjects & Topics",
+      href: "/subjects",
+      icon: BookOpen,
+      roles: ["TEACHER", "STUDENT", "PARENT"],
+    },
   ];
 
-  const filteredNavItems = navItems.filter((item) => item.roles.includes(currentRole));
+  const filteredNavItems = navItems.filter((item) =>
+    item.roles.includes(currentRole),
+  );
 
   const sidebarContent = (
     <aside className="flex flex-col h-full bg-card/40 backdrop-blur-xl border-r border-border/50 w-64 p-4 gap-6">
       {/* Quick Action Button for Teachers */}
-      {currentRole === 'TEACHER' && (
+      {currentRole === "TEACHER" && (
         <Link href="/assessments/new" onClick={onClose}>
-          <Button variant="role" className="w-full justify-start gap-2 shadow-md">
+          <Button
+            variant="role"
+            className="w-full justify-start gap-2 shadow-md"
+          >
             <PlusCircle className="w-4 h-4" />
             <span>Create Assessment</span>
           </Button>
@@ -59,7 +89,8 @@ export function Sidebar({
         </div>
         {filteredNavItems.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+          const isActive =
+            pathname === item.href || pathname.startsWith(item.href + "/");
 
           return (
             <Link
@@ -67,13 +98,18 @@ export function Sidebar({
               href={item.href}
               onClick={onClose}
               className={cn(
-                'flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
+                "flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
                 isActive
-                  ? 'bg-primary/10 text-primary font-semibold shadow-xs border border-primary/20'
-                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                  ? "bg-primary/10 text-primary font-semibold shadow-xs border border-primary/20"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
               )}
             >
-              <Icon className={cn('w-4 h-4', isActive ? 'text-primary' : 'text-muted-foreground')} />
+              <Icon
+                className={cn(
+                  "w-4 h-4",
+                  isActive ? "text-primary" : "text-muted-foreground",
+                )}
+              />
               <span>{item.label}</span>
             </Link>
           );
@@ -89,9 +125,10 @@ export function Sidebar({
           </span>
         </div>
         <p className="text-muted-foreground text-[11px]">
-          {currentRole === 'TEACHER' && 'Full grading & test creation privileges.'}
-          {currentRole === 'STUDENT' && 'Quiz attempt & score tracker mode.'}
-          {currentRole === 'PARENT' && 'Student progress monitoring mode.'}
+          {currentRole === "TEACHER" &&
+            "Full grading & test creation privileges."}
+          {currentRole === "STUDENT" && "Quiz attempt & score tracker mode."}
+          {currentRole === "PARENT" && "Student progress monitoring mode."}
         </p>
       </div>
     </aside>
@@ -100,16 +137,24 @@ export function Sidebar({
   return (
     <>
       {/* Desktop Permanent Sidebar */}
-      <div className="hidden lg:block h-[calc(100vh-4rem)] sticky top-16">{sidebarContent}</div>
+      <div className="hidden lg:block h-[calc(100vh-4rem)] sticky top-16">
+        {sidebarContent}
+      </div>
 
       {/* Mobile Drawer Overlay */}
       {isOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-xs" onClick={onClose} />
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs"
+            onClick={onClose}
+          />
           <div className="fixed inset-y-0 left-0 z-50 w-64 bg-background shadow-2xl flex flex-col">
             <div className="p-4 flex items-center justify-between border-b border-border">
               <span className="font-bold text-sm">School Hub Menu</span>
-              <button onClick={onClose} className="p-1 rounded-lg hover:bg-muted text-muted-foreground">
+              <button
+                onClick={onClose}
+                className="p-1 rounded-lg hover:bg-muted text-muted-foreground"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
