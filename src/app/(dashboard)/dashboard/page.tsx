@@ -4,6 +4,9 @@ import * as React from 'react';
 import Link from 'next/link';
 import { useAuthStore } from '@/stores/use-auth-store';
 import { useRoleThemeStore } from '@/stores/use-role-theme-store';
+import { getMockRecentAssessments } from '@/lib/mock-data';
+import { apiClient } from '@/lib/api-client';
+import { DemoModeBanner } from '@/components/ui/DemoModeBanner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -20,16 +23,76 @@ import {
   ArrowRight,
   TrendingUp,
   BarChart3,
+  Loader2,
 } from 'lucide-react';
 
+interface LiveAssessment {
+  id: string;
+  title: string;
+  type: string;
+  dueAt?: string;
+  questions?: unknown[];
+  submissionsCount?: number;
+}
+
 export default function DashboardPage() {
-  const { user } = useAuthStore();
+  const { user, isDemoMode } = useAuthStore();
   const { activeRole } = useRoleThemeStore();
 
   const currentRole = user?.role || activeRole;
 
+  // Live data state (only fetched when not in demo mode)
+  const [liveAssessments, setLiveAssessments] = React.useState<LiveAssessment[]>([]);
+  const [isLoadingLive, setIsLoadingLive] = React.useState(false);
+  const [liveFetchError, setLiveFetchError] = React.useState(false);
+
+  React.useEffect(() => {
+    if (isDemoMode) return;
+    const endpoint =
+      currentRole === 'TEACHER'
+        ? '/assessments/teacher'
+        : currentRole === 'STUDENT'
+        ? '/assessments/student'
+        : null;
+
+    if (!endpoint) return;
+
+    setIsLoadingLive(true);
+    setLiveFetchError(false);
+
+    apiClient
+      .get(endpoint)
+      .then((res) => setLiveAssessments(Array.isArray(res.data) ? res.data : []))
+      .catch(() => setLiveFetchError(true))
+      .finally(() => setIsLoadingLive(false));
+  }, [isDemoMode, currentRole]);
+
+  // Decide which assessment rows to show
+  const mockRecentItems = getMockRecentAssessments(currentRole);
+  const displayAssessments: Array<{
+    id: string;
+    title: string;
+    type: string;
+    subject?: string;
+    due: string;
+    questionsCount: number;
+    points: number;
+  }> = isDemoMode
+    ? mockRecentItems
+    : liveAssessments.slice(0, 3).map((a) => ({
+        id: a.id,
+        title: a.title,
+        type: a.type,
+        due: a.dueAt ? new Date(a.dueAt).toLocaleDateString() : 'No due date',
+        questionsCount: a.questions?.length ?? 0,
+        points: 0,
+      }));
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      {/* Demo Mode Banner */}
+      {isDemoMode && <DemoModeBanner />}
+
       {/* Welcome Banner */}
       <div className="relative p-6 sm:p-8 rounded-3xl overflow-hidden gradient-role text-white shadow-xl">
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -38,7 +101,9 @@ export default function DashboardPage() {
               <Badge variant="outline" className="bg-white/20 text-white border-white/30 capitalize">
                 {currentRole.toLowerCase()} Mode
               </Badge>
-              <span className="text-xs text-white/80 font-medium">• Academic Term 2026</span>
+              <span className="text-xs text-white/80 font-medium">
+                • {isDemoMode ? 'Demo Preview' : 'Academic Term 2026'}
+              </span>
             </div>
             <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
               Hello, {user?.name || 'Welcome Back'}! 👋
@@ -46,7 +111,7 @@ export default function DashboardPage() {
             <p className="text-sm text-white/90 max-w-xl">
               {currentRole === 'TEACHER' && 'Manage your curriculum assessments, grade student submissions, and review topic coverage.'}
               {currentRole === 'STUDENT' && 'View your pending assessments, practice quizzes, and track your overall grade averages.'}
-              {currentRole === 'PARENT' && 'Monitor your children’s academic progress, review quiz scores, and track homework submission.'}
+              {currentRole === 'PARENT' && 'Monitor your child\'s academic progress, review quiz scores, and track homework submission.'}
             </p>
           </div>
 
@@ -80,10 +145,12 @@ export default function DashboardPage() {
                 <FileCheck2 className="w-4 h-4 text-indigo-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-extrabold text-foreground">12</div>
+                <div className="text-3xl font-extrabold text-foreground">
+                  {isDemoMode ? 12 : liveAssessments.length}
+                </div>
                 <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
                   <TrendingUp className="w-3 h-3 text-emerald-500" />
-                  <span>+3 this week</span>
+                  <span>{isDemoMode ? '+3 this week' : 'from your account'}</span>
                 </p>
               </CardContent>
             </Card>
@@ -131,7 +198,9 @@ export default function DashboardPage() {
                 <BookOpen className="w-4 h-4 text-emerald-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-extrabold text-foreground">8</div>
+                <div className="text-3xl font-extrabold text-foreground">
+                  {isDemoMode ? 8 : liveAssessments.length}
+                </div>
                 <p className="text-xs text-muted-foreground mt-1">Quizzes & Exams published</p>
               </CardContent>
             </Card>
@@ -226,8 +295,14 @@ export default function DashboardPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle>Available Assessments & Quizzes</CardTitle>
-                <CardDescription>Practice tests and graded class examinations</CardDescription>
+                <CardTitle>
+                  {currentRole === 'TEACHER' ? 'Your Published Assessments' : 'Available Assessments & Quizzes'}
+                </CardTitle>
+                <CardDescription>
+                  {currentRole === 'TEACHER'
+                    ? 'Assessments you have created and published'
+                    : 'Practice tests and graded class examinations'}
+                </CardDescription>
               </div>
               <Link href="/assessments">
                 <Button variant="ghost" size="sm" className="gap-1 text-primary">
@@ -237,74 +312,130 @@ export default function DashboardPage() {
               </Link>
             </CardHeader>
             <CardContent className="space-y-4">
-              {[
-                { id: '1', title: 'Mathematics Midterm Algebra Quiz', type: 'QUIZ', subject: 'Algebra I', due: 'Due Today', questions: 10, points: 100 },
-                { id: '2', title: 'Physics Fundamentals & Mechanics Exam', type: 'EXAM', subject: 'Physics', due: 'Due in 3 days', questions: 15, points: 150 },
-                { id: '3', title: 'Biology Cell Structure & Photosynthesis Assignment', type: 'ASSIGNMENT', subject: 'Biology', due: 'Submitted', questions: 5, points: 50 },
-              ].map((item) => (
-                <div key={item.id} className="p-4 rounded-2xl bg-muted/40 border border-border/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-muted/70 transition-colors">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-[10px]">
-                        {item.type}
-                      </Badge>
-                      <span className="text-xs text-muted-foreground font-medium">{item.subject}</span>
-                    </div>
-                    <h4 className="font-semibold text-base text-foreground">{item.title}</h4>
-                    <p className="text-xs text-muted-foreground">
-                      {item.questions} Questions • {item.points} Total Points • <span className="text-amber-500 font-medium">{item.due}</span>
-                    </p>
-                  </div>
-                  <Link href={`/assessments/${item.id}`}>
-                    <Button variant="role" size="sm">
-                      {currentRole === 'STUDENT' ? 'Take Quiz' : 'View Details'}
-                    </Button>
-                  </Link>
+              {isLoadingLive ? (
+                <div className="flex items-center justify-center py-10 text-muted-foreground gap-2">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span className="text-sm">Loading assessments…</span>
                 </div>
-              ))}
+              ) : liveFetchError && !isDemoMode ? (
+                <div className="py-6 text-center text-xs text-destructive">
+                  Failed to load assessments. Please try refreshing.
+                </div>
+              ) : displayAssessments.length === 0 ? (
+                <div className="py-6 text-center text-xs text-muted-foreground">
+                  No assessments found.
+                </div>
+              ) : (
+                displayAssessments.map((item) => (
+                  <div
+                    key={item.id}
+                    className="p-4 rounded-2xl bg-muted/40 border border-border/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-muted/70 transition-colors"
+                  >
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-[10px]">
+                          {item.type}
+                        </Badge>
+                        {item.subject && (
+                          <span className="text-xs text-muted-foreground font-medium">{item.subject}</span>
+                        )}
+                      </div>
+                      <h4 className="font-semibold text-base text-foreground">{item.title}</h4>
+                      <p className="text-xs text-muted-foreground">
+                        {item.questionsCount > 0 && `${item.questionsCount} Questions • `}
+                        {item.points > 0 && `${item.points} Points • `}
+                        <span className="text-amber-500 font-medium">{item.due}</span>
+                      </p>
+                    </div>
+                    <Link href={`/assessments/${item.id}`}>
+                      <Button variant="role" size="sm">
+                        {currentRole === 'TEACHER'
+                          ? 'Manage'
+                          : currentRole === 'PARENT'
+                          ? 'View Details'
+                          : 'Take Quiz'}
+                      </Button>
+                    </Link>
+                  </div>
+                ))
+              )}
             </CardContent>
           </Card>
         </div>
 
-        {/* Sidebar Widget: Progress / Subject Breakdown */}
+        {/* Sidebar Widget: Subject Performance Breakdown */}
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Subject Performance Breakdown</CardTitle>
+              <CardTitle className="text-lg">
+                {currentRole === 'PARENT' ? "Child's Subject Performance" : 'Subject Performance Breakdown'}
+              </CardTitle>
               <CardDescription>Current term score mastery per topic</CardDescription>
             </CardHeader>
             <CardContent className="space-y-5">
-              <div className="space-y-2">
-                <div className="flex justify-between text-xs font-semibold">
-                  <span>Mathematics (Algebra)</span>
-                  <span className="text-emerald-500">95%</span>
-                </div>
-                <Progress value={95} className="h-2" />
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between text-xs font-semibold">
-                  <span>Physics & Mechanics</span>
-                  <span className="text-indigo-500">88%</span>
-                </div>
-                <Progress value={88} className="h-2" />
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between text-xs font-semibold">
-                  <span>Biology & Ecology</span>
-                  <span className="text-amber-500">92%</span>
-                </div>
-                <Progress value={92} className="h-2" />
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between text-xs font-semibold">
-                  <span>World History & Civics</span>
-                  <span className="text-emerald-500">90%</span>
-                </div>
-                <Progress value={90} className="h-2" />
-              </div>
+              {currentRole === 'TEACHER' ? (
+                <>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs font-semibold">
+                      <span>Mathematics (Class Avg)</span>
+                      <span className="text-emerald-500">86%</span>
+                    </div>
+                    <Progress value={86} className="h-2" />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs font-semibold">
+                      <span>Physics & Mechanics</span>
+                      <span className="text-indigo-500">79%</span>
+                    </div>
+                    <Progress value={79} className="h-2" />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs font-semibold">
+                      <span>Biology & Ecology</span>
+                      <span className="text-emerald-500">91%</span>
+                    </div>
+                    <Progress value={91} className="h-2" />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs font-semibold">
+                      <span>World History</span>
+                      <span className="text-amber-500">73%</span>
+                    </div>
+                    <Progress value={73} className="h-2" />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs font-semibold">
+                      <span>Mathematics (Algebra)</span>
+                      <span className="text-emerald-500">95%</span>
+                    </div>
+                    <Progress value={95} className="h-2" />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs font-semibold">
+                      <span>Physics & Mechanics</span>
+                      <span className="text-indigo-500">88%</span>
+                    </div>
+                    <Progress value={88} className="h-2" />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs font-semibold">
+                      <span>Biology & Ecology</span>
+                      <span className="text-amber-500">92%</span>
+                    </div>
+                    <Progress value={92} className="h-2" />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs font-semibold">
+                      <span>World History & Civics</span>
+                      <span className="text-emerald-500">75%</span>
+                    </div>
+                    <Progress value={75} className="h-2" />
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
         </div>

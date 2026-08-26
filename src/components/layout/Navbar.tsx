@@ -1,17 +1,23 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import Link from 'next/link';
-import { useAuthStore } from '@/stores/use-auth-store';
-import { useRoleThemeStore } from '@/stores/use-role-theme-store';
-import { RoleThemeSwitcher } from './RoleThemeSwitcher';
-import { ThemeToggle } from './ThemeToggle';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { GraduationCap, LogOut, Menu, User as UserIcon, ShieldAlert } from 'lucide-react';
+import * as React from "react";
+import Link from "next/link";
+import { useAuthStore } from "@/stores/use-auth-store";
+import { useRoleThemeStore } from "@/stores/use-role-theme-store";
+import { RoleThemeSwitcher } from "./RoleThemeSwitcher";
+import { ThemeToggle } from "./ThemeToggle";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  GraduationCap,
+  LogOut,
+  Menu,
+  User as UserIcon,
+  ShieldAlert,
+} from "lucide-react";
 
 export function Navbar({ onOpenMobileNav }: { onOpenMobileNav?: () => void }) {
-  const { user, logout, isAuthenticated } = useAuthStore();
+  const { user, logout, isAuthenticated, isDemoMode } = useAuthStore();
   const { activeRole } = useRoleThemeStore();
 
   const currentRole = user?.role || activeRole;
@@ -35,7 +41,7 @@ export function Navbar({ onOpenMobileNav }: { onOpenMobileNav?: () => void }) {
               <GraduationCap className="h-6 w-6" />
             </div>
             <div className="flex flex-col">
-              <span className="font-bold tracking-tight text-lg leading-tight bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+              <span className="font-bold tracking-tight text-lg leading-tight bg-linear-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
                 School<span className="text-primary">Hub</span>
               </span>
               <span className="text-[10px] font-medium text-muted-foreground tracking-wider uppercase">
@@ -43,7 +49,10 @@ export function Navbar({ onOpenMobileNav }: { onOpenMobileNav?: () => void }) {
               </span>
             </div>
           </Link>
-          <Badge role={currentRole} className="ml-2 hidden md:inline-flex capitalize">
+          <Badge
+            role={currentRole}
+            className="ml-2 hidden md:inline-flex capitalize"
+          >
             {currentRole.toLowerCase()} portal
           </Badge>
         </div>
@@ -53,14 +62,22 @@ export function Navbar({ onOpenMobileNav }: { onOpenMobileNav?: () => void }) {
           <RoleThemeSwitcher className="hidden md:flex" />
           <ThemeToggle />
 
-          {isAuthenticated && user ? (
+          {isAuthenticated && user && !isDemoMode ? (
             <div className="flex items-center gap-3 pl-2 border-l border-border/60">
               <div className="hidden sm:flex flex-col text-right">
-                <span className="text-sm font-semibold leading-none">{user.name}</span>
-                <span className="text-xs text-muted-foreground mt-0.5">{user.email}</span>
+                <span className="text-sm font-semibold leading-none">
+                  {user.name}
+                </span>
+                <span className="text-xs text-muted-foreground mt-0.5">
+                  {user.email}
+                </span>
               </div>
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-foreground font-semibold border border-border">
-                {user.name ? user.name.charAt(0).toUpperCase() : <UserIcon className="w-4 h-4" />}
+                {user.name ? (
+                  user.name.charAt(0).toUpperCase()
+                ) : (
+                  <UserIcon className="w-4 h-4" />
+                )}
               </div>
               <Button
                 variant="ghost"

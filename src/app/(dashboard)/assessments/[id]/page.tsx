@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAssessmentStore } from '@/stores/use-assessment-store';
 import { useAuthStore } from '@/stores/use-auth-store';
+import { DemoModeBanner } from '@/components/ui/DemoModeBanner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -19,11 +20,12 @@ import {
   BookOpen,
 } from 'lucide-react';
 
+
 export default function AssessmentPlayerPage() {
   const router = useRouter();
   const params = useParams();
   const { selectedAnswers, setAnswer, clearAnswers } = useAssessmentStore();
-  const { user } = useAuthStore();
+  const { user, isDemoMode } = useAuthStore();
 
   const [currentIdx, setCurrentIdx] = React.useState(0);
   const [timeLeft, setTimeLeft] = React.useState(600); // 10 minutes in seconds
@@ -118,6 +120,9 @@ export default function AssessmentPlayerPage() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
+      {/* Demo Mode Banner */}
+      {isDemoMode && <DemoModeBanner />}
+
       {/* Quiz Header Bar */}
       <div className="flex items-center justify-between p-4 rounded-2xl bg-card border border-border shadow-sm">
         <Button variant="ghost" size="sm" onClick={() => router.push('/assessments')}>

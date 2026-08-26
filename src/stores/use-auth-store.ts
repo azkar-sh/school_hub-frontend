@@ -6,6 +6,8 @@ interface AuthState {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
+  /** True when the current session is a demo/preview (not a real backend login). */
+  isDemoMode: boolean;
   isLoading: boolean;
   setAuth: (user: User, token: string) => void;
   logout: () => void;
@@ -24,10 +26,18 @@ const normalizeUser = (userData: any): User => {
   };
 };
 
+/** Returns true when the token belongs to a demo/preview session. */
+const isTokenDemo = (token: string | null): boolean =>
+  token !== null && token.startsWith('demo_');
+
+const storedToken =
+  typeof window !== 'undefined' ? localStorage.getItem('school_hub_token') : null;
+
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
-  token: typeof window !== 'undefined' ? localStorage.getItem('school_hub_token') : null,
+  token: storedToken,
   isAuthenticated: false,
+  isDemoMode: isTokenDemo(storedToken),
   isLoading: true,
 
   setAuth: (userRaw: User, token: string) => {
@@ -36,7 +46,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       localStorage.setItem('school_hub_token', token);
       localStorage.setItem('school_hub_user', JSON.stringify(user));
     }
-    set({ user, token, isAuthenticated: true, isLoading: false });
+    // Real logins are never in demo mode
+    set({ user, token, isAuthenticated: true, isDemoMode: false, isLoading: false });
   },
 
   logout: () => {
@@ -44,7 +55,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       localStorage.removeItem('school_hub_token');
       localStorage.removeItem('school_hub_user');
     }
-    set({ user: null, token: null, isAuthenticated: false, isLoading: false });
+    set({ user: null, token: null, isAuthenticated: false, isDemoMode: false, isLoading: false });
   },
 
   fetchProfile: async () => {
@@ -54,25 +65,32 @@ export const useAuthStore = create<AuthState>((set) => ({
       const rawUser = response.data;
       if (rawUser) {
         const user = normalizeUser(rawUser);
-        set({ user, isAuthenticated: true, isLoading: false });
+        // Successfully reached the server → real session, not demo
+        set({ user, isAuthenticated: true, isDemoMode: false, isLoading: false });
         return;
       }
     } catch {
-      // Fallback to local storage if network is offline or token invalid
+      // Fallback to local storage when network is offline or token is invalid
       if (typeof window !== 'undefined') {
         const storedUser = localStorage.getItem('school_hub_user');
+        const token = localStorage.getItem('school_hub_token');
         if (storedUser) {
           try {
             const user = normalizeUser(JSON.parse(storedUser));
-            set({ user, isAuthenticated: true, isLoading: false });
+            set({
+              user,
+              isAuthenticated: true,
+              isDemoMode: isTokenDemo(token),
+              isLoading: false,
+            });
             return;
           } catch {
-            // invalid JSON
+            // invalid JSON in storage
           }
         }
       }
     }
-    set({ user: null, token: null, isAuthenticated: false, isLoading: false });
+    set({ user: null, token: null, isAuthenticated: false, isDemoMode: false, isLoading: false });
   },
 
   demoLoginAs: (role: UserRole) => {
@@ -103,6 +121,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       localStorage.setItem('school_hub_token', dummyToken);
       localStorage.setItem('school_hub_user', JSON.stringify(user));
     }
-    set({ user, token: dummyToken, isAuthenticated: true, isLoading: false });
+    // Demo logins are always in demo mode
+    set({ user, token: dummyToken, isAuthenticated: true, isDemoMode: true, isLoading: false });
   },
 }));
