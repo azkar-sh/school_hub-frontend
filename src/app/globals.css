@@ -82,7 +82,8 @@
   }
 
   /* TEACHER ROLE THEME (Emerald / Teal) */
-  [data-role="TEACHER"], .theme-teacher {
+  [data-role="TEACHER"],
+  .theme-teacher {
     --primary: 160 84% 39%;
     --primary-foreground: 0 0% 100%;
     --ring: 160 84% 39%;
@@ -95,7 +96,8 @@
   }
 
   /* STUDENT ROLE THEME (Indigo / Violet) */
-  [data-role="STUDENT"], .theme-student {
+  [data-role="STUDENT"],
+  .theme-student {
     --primary: 238.7 83.5% 66.7%;
     --primary-foreground: 0 0% 100%;
     --ring: 238.7 83.5% 66.7%;
@@ -108,7 +110,8 @@
   }
 
   /* PARENT / ADMIN ROLE THEME (Amber / Coral) */
-  [data-role="PARENT"], .theme-parent {
+  [data-role="PARENT"],
+  .theme-parent {
     --primary: 38 92% 50%;
     --primary-foreground: 0 0% 100%;
     --ring: 38 92% 50%;
@@ -121,7 +124,8 @@
   }
 
   /* DARK MODE OVERRIDES */
-  .dark, [data-theme="dark"] {
+  .dark,
+  [data-theme="dark"] {
     --background: 224 71% 4%;
     --foreground: 213 31% 91%;
 
@@ -144,15 +148,18 @@
     --input: 215 27.9% 16.9%;
 
     /* Dark Mode Role Variant Tweaks */
-    [data-role="TEACHER"], .theme-teacher {
+    [data-role="TEACHER"],
+    .theme-teacher {
       --role-light: 160 50% 12%;
       --role-border: 160 60% 22%;
     }
-    [data-role="STUDENT"], .theme-student {
+    [data-role="STUDENT"],
+    .theme-student {
       --role-light: 238 50% 14%;
       --role-border: 238 60% 25%;
     }
-    [data-role="PARENT"], .theme-parent {
+    [data-role="PARENT"],
+    .theme-parent {
       --role-light: 38 50% 14%;
       --role-border: 38 60% 25%;
     }
@@ -166,8 +173,14 @@
 body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
-  font-feature-settings: "rlh" 1, "cv02" 1, "cv03" 1, "cv04" 1;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  font-feature-settings:
+    "rlh" 1,
+    "cv02" 1,
+    "cv03" 1,
+    "cv04" 1;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 /* Glassmorphism & UI helpers */
@@ -186,7 +199,11 @@ body {
 }
 
 .gradient-role {
-  background: linear-gradient(135deg, var(--role-gradient-from), var(--role-gradient-to));
+  background: linear-gradient(
+    135deg,
+    var(--role-gradient-from),
+    var(--role-gradient-to)
+  );
 }
 
 /* Custom Scrollbars */
