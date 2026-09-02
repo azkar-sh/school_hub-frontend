@@ -4,7 +4,14 @@ import * as React from "react";
 import { useRoleThemeStore } from "@/stores/use-role-theme-store";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { UserRole } from "@/types";
-import { GraduationCap, BookOpen, Users, Sparkles, Lock } from "lucide-react";
+import {
+  GraduationCap,
+  BookOpen,
+  Users,
+  ShieldAlert,
+  Sparkles,
+  Lock,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function RoleThemeSwitcher({ className }: { className?: string }) {
@@ -42,6 +49,13 @@ export function RoleThemeSwitcher({ className }: { className?: string }) {
       icon: Users,
       colorClass:
         "hover:text-amber-500 data-[active=true]:bg-amber-500 data-[active=true]:text-white",
+    },
+    {
+      id: "SCHOOL_ADMIN",
+      label: "Admin",
+      icon: ShieldAlert,
+      colorClass:
+        "hover:text-purple-500 data-[active=true]:bg-purple-600 data-[active=true]:text-white",
     },
   ];
 

@@ -1,6 +1,13 @@
-import { create } from 'zustand';
-import { User, UserRole } from '@/types';
-import { apiClient } from '@/lib/api-client';
+import { create } from "zustand";
+import { User, UserRole } from "@/types";
+import { apiClient } from "@/lib/api-client";
+
+type RawUser = Partial<User> & { userId?: string };
+
+const isRawUser = (value: unknown): value is RawUser =>
+  typeof value === "object" &&
+  value !== null &&
+  ("id" in value || "userId" in value);
 
 interface AuthState {
   user: User | null;
@@ -15,23 +22,25 @@ interface AuthState {
   demoLoginAs: (role: UserRole) => void;
 }
 
-const normalizeUser = (userData: any): User => {
-  if (!userData) return userData;
+const normalizeUser = (userData: RawUser): User => {
   return {
     ...userData,
-    id: userData.id || userData.userId || 'user-id',
-    name: userData.name || 'User',
-    email: userData.email || '',
-    role: userData.role || 'STUDENT',
+    id: userData.id || userData.userId || "user-id",
+    name: userData.name || "User",
+    email: userData.email || "",
+    role: userData.role || "STUDENT",
+    schoolMemberships: userData.schoolMemberships || [],
   };
 };
 
 /** Returns true when the token belongs to a demo/preview session. */
 const isTokenDemo = (token: string | null): boolean =>
-  token !== null && token.startsWith('demo_');
+  token !== null && token.startsWith("demo_");
 
 const storedToken =
-  typeof window !== 'undefined' ? localStorage.getItem('school_hub_token') : null;
+  typeof window !== "undefined"
+    ? localStorage.getItem("school_hub_token")
+    : null;
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
@@ -42,86 +51,146 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   setAuth: (userRaw: User, token: string) => {
     const user = normalizeUser(userRaw);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('school_hub_token', token);
-      localStorage.setItem('school_hub_user', JSON.stringify(user));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("school_hub_token", token);
+      localStorage.setItem("school_hub_user", JSON.stringify(user));
     }
     // Real logins are never in demo mode
-    set({ user, token, isAuthenticated: true, isDemoMode: false, isLoading: false });
+    set({
+      user,
+      token,
+      isAuthenticated: true,
+      isDemoMode: false,
+      isLoading: false,
+    });
   },
 
   logout: () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('school_hub_token');
-      localStorage.removeItem('school_hub_user');
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("school_hub_token");
+      localStorage.removeItem("school_hub_user");
     }
-    set({ user: null, token: null, isAuthenticated: false, isDemoMode: false, isLoading: false });
+    set({
+      user: null,
+      token: null,
+      isAuthenticated: false,
+      isDemoMode: false,
+      isLoading: false,
+    });
   },
 
   fetchProfile: async () => {
     try {
       set({ isLoading: true });
-      const response = await apiClient.get('/auth/me');
-      const rawUser = response.data;
-      if (rawUser) {
-        const user = normalizeUser(rawUser);
-        // Successfully reached the server → real session, not demo
-        set({ user, isAuthenticated: true, isDemoMode: false, isLoading: false });
-        return;
+      // Primary profile fetch: /users/me (returns full user details + schoolMemberships)
+      let rawUser: RawUser;
+      try {
+        const response = await apiClient.get<RawUser>("/users/me");
+        rawUser = response.data;
+      } catch {
+        // Fallback endpoint: /auth/me
+        const response = await apiClient.get<RawUser>("/auth/me");
+        rawUser = response.data;
       }
+
+      const user = normalizeUser(rawUser);
+      set({
+        user,
+        isAuthenticated: true,
+        isDemoMode: false,
+        isLoading: false,
+      });
+      return;
     } catch {
       // Fallback to local storage when network is offline or token is invalid
-      if (typeof window !== 'undefined') {
-        const storedUser = localStorage.getItem('school_hub_user');
-        const token = localStorage.getItem('school_hub_token');
+      if (typeof window !== "undefined") {
+        const storedUser = localStorage.getItem("school_hub_user");
+        const token = localStorage.getItem("school_hub_token");
         if (storedUser) {
           try {
-            const user = normalizeUser(JSON.parse(storedUser));
-            set({
-              user,
-              isAuthenticated: true,
-              isDemoMode: isTokenDemo(token),
-              isLoading: false,
-            });
-            return;
+            const parsedUser: unknown = JSON.parse(storedUser);
+            if (isRawUser(parsedUser)) {
+              const user = normalizeUser(parsedUser);
+              set({
+                user,
+                isAuthenticated: true,
+                isDemoMode: isTokenDemo(token),
+                isLoading: false,
+              });
+              return;
+            }
           } catch {
             // invalid JSON in storage
           }
         }
       }
     }
-    set({ user: null, token: null, isAuthenticated: false, isDemoMode: false, isLoading: false });
+    set({
+      user: null,
+      token: null,
+      isAuthenticated: false,
+      isDemoMode: false,
+      isLoading: false,
+    });
   },
 
   demoLoginAs: (role: UserRole) => {
     const demoProfiles: Record<UserRole, User> = {
+      SCHOOL_ADMIN: {
+        id: "demo-admin-id",
+        name: "Principal Marcus Vance",
+        email: "marcus.vance@schoolhub.edu",
+        role: "SCHOOL_ADMIN",
+        schoolMemberships: [
+          {
+            id: "demo-member-id",
+            schoolId: "demo-school-id",
+            userId: "demo-admin-id",
+            school: { id: "demo-school-id", name: "SMA Garuda Hope" },
+          },
+        ],
+      },
       TEACHER: {
-        id: 'demo-teacher-id',
-        name: 'Prof. Sarah Jenkins',
-        email: 'sarah.jenkins@schoolhub.edu',
-        role: 'TEACHER',
+        id: "demo-teacher-id",
+        name: "Prof. Sarah Jenkins",
+        email: "sarah.jenkins@schoolhub.edu",
+        role: "TEACHER",
+        schoolMemberships: [
+          {
+            id: "demo-member-id-2",
+            schoolId: "demo-school-id",
+            userId: "demo-teacher-id",
+            school: { id: "demo-school-id", name: "SMA Garuda Hope" },
+          },
+        ],
       },
       STUDENT: {
-        id: 'demo-student-id',
-        name: 'Alex Rivera',
-        email: 'alex.rivera@student.schoolhub.edu',
-        role: 'STUDENT',
+        id: "demo-student-id",
+        name: "Alex Rivera",
+        email: "alex.rivera@student.schoolhub.edu",
+        role: "STUDENT",
       },
       PARENT: {
-        id: 'demo-parent-id',
-        name: 'Eleanor Rivera',
-        email: 'eleanor.rivera@family.com',
-        role: 'PARENT',
+        id: "demo-parent-id",
+        name: "Eleanor Rivera",
+        email: "eleanor.rivera@family.com",
+        role: "PARENT",
       },
     };
 
     const user = demoProfiles[role];
     const dummyToken = `demo_jwt_token_${role.toLowerCase()}_12345`;
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('school_hub_token', dummyToken);
-      localStorage.setItem('school_hub_user', JSON.stringify(user));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("school_hub_token", dummyToken);
+      localStorage.setItem("school_hub_user", JSON.stringify(user));
     }
     // Demo logins are always in demo mode
-    set({ user, token: dummyToken, isAuthenticated: true, isDemoMode: true, isLoading: false });
+    set({
+      user,
+      token: dummyToken,
+      isAuthenticated: true,
+      isDemoMode: true,
+      isLoading: false,
+    });
   },
 }));

@@ -1,19 +1,31 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useForm, FormProvider } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { loginSchema } from '@/lib/schemas';
-import { apiClient } from '@/lib/api-client';
-import { useAuthStore } from '@/stores/use-auth-store';
-import { useRoleThemeStore } from '@/stores/use-role-theme-store';
-import { UserRole } from '@/types';
-import { FormInput } from '@/components/forms/FormInput';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { GraduationCap, LogIn, BookOpen, Users } from 'lucide-react';
+import * as React from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useForm, FormProvider } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { loginSchema } from "@/lib/schemas";
+import { apiClient } from "@/lib/api-client";
+import { useAuthStore } from "@/stores/use-auth-store";
+import { useRoleThemeStore } from "@/stores/use-role-theme-store";
+import { UserRole } from "@/types";
+import { FormInput } from "@/components/forms/FormInput";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import {
+  GraduationCap,
+  LogIn,
+  BookOpen,
+  Users,
+  ShieldAlert,
+} from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -25,8 +37,8 @@ export default function LoginPage() {
   const methods = useForm({
     resolver: yupResolver(loginSchema),
     defaultValues: {
-      email: '',
-      password: '',
+      email: "",
+      password: "",
     },
   });
 
@@ -34,22 +46,27 @@ export default function LoginPage() {
     try {
       setErrorMsg(null);
       setIsLoading(true);
-      const response = await apiClient.post('/auth/login', data);
+      const response = await apiClient.post("/auth/login", data);
       const payload = response.data;
 
       // Handle payload shapes: { user, accessToken } or direct user object
       const user = payload?.user || (payload?.role ? payload : null);
-      const accessToken = payload?.accessToken || payload?.token || 'dummy_token';
+      const accessToken =
+        payload?.accessToken || payload?.token || "dummy_token";
 
       if (!user || !user.role) {
-        throw new Error('Response did not contain valid user information or role.');
+        throw new Error(
+          "Response did not contain valid user information or role.",
+        );
       }
 
       setRoleTheme(user.role as UserRole);
       setAuth(user, accessToken);
-      router.push('/dashboard');
-    } catch (err: any) {
-      setErrorMsg(err.message || 'Invalid email or password');
+      router.push("/dashboard");
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Invalid email or password";
+      setErrorMsg(message);
     } finally {
       setIsLoading(false);
     }
@@ -58,13 +75,13 @@ export default function LoginPage() {
   const handleQuickDemoLogin = (role: UserRole) => {
     setRoleTheme(role);
     demoLoginAs(role);
-    router.push('/dashboard');
+    router.push("/dashboard");
   };
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative overflow-hidden">
       {/* Background glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-primary/15 blur-[100px] rounded-full pointer-events-none -z-10" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-75 bg-primary/15 blur-[100px] rounded-full pointer-events-none -z-10" />
 
       <div className="w-full max-w-md">
         <div className="flex flex-col items-center mb-6">
@@ -74,13 +91,17 @@ export default function LoginPage() {
             </div>
           </Link>
           <h1 className="text-2xl font-bold tracking-tight">Welcome Back</h1>
-          <p className="text-sm text-muted-foreground mt-1">Sign in to your School Hub account</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Sign in to your School Hub account
+          </p>
         </div>
 
         <Card className="shadow-xl border-border/60">
           <CardHeader className="space-y-1 pb-4">
             <CardTitle className="text-lg">Sign In</CardTitle>
-            <CardDescription className="text-xs">Enter your email and password below</CardDescription>
+            <CardDescription className="text-xs">
+              Enter your email and password below
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {errorMsg && (
@@ -90,7 +111,10 @@ export default function LoginPage() {
             )}
 
             <FormProvider {...methods}>
-              <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-4">
+              <form
+                onSubmit={methods.handleSubmit(onSubmit)}
+                className="space-y-4"
+              >
                 <FormInput
                   name="email"
                   label="Email Address"
@@ -104,7 +128,12 @@ export default function LoginPage() {
                   placeholder="••••••••"
                 />
 
-                <Button type="submit" variant="default" className="w-full" isLoading={isLoading}>
+                <Button
+                  type="submit"
+                  variant="default"
+                  className="w-full"
+                  isLoading={isLoading}
+                >
                   <LogIn className="w-4 h-4 mr-2" />
                   Sign In
                 </Button>
@@ -116,17 +145,19 @@ export default function LoginPage() {
                 <div className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground font-semibold">Or Quick Demo Login</span>
+                <span className="bg-card px-2 text-muted-foreground font-semibold">
+                  Or Quick Demo Login
+                </span>
               </div>
             </div>
 
             {/* Quick Demo Login Role Buttons */}
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => handleQuickDemoLogin('STUDENT')}
+                onClick={() => handleQuickDemoLogin("STUDENT")}
                 className="text-xs flex flex-col h-auto py-2.5 gap-1 border-indigo-500/30 hover:bg-indigo-500/10 hover:text-indigo-600 dark:hover:text-indigo-400"
               >
                 <GraduationCap className="w-4 h-4 text-indigo-500" />
@@ -137,7 +168,7 @@ export default function LoginPage() {
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => handleQuickDemoLogin('TEACHER')}
+                onClick={() => handleQuickDemoLogin("TEACHER")}
                 className="text-xs flex flex-col h-auto py-2.5 gap-1 border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-600 dark:hover:text-emerald-400"
               >
                 <BookOpen className="w-4 h-4 text-emerald-500" />
@@ -148,17 +179,31 @@ export default function LoginPage() {
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => handleQuickDemoLogin('PARENT')}
+                onClick={() => handleQuickDemoLogin("PARENT")}
                 className="text-xs flex flex-col h-auto py-2.5 gap-1 border-amber-500/30 hover:bg-amber-500/10 hover:text-amber-600 dark:hover:text-amber-400"
               >
                 <Users className="w-4 h-4 text-amber-500" />
                 <span>Parent</span>
               </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => handleQuickDemoLogin("SCHOOL_ADMIN")}
+                className="text-xs flex flex-col h-auto py-2.5 gap-1 border-purple-500/30 hover:bg-purple-500/10 hover:text-purple-600 dark:hover:text-purple-400"
+              >
+                <ShieldAlert className="w-4 h-4 text-purple-500" />
+                <span>Admin</span>
+              </Button>
             </div>
 
             <p className="text-center text-xs text-muted-foreground mt-4">
-              Don&apos;t have an account?{' '}
-              <Link href="/register" className="text-primary font-semibold hover:underline">
+              Don&apos;t have an account?{" "}
+              <Link
+                href="/register"
+                className="text-primary font-semibold hover:underline"
+              >
                 Create one now
               </Link>
             </p>

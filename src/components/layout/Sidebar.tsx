@@ -12,6 +12,7 @@ import {
   School,
   FileSpreadsheet,
   PlusCircle,
+  ShieldAlert,
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -35,31 +36,37 @@ export function Sidebar({
       label: "Dashboard",
       href: "/dashboard",
       icon: LayoutDashboard,
-      roles: ["TEACHER", "STUDENT", "PARENT"],
+      roles: ["TEACHER", "STUDENT", "PARENT", "SCHOOL_ADMIN"],
+    },
+    {
+      label: "School Admin Hub",
+      href: "/admin",
+      icon: ShieldAlert,
+      roles: ["SCHOOL_ADMIN"],
     },
     {
       label: "Assessments",
       href: "/assessments",
       icon: FileCheck2,
-      roles: ["TEACHER", "STUDENT", "PARENT"],
+      roles: ["TEACHER", "STUDENT", "PARENT", "SCHOOL_ADMIN"],
     },
     {
       label: "Submissions",
       href: "/submissions",
       icon: FileSpreadsheet,
-      roles: ["TEACHER", "STUDENT", "PARENT"],
+      roles: ["TEACHER", "STUDENT", "PARENT", "SCHOOL_ADMIN"],
     },
     {
       label: "Classes",
       href: "/classes",
       icon: School,
-      roles: ["TEACHER", "PARENT"],
+      roles: ["TEACHER", "PARENT", "SCHOOL_ADMIN"],
     },
     {
       label: "Subjects & Topics",
       href: "/subjects",
       icon: BookOpen,
-      roles: ["TEACHER", "STUDENT", "PARENT"],
+      roles: ["TEACHER", "STUDENT", "PARENT", "SCHOOL_ADMIN"],
     },
   ];
 
@@ -125,6 +132,8 @@ export function Sidebar({
           </span>
         </div>
         <p className="text-muted-foreground text-[11px]">
+          {currentRole === "SCHOOL_ADMIN" &&
+            "School, academic year, class & subject administration."}
           {currentRole === "TEACHER" &&
             "Full grading & test creation privileges."}
           {currentRole === "STUDENT" && "Quiz attempt & score tracker mode."}

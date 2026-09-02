@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 import { useForm, FormProvider } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { registerSchema } from "@/lib/schemas";
-import { apiClient } from "@/lib/api-client";
+import { authApi } from "@/lib/api-client";
+import { getErrorMessage } from "@/lib/errors";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useRoleThemeStore } from "@/stores/use-role-theme-store";
 import { UserRole } from "@/types";
@@ -48,26 +49,18 @@ export default function RegisterPage() {
     try {
       setErrorMsg(null);
       setIsLoading(true);
-      const response = await apiClient.post("/auth/register", data);
+      const response = await authApi.register(data);
       const payload = response.data;
 
-      // Handle payload shapes: { user, accessToken } or direct user object
-      const user = payload?.user || (payload?.role ? payload : null);
-      const accessToken =
-        payload?.accessToken || payload?.token || "dummy_token";
-
-      if (!user || !user.role) {
-        throw new Error(
-          "Response did not contain valid user information or role.",
-        );
-      }
-
-      setRoleTheme(user.role as UserRole);
-      setAuth(user, accessToken);
+      setRoleTheme(payload.user.role);
+      setAuth(payload.user, payload.accessToken);
       router.push("/dashboard");
-    } catch (err: any) {
+    } catch (error) {
       setErrorMsg(
-        err.message || "Registration failed. Please check your information.",
+        getErrorMessage(
+          error,
+          "Registration failed. Please check your information.",
+        ),
       );
     } finally {
       setIsLoading(false);
@@ -145,6 +138,10 @@ export default function RegisterPage() {
                     {
                       label: "Parent (Monitor child progress)",
                       value: "PARENT",
+                    },
+                    {
+                      label: "School Administrator (Manage schools & classes)",
+                      value: "SCHOOL_ADMIN",
                     },
                   ]}
                 />

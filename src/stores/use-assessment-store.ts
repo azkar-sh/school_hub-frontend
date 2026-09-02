@@ -1,14 +1,16 @@
-import { create } from 'zustand';
-import { Assessment, Question, Submission } from '@/types';
+import { create } from "zustand";
+import { Assessment, Question, Submission } from "@/types";
 
 interface AssessmentDraft {
+  teachingAssignmentId: string;
   title: string;
   description: string;
-  type: 'QUIZ' | 'EXAM' | 'ASSIGNMENT';
+  type: "QUIZ" | "EXAM" | "ASSIGNMENT";
   dueAt: string;
   questions: Array<{
+    subTopicId: string;
     question: string;
-    type: 'MCQ' | 'TRUE_FALSE' | 'SHORT_ANSWER';
+    type: "MCQ" | "TRUE_FALSE" | "SHORT_ANSWER";
     points: number;
     options: Array<{ text: string; isCorrect: boolean }>;
   }>;
@@ -19,7 +21,7 @@ interface AssessmentState {
   activeSubmission: Submission | null;
   selectedAnswers: Record<string, string>; // questionId -> answerText
   updateDraft: (data: Partial<AssessmentDraft>) => void;
-  addQuestionToDraft: (question: AssessmentDraft['questions'][number]) => void;
+  addQuestionToDraft: (question: AssessmentDraft["questions"][number]) => void;
   removeQuestionFromDraft: (index: number) => void;
   resetDraft: () => void;
   setAnswer: (questionId: string, answer: string) => void;
@@ -27,10 +29,11 @@ interface AssessmentState {
 }
 
 const initialDraft: AssessmentDraft = {
-  title: '',
-  description: '',
-  type: 'QUIZ',
-  dueAt: '',
+  teachingAssignmentId: "",
+  title: "",
+  description: "",
+  type: "QUIZ",
+  dueAt: "",
   questions: [],
 };
 
@@ -39,11 +42,15 @@ export const useAssessmentStore = create<AssessmentState>((set) => ({
   activeSubmission: null,
   selectedAnswers: {},
 
-  updateDraft: (data) => set((state) => ({ draft: { ...state.draft, ...data } })),
+  updateDraft: (data) =>
+    set((state) => ({ draft: { ...state.draft, ...data } })),
 
   addQuestionToDraft: (question) =>
     set((state) => ({
-      draft: { ...state.draft, questions: [...state.draft.questions, question] },
+      draft: {
+        ...state.draft,
+        questions: [...state.draft.questions, question],
+      },
     })),
 
   removeQuestionFromDraft: (index) =>
