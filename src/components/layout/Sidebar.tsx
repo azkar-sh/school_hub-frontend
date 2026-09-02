@@ -13,6 +13,11 @@ import {
   FileSpreadsheet,
   PlusCircle,
   ShieldAlert,
+  CalendarDays,
+  UserRound,
+  ClipboardList,
+  BarChart3,
+  UsersRound,
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -45,6 +50,30 @@ export function Sidebar({
       roles: ["SCHOOL_ADMIN"],
     },
     {
+      label: "School",
+      href: "/school",
+      icon: School,
+      roles: ["SCHOOL_ADMIN"],
+    },
+    {
+      label: "Academic Years",
+      href: "/academic-years",
+      icon: CalendarDays,
+      roles: ["SCHOOL_ADMIN"],
+    },
+    {
+      label: "Members",
+      href: "/members",
+      icon: UserRound,
+      roles: ["SCHOOL_ADMIN"],
+    },
+    {
+      label: "Teaching Assignments",
+      href: "/teaching-assignments",
+      icon: ClipboardList,
+      roles: ["SCHOOL_ADMIN"],
+    },
+    {
       label: "Assessments",
       href: "/assessments",
       icon: FileCheck2,
@@ -67,6 +96,18 @@ export function Sidebar({
       href: "/subjects",
       icon: BookOpen,
       roles: ["TEACHER", "STUDENT", "PARENT", "SCHOOL_ADMIN"],
+    },
+    {
+      label: "Results",
+      href: "/results",
+      icon: BarChart3,
+      roles: ["TEACHER", "STUDENT", "PARENT"],
+    },
+    {
+      label: "Children",
+      href: "/children",
+      icon: UsersRound,
+      roles: ["PARENT"],
     },
   ];
 

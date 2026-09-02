@@ -138,8 +138,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     const demoProfiles: Record<UserRole, User> = {
       SCHOOL_ADMIN: {
         id: "demo-admin-id",
-        name: "Principal Marcus Vance",
-        email: "marcus.vance@schoolhub.edu",
+        name: "Bu Ratna",
+        email: "admin.garuda@learnhub.com",
         role: "SCHOOL_ADMIN",
         schoolMemberships: [
           {
@@ -152,8 +152,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       },
       TEACHER: {
         id: "demo-teacher-id",
-        name: "Prof. Sarah Jenkins",
-        email: "sarah.jenkins@schoolhub.edu",
+        name: "Bu Siti",
+        email: "teacher1.garuda@learnhub.com",
         role: "TEACHER",
         schoolMemberships: [
           {
@@ -166,14 +166,14 @@ export const useAuthStore = create<AuthState>((set) => ({
       },
       STUDENT: {
         id: "demo-student-id",
-        name: "Alex Rivera",
-        email: "alex.rivera@student.schoolhub.edu",
+        name: "Budi Santoso",
+        email: "student1.garuda@learnhub.com",
         role: "STUDENT",
       },
       PARENT: {
         id: "demo-parent-id",
-        name: "Eleanor Rivera",
-        email: "eleanor.rivera@family.com",
+        name: "Pak Agus",
+        email: "parent1.garuda@learnhub.com",
         role: "PARENT",
       },
     };
