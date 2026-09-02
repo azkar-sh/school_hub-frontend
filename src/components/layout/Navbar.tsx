@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useRoleThemeStore } from "@/stores/use-role-theme-store";
+import { useSchoolContextStore } from "@/stores/use-school-context-store";
 import { RoleThemeSwitcher } from "./RoleThemeSwitcher";
 import { ThemeToggle } from "./ThemeToggle";
 import { Badge } from "@/components/ui/badge";
@@ -14,13 +15,18 @@ import {
   Menu,
   User as UserIcon,
   ShieldAlert,
+  School as SchoolIcon,
 } from "lucide-react";
 
 export function Navbar({ onOpenMobileNav }: { onOpenMobileNav?: () => void }) {
   const { user, logout, isAuthenticated, isDemoMode } = useAuthStore();
   const { activeRole } = useRoleThemeStore();
+  const { userSchools, activeSchoolId, setActiveSchool } =
+    useSchoolContextStore();
 
   const currentRole = user?.role || activeRole;
+  const showSchoolSwitcher =
+    isAuthenticated && !isDemoMode && userSchools.length > 1;
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl">
@@ -61,6 +67,24 @@ export function Navbar({ onOpenMobileNav }: { onOpenMobileNav?: () => void }) {
         <div className="flex items-center gap-3">
           <RoleThemeSwitcher className="hidden md:flex" />
           <ThemeToggle />
+
+          {showSchoolSwitcher && (
+            <div className="hidden sm:flex items-center gap-1.5 h-9 px-2 rounded-xl border border-border/60 bg-muted/40">
+              <SchoolIcon className="w-4 h-4 text-primary shrink-0" />
+              <select
+                value={activeSchoolId}
+                onChange={(e) => setActiveSchool(e.target.value)}
+                className="bg-transparent text-xs font-semibold focus:outline-none max-w-[140px] truncate cursor-pointer"
+                title="Switch active school"
+              >
+                {userSchools.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {isAuthenticated && user && !isDemoMode ? (
             <div className="flex items-center gap-3 pl-2 border-l border-border/60">

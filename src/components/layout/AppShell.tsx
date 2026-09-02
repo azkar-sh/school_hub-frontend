@@ -9,9 +9,17 @@ import { useAuthStore } from '@/stores/use-auth-store';
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileNavOpen, setMobileNavOpen] = React.useState(false);
   const { activeRole } = useRoleThemeStore();
-  const { user } = useAuthStore();
+  const { user, token, fetchProfile } = useAuthStore();
 
   const currentRole = user?.role || activeRole;
+
+  // Restore the session (and the cached school context) on first dashboard
+  // load when we have a token but the user profile isn't in memory yet.
+  React.useEffect(() => {
+    if (token && !user) {
+      fetchProfile();
+    }
+  }, [token, user, fetchProfile]);
 
   React.useEffect(() => {
     document.documentElement.setAttribute('data-role', currentRole);
