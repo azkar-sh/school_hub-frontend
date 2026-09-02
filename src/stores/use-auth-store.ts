@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { User, UserRole } from "@/types";
 import { apiClient } from "@/lib/api-client";
+import { useSchoolContextStore } from "@/stores/use-school-context-store";
 
 type RawUser = Partial<User> & { userId?: string };
 
@@ -63,6 +64,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       isDemoMode: false,
       isLoading: false,
     });
+    useSchoolContextStore.getState().initFromUser(user);
   },
 
   logout: () => {
@@ -77,6 +79,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       isDemoMode: false,
       isLoading: false,
     });
+    useSchoolContextStore.getState().clear();
   },
 
   fetchProfile: async () => {
@@ -100,6 +103,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         isDemoMode: false,
         isLoading: false,
       });
+      useSchoolContextStore.getState().initFromUser(user);
       return;
     } catch {
       // Fallback to local storage when network is offline or token is invalid
@@ -117,6 +121,7 @@ export const useAuthStore = create<AuthState>((set) => ({
                 isDemoMode: isTokenDemo(token),
                 isLoading: false,
               });
+              useSchoolContextStore.getState().initFromUser(user);
               return;
             }
           } catch {
@@ -132,6 +137,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       isDemoMode: false,
       isLoading: false,
     });
+    useSchoolContextStore.getState().clear();
   },
 
   demoLoginAs: (role: UserRole) => {
@@ -192,5 +198,6 @@ export const useAuthStore = create<AuthState>((set) => ({
       isDemoMode: true,
       isLoading: false,
     });
+    useSchoolContextStore.getState().initFromUser(user);
   },
 }));

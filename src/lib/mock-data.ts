@@ -539,3 +539,440 @@ export function getMockStudentListForTeacher(): { id: string; name: string }[] {
     { id: "student4", name: "Andi Wijaya" },
   ];
 }
+
+// ---------------------------------------------------------------------------
+// Mock School Admin Dashboard Data
+// ---------------------------------------------------------------------------
+export interface MockSchoolAdminOverview {
+  teachersCount: number;
+  studentsCount: number;
+  classesCount: number;
+  subjectsCount: number;
+}
+
+export function getMockSchoolAdminOverview(): MockSchoolAdminOverview {
+  return {
+    teachersCount: 8,
+    studentsCount: 145,
+    classesCount: 4,
+    subjectsCount: 2,
+  };
+}
+
+export interface MockSchoolAdminAcademicYear {
+  name: string;
+  status: "Active" | "Closed";
+  classesCount: number;
+  studentsCount: number;
+}
+
+export function getMockSchoolAdminAcademicYear(): MockSchoolAdminAcademicYear {
+  return {
+    name: "2026/2027",
+    status: "Active",
+    classesCount: 4,
+    studentsCount: 145,
+  };
+}
+
+export interface MockRecentActivity {
+  id: string;
+  action: string;
+  user: string;
+  time: string;
+}
+
+export function getMockSchoolAdminRecentActivity(): MockRecentActivity[] {
+  return [
+    {
+      id: "1",
+      action: 'Created assessment "Mathematics Quiz 1"',
+      user: "Bu Siti",
+      time: "2 hours ago",
+    },
+    {
+      id: "2",
+      action: "Enrolled student in class 8A",
+      user: "Bu Ratna",
+      time: "5 hours ago",
+    },
+    {
+      id: "3",
+      action: "Submitted Science Homework 1",
+      user: "Budi Santoso",
+      time: "1 day ago",
+    },
+    {
+      id: "4",
+      action: "Created academic year 2026/2027",
+      user: "Bu Ratna",
+      time: "2 days ago",
+    },
+  ];
+}
+
+// ---------------------------------------------------------------------------
+// Mock Teacher Dashboard Classes
+// ---------------------------------------------------------------------------
+export interface MockTeacherDashboardClass {
+  id: string;
+  name: string;
+  subject: string;
+  studentCount: number;
+  assessmentCount: number;
+}
+
+export function getMockTeacherDashboardClasses(): MockTeacherDashboardClass[] {
+  return [
+    {
+      id: "c1",
+      name: "8A",
+      subject: "Mathematics",
+      studentCount: 28,
+      assessmentCount: 3,
+    },
+    {
+      id: "c2",
+      name: "8A",
+      subject: "Science",
+      studentCount: 28,
+      assessmentCount: 2,
+    },
+    {
+      id: "c3",
+      name: "8B",
+      subject: "Mathematics",
+      studentCount: 30,
+      assessmentCount: 2,
+    },
+  ];
+}
+
+// ---------------------------------------------------------------------------
+// Mock Student Dashboard Data
+// ---------------------------------------------------------------------------
+export interface MockStudentClassInfo {
+  id: string;
+  name: string;
+  grade: number;
+  homeroomTeacher: string;
+  academicYear: string;
+}
+
+export function getMockStudentClassInfo(): MockStudentClassInfo {
+  return {
+    id: "c1",
+    name: "8A",
+    grade: 8,
+    homeroomTeacher: "Bu Siti",
+    academicYear: "2026/2027",
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Mock Recent Results (Student & Parent)
+// ---------------------------------------------------------------------------
+export interface MockRecentResult {
+  id: string;
+  assessment: string;
+  subject: string;
+  score: number;
+  date: string;
+}
+
+export function getMockStudentRecentResults(): MockRecentResult[] {
+  return [
+    {
+      id: "1",
+      assessment: "Mathematics Quiz 1 - 8B",
+      subject: "Mathematics",
+      score: 75,
+      date: "Aug 23, 2026",
+    },
+    {
+      id: "2",
+      assessment: "Science Homework 1 - 8A",
+      subject: "Science",
+      score: 90,
+      date: "Aug 20, 2026",
+    },
+  ];
+}
+
+// ---------------------------------------------------------------------------
+// Mock Parent Dashboard Data
+// ---------------------------------------------------------------------------
+export interface MockParentChild {
+  id: string;
+  name: string;
+  className: string;
+  latestResult: string;
+}
+
+export function getMockParentChildren(): MockParentChild[] {
+  return [
+    {
+      id: "student1",
+      name: "Budi Santoso",
+      className: "8A",
+      latestResult: "Math Quiz: 75%",
+    },
+  ];
+}
+
+export function getMockParentRecentResults(): MockRecentResult[] {
+  return [
+    {
+      id: "1",
+      assessment: "Mathematics Quiz 1 - 8B",
+      subject: "Mathematics",
+      score: 75,
+      date: "Aug 23, 2026",
+    },
+    {
+      id: "2",
+      assessment: "Science Homework 1 - 8A",
+      subject: "Science",
+      score: 90,
+      date: "Aug 20, 2026",
+    },
+  ];
+}
+
+// ---------------------------------------------------------------------------
+// Mock School Members (for /members page)
+// ---------------------------------------------------------------------------
+export interface MockMember {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  schoolName: string;
+}
+
+export function getMockMembers(): MockMember[] {
+  return [
+    {
+      id: "member-1",
+      name: "Bu Ratna",
+      email: "admin.garuda@learnhub.com",
+      role: "SCHOOL_ADMIN",
+      schoolName: "SMA Garuda Hope",
+    },
+    {
+      id: "member-2",
+      name: "Bu Siti",
+      email: "teacher1.garuda@learnhub.com",
+      role: "TEACHER",
+      schoolName: "SMA Garuda Hope",
+    },
+    {
+      id: "member-3",
+      name: "Pak Hendra",
+      email: "teacher2.garuda@learnhub.com",
+      role: "TEACHER",
+      schoolName: "SMA Garuda Hope",
+    },
+    {
+      id: "member-4",
+      name: "Budi Santoso",
+      email: "student1.garuda@learnhub.com",
+      role: "STUDENT",
+      schoolName: "SMA Garuda Hope",
+    },
+    {
+      id: "member-5",
+      name: "Siti Rahma",
+      email: "student2.garuda@learnhub.com",
+      role: "STUDENT",
+      schoolName: "SMA Garuda Hope",
+    },
+    {
+      id: "member-6",
+      name: "Dewi Lestari",
+      email: "student3.garuda@learnhub.com",
+      role: "STUDENT",
+      schoolName: "SMA Garuda Hope",
+    },
+    {
+      id: "member-7",
+      name: "Andi Wijaya",
+      email: "student4.garuda@learnhub.com",
+      role: "STUDENT",
+      schoolName: "SMA Garuda Hope",
+    },
+    {
+      id: "member-8",
+      name: "Pak Agus",
+      email: "parent1.garuda@learnhub.com",
+      role: "PARENT",
+      schoolName: "SMA Garuda Hope",
+    },
+    {
+      id: "member-9",
+      name: "Bu Yuni",
+      email: "parent2.garuda@learnhub.com",
+      role: "PARENT",
+      schoolName: "SMA Garuda Hope",
+    },
+  ];
+}
+
+// ---------------------------------------------------------------------------
+// Mock Child Detail (for /children/:studentId page)
+// ---------------------------------------------------------------------------
+export interface MockChildDetail {
+  id: string;
+  name: string;
+  className: string;
+  grade: number;
+  assessmentCount: number;
+  average: number;
+}
+
+export function getMockChildDetail(studentId: string): MockChildDetail {
+  return {
+    id: studentId,
+    name: "Budi Santoso",
+    className: "8A",
+    grade: 8,
+    assessmentCount: 4,
+    average: 82,
+  };
+}
+
+export function getMockChildAssessmentResults(
+  _studentId: string,
+): MockRecentResult[] {
+  return [
+    {
+      id: "1",
+      assessment: "Mathematics Quiz 1 - 8A",
+      subject: "Mathematics",
+      score: 100,
+      date: "Aug 25, 2026",
+    },
+    {
+      id: "2",
+      assessment: "Mathematics Quiz 1 - 8B",
+      subject: "Mathematics",
+      score: 75,
+      date: "Aug 23, 2026",
+    },
+    {
+      id: "3",
+      assessment: "Science Homework 1 - 8A",
+      subject: "Science",
+      score: 90,
+      date: "Aug 20, 2026",
+    },
+    {
+      id: "4",
+      assessment: "Science Quiz 1 - 8A",
+      subject: "Science",
+      score: 64,
+      date: "Aug 18, 2026",
+    },
+  ];
+}
+
+// ---------------------------------------------------------------------------
+// Mock Parent Children List (expanded with assessment count & average)
+// ---------------------------------------------------------------------------
+export interface MockParentChildDetail {
+  id: string;
+  name: string;
+  className: string;
+  assessmentCount: number;
+  average: number;
+}
+
+export function getMockParentChildrenDetail(): MockParentChildDetail[] {
+  return [
+    {
+      id: "student1",
+      name: "Budi Santoso",
+      className: "8A",
+      assessmentCount: 4,
+      average: 82,
+    },
+  ];
+}
+
+// ---------------------------------------------------------------------------
+// Mock Teacher Results (for /results page - teacher view)
+// ---------------------------------------------------------------------------
+export interface MockTeacherResultRow {
+  id: string;
+  student: string;
+  assessment: string;
+  subject: string;
+  class: string;
+  score: number;
+}
+
+export interface MockTeacherResultsSummary {
+  average: number;
+  highest: number;
+  lowest: number;
+}
+
+export function getMockTeacherResults(): MockTeacherResultRow[] {
+  return [
+    {
+      id: "1",
+      student: "Budi Santoso",
+      assessment: "Mathematics Quiz 1 - 8A",
+      subject: "Mathematics",
+      class: "8A",
+      score: 100,
+    },
+    {
+      id: "2",
+      student: "Siti Rahma",
+      assessment: "Mathematics Quiz 1 - 8A",
+      subject: "Mathematics",
+      class: "8A",
+      score: 85,
+    },
+    {
+      id: "3",
+      student: "Dewi Lestari",
+      assessment: "Science Quiz 1 - 8A",
+      subject: "Science",
+      class: "8A",
+      score: 92,
+    },
+    {
+      id: "4",
+      student: "Andi Wijaya",
+      assessment: "Science Homework 1 - 8A",
+      subject: "Science",
+      class: "8A",
+      score: 60,
+    },
+    {
+      id: "5",
+      student: "Budi Santoso",
+      assessment: "Mathematics Quiz 1 - 8B",
+      subject: "Mathematics",
+      class: "8B",
+      score: 75,
+    },
+  ];
+}
+
+export function getMockTeacherResultsSummary(
+  rows: MockTeacherResultRow[],
+): MockTeacherResultsSummary {
+  if (rows.length === 0) {
+    return { average: 0, highest: 0, lowest: 0 };
+  }
+  const scores = rows.map((r) => r.score);
+  const sum = scores.reduce((acc, s) => acc + s, 0);
+  return {
+    average: Math.round(sum / scores.length),
+    highest: Math.max(...scores),
+    lowest: Math.min(...scores),
+  };
+}
