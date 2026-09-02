@@ -6,12 +6,13 @@ import { useAuthStore } from '@/stores/use-auth-store';
 import { useRoleThemeStore } from '@/stores/use-role-theme-store';
 import { getMockAssessments, MockAssessment } from '@/lib/mock-data';
 import { apiClient } from '@/lib/api-client';
+import { useFetchData } from '@/lib/use-fetch-data';
 import { DemoModeBanner } from '@/components/ui/DemoModeBanner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { PlusCircle, Search, FileCheck2, Clock, CheckCircle2, BookOpen, Loader2, BarChart3 } from 'lucide-react';
+import { PlusCircle, Search, Clock, CheckCircle2, BookOpen, Loader2, BarChart3 } from 'lucide-react';
 
 interface LiveAssessment {
   id: string;
@@ -42,37 +43,24 @@ export default function AssessmentsPage() {
   const { activeRole } = useRoleThemeStore();
   const [search, setSearch] = React.useState('');
   const [filterType, setFilterType] = React.useState<string>('ALL');
-  const [liveItems, setLiveItems] = React.useState<MockAssessment[]>([]);
-  const [isLoadingLive, setIsLoadingLive] = React.useState(false);
-  const [liveFetchError, setLiveFetchError] = React.useState(false);
 
   const currentRole = user?.role || activeRole;
 
   // Fetch live data for authenticated (non-demo) users
-  React.useEffect(() => {
-    if (isDemoMode) return;
+  const shouldFetchLive = !isDemoMode && (currentRole === 'TEACHER' || currentRole === 'STUDENT');
+  const liveEndpoint =
+    currentRole === 'TEACHER' ? '/assessments/teacher' : currentRole === 'STUDENT' ? '/assessments/student' : null;
 
-    const endpoint =
-      currentRole === 'TEACHER'
-        ? '/assessments/teacher'
-        : currentRole === 'STUDENT'
-        ? '/assessments/student'
-        : null;
-
-    if (!endpoint) return;
-
-    setIsLoadingLive(true);
-    setLiveFetchError(false);
-
-    apiClient
-      .get(endpoint)
-      .then((res) => {
+  const { data: liveData, isLoading: isLoadingLive, error: liveFetchError } = useFetchData<MockAssessment[]>(
+    () =>
+      apiClient.get<LiveAssessment[]>(liveEndpoint!).then((res) => {
         const raw: LiveAssessment[] = Array.isArray(res.data) ? res.data : [];
-        setLiveItems(raw.map((a) => toDisplayItem(a, currentRole)));
-      })
-      .catch(() => setLiveFetchError(true))
-      .finally(() => setIsLoadingLive(false));
-  }, [isDemoMode, currentRole]);
+        return raw.map((a) => toDisplayItem(a, currentRole));
+      }),
+    [currentRole],
+    shouldFetchLive && !!liveEndpoint,
+  );
+  const liveItems = liveData ?? [];
 
   // Source: mock data in demo mode, live data otherwise
   const sourceItems = isDemoMode ? getMockAssessments(currentRole) : liveItems;

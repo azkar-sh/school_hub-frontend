@@ -48,7 +48,7 @@ export default function AssessmentPlayerPage() {
     null,
   );
 
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(!isDemoMode && !!assessmentId);
   const [isSubmittingApi, setIsSubmittingApi] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
 
@@ -105,14 +105,12 @@ export default function AssessmentPlayerPage() {
   React.useEffect(() => {
     if (isDemoMode || !assessmentId) return;
 
-    setIsLoading(true);
-    setErrorMsg(null);
-
     assessmentsApi
       .findOne(assessmentId)
       .then(async (res) => {
         const data = res.data;
         setAssessment(data);
+        setErrorMsg(null);
 
         // Start submission attempt if student
         if (user?.role === "STUDENT") {

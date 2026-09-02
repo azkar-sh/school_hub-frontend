@@ -6,12 +6,13 @@ import { useRoleThemeStore } from "@/stores/use-role-theme-store";
 import { getMockClasses } from "@/lib/mock-data";
 import {
   classesApi,
-  schoolsApi,
   academicYearsApi,
   usersApi,
 } from "@/lib/api-client";
+import { useFetchData } from "@/lib/use-fetch-data";
+import { useSchoolSelection } from "@/lib/use-school-selection";
 import { getErrorMessage } from "@/lib/errors";
-import { Class, School, AcademicYear, User } from "@/types";
+import { Class, AcademicYear, User } from "@/types";
 import { DemoModeBanner } from "@/components/ui/DemoModeBanner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,15 +42,16 @@ export default function ClassesPage() {
   const { activeRole } = useRoleThemeStore();
   const currentRole = user?.role || activeRole;
 
-  // Real backend state
-  const [classesList, setClassesList] = React.useState<Class[]>([]);
-  const [schools, setSchools] = React.useState<School[]>([]);
-  const [selectedSchoolId, setSelectedSchoolId] = React.useState<string>("");
+  // School selection is cached & shared across all dashboard pages
+  const {
+    schools,
+    selectedSchoolId,
+    setSelectedSchoolId,
+  } = useSchoolSelection();
   const [academicYears, setAcademicYears] = React.useState<AcademicYear[]>([]);
   const [selectedAyId, setSelectedAyId] = React.useState<string>("");
   const [usersList, setUsersList] = React.useState<User[]>([]);
 
-  const [isLoading, setIsLoading] = React.useState(false);
   const [feedbackMsg, setFeedbackMsg] = React.useState<string | null>(null);
 
   // Modals State
@@ -70,11 +72,6 @@ export default function ClassesPage() {
   // Initial fetch for real users
   React.useEffect(() => {
     if (isDemoMode) return;
-    schoolsApi.findAll().then((res) => {
-      const list = Array.isArray(res.data) ? res.data : [];
-      setSchools(list);
-      if (list.length > 0) setSelectedSchoolId(list[0].id);
-    });
     usersApi.findAll({ limit: 100 }).then((res) => {
       setUsersList(Array.isArray(res.data) ? res.data : []);
     });
@@ -90,27 +87,16 @@ export default function ClassesPage() {
     }
   }, [selectedSchoolId, isDemoMode]);
 
-  const loadClasses = React.useCallback(
-    async (schoolId: string, ayId?: string) => {
-      if (!schoolId) return;
-      setIsLoading(true);
-      try {
-        const res = await classesApi.findBySchool(schoolId, ayId);
-        setClassesList(Array.isArray(res.data) ? res.data : []);
-      } catch {
-        setClassesList([]);
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [],
+  // Fetch classes via hook (no sync setState in effects)
+  const { data: classesData, isLoading, refetch: refetchClasses } = useFetchData(
+    () =>
+      classesApi
+        .findBySchool(selectedSchoolId, selectedAyId)
+        .then((res) => (Array.isArray(res.data) ? res.data : [])),
+    [selectedSchoolId, selectedAyId],
+    !isDemoMode && !!selectedSchoolId,
   );
-
-  React.useEffect(() => {
-    if (!isDemoMode && selectedSchoolId) {
-      loadClasses(selectedSchoolId, selectedAyId);
-    }
-  }, [isDemoMode, selectedSchoolId, selectedAyId, loadClasses]);
+  const classesList = (classesData ?? []) as Class[];
 
   // Handlers
   const handleCreateClass = async (e: React.FormEvent) => {
@@ -131,7 +117,7 @@ export default function ClassesPage() {
       setClassNameInput("");
       setShowCreateClassModal(false);
       setFeedbackMsg("Class created successfully!");
-      loadClasses(selectedSchoolId, selectedAyId);
+      refetchClasses();
     } catch (error) {
       setFeedbackMsg(getErrorMessage(error, "Failed to create class"));
     }
@@ -153,7 +139,7 @@ export default function ClassesPage() {
       setEnrollStudentId("");
       setActiveEnrollClassId(null);
       setFeedbackMsg("Student enrolled successfully!");
-      if (selectedSchoolId) loadClasses(selectedSchoolId, selectedAyId);
+      if (selectedSchoolId) refetchClasses();
     } catch (error) {
       setFeedbackMsg(getErrorMessage(error, "Failed to enroll student"));
     }
@@ -175,7 +161,7 @@ export default function ClassesPage() {
       setHomeroomTeacherId("");
       setActiveHomeroomClassId(null);
       setFeedbackMsg("Homeroom teacher assigned successfully!");
-      if (selectedSchoolId) loadClasses(selectedSchoolId, selectedAyId);
+      if (selectedSchoolId) refetchClasses();
     } catch (error) {
       setFeedbackMsg(
         getErrorMessage(error, "Failed to assign homeroom teacher"),

@@ -11,8 +11,8 @@ import {
   assessmentsApi,
   teachingAssignmentsApi,
   subjectsApi,
-  schoolsApi,
 } from "@/lib/api-client";
+import { useSchoolContextStore } from "@/stores/use-school-context-store";
 import { getErrorMessage } from "@/lib/errors";
 import {
   CreateAssessmentDto,
@@ -97,27 +97,25 @@ export default function NewAssessmentPage() {
       })
       .catch(() => {});
 
-    schoolsApi
-      .findAll()
-      .then(async (res) => {
-        const schoolsList = Array.isArray(res.data) ? res.data : [];
-        if (schoolsList.length > 0) {
-          const subjectsRes = await subjectsApi.findSubjectsBySchool(
-            schoolsList[0].id,
-          );
-          const subs = Array.isArray(subjectsRes.data) ? subjectsRes.data : [];
-          const allSubTopics: SubTopic[] = [];
-          subs.forEach((sub) => {
-            sub.topics?.forEach((top) => {
-              top.subTopics?.forEach((st) => {
-                allSubTopics.push(st);
-              });
+    // Use the cached active school (the teacher's school) instead of always
+    // picking the first school returned by findAll().
+    const activeSchoolId = useSchoolContextStore.getState().activeSchoolId;
+    if (!activeSchoolId) return;
+    subjectsApi
+      .findSubjectsBySchool(activeSchoolId)
+      .then((res) => {
+        const subs = Array.isArray(res.data) ? res.data : [];
+        const allSubTopics: SubTopic[] = [];
+        subs.forEach((sub) => {
+          sub.topics?.forEach((top) => {
+            top.subTopics?.forEach((st) => {
+              allSubTopics.push(st);
             });
           });
-          setSubTopics(allSubTopics);
-          if (allSubTopics.length > 0)
-            setSelectedSubTopicId(allSubTopics[0].id);
-        }
+        });
+        setSubTopics(allSubTopics);
+        if (allSubTopics.length > 0)
+          setSelectedSubTopicId(allSubTopics[0].id);
       })
       .catch(() => {});
   }, [isDemoMode, user?.id, selectedAssignmentId]);

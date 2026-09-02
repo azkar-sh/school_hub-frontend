@@ -10,9 +10,10 @@ import {
   usersApi,
   parentStudentsApi,
 } from "@/lib/api-client";
+import { useFetchData } from "@/lib/use-fetch-data";
+import { useSchoolSelection } from "@/lib/use-school-selection";
 import { getErrorMessage } from "@/lib/errors";
 import {
-  School,
   AcademicYear,
   TeachingAssignment,
   User,
@@ -54,16 +55,16 @@ export default function AdminPage() {
   >("schools");
 
   // State
-  const [schools, setSchools] = React.useState<School[]>([]);
-  const [selectedSchoolId, setSelectedSchoolId] = React.useState<string>("");
-  const [academicYears, setAcademicYears] = React.useState<AcademicYear[]>([]);
-  const [schoolMembers, setSchoolMembers] = React.useState<SchoolMember[]>([]);
-  const [usersList, setUsersList] = React.useState<User[]>([]);
+  const {
+    schools,
+    selectedSchoolId,
+    setSelectedSchoolId,
+    refetch: refetchSchools,
+  } = useSchoolSelection({ fetchAllForAdmin: true });
   const [assignments, setAssignments] = React.useState<TeachingAssignment[]>(
     [],
   );
 
-  const [isLoading, setIsLoading] = React.useState(false);
   const [feedback, setFeedback] = React.useState<{
     type: "success" | "error";
     message: string;
@@ -90,17 +91,10 @@ export default function AdminPage() {
     React.useState<ParentRelationship>("FATHER");
 
   // Demo Fallback Data
-  const demoSchools: School[] = [
-    {
-      id: "school-1",
-      name: "SMA Garuda Hope",
-      createdAt: new Date().toISOString(),
-    },
-  ];
   const demoAcademicYears: AcademicYear[] = [
     {
       id: "ay-1",
-      schoolId: "school-1",
+      schoolId: "demo-school-id",
       name: "2025/2026",
       startsAt: "2025-07-01",
       endsAt: "2026-06-30",
@@ -108,7 +102,7 @@ export default function AdminPage() {
     },
     {
       id: "ay-2",
-      schoolId: "school-1",
+      schoolId: "demo-school-id",
       name: "2026/2027",
       startsAt: "2026-07-01",
       endsAt: "2027-06-30",
@@ -116,80 +110,32 @@ export default function AdminPage() {
     },
   ];
 
-  // Fetch initial data
-  const loadSchools = React.useCallback(async () => {
-    if (isDemoMode) {
-      setSchools(demoSchools);
-      if (demoSchools[0]) setSelectedSchoolId(demoSchools[0].id);
-      return;
-    }
-    try {
-      setIsLoading(true);
-      const res = await schoolsApi.findAll();
-      const list = Array.isArray(res.data) ? res.data : [];
-      setSchools(list);
-      if (list.length > 0 && !selectedSchoolId) {
-        setSelectedSchoolId(list[0].id);
-      }
-    } catch {
-      setFeedback({ type: "error", message: "Failed to fetch schools" });
-    } finally {
-      setIsLoading(false);
-    }
-  }, [isDemoMode]);
-
-  const loadAcademicYears = React.useCallback(
-    async (schoolId: string) => {
-      if (!schoolId) return;
-      if (isDemoMode) {
-        setAcademicYears(demoAcademicYears);
-        return;
-      }
-      try {
-        const res = await academicYearsApi.findBySchool(schoolId);
-        setAcademicYears(Array.isArray(res.data) ? res.data : []);
-      } catch {
-        setAcademicYears([]);
-      }
-    },
-    [isDemoMode],
+  // Fetch academic years via hook
+  const { data: academicYearsData, refetch: refetchAcademicYears } = useFetchData(
+    () => academicYearsApi.findBySchool(selectedSchoolId).then((res) => (Array.isArray(res.data) ? res.data : [])),
+    [selectedSchoolId],
+    !isDemoMode && !!selectedSchoolId,
   );
+  const academicYears = isDemoMode ? demoAcademicYears : (academicYearsData ?? []);
 
-  const loadSchoolMembers = React.useCallback(
-    async (schoolId: string) => {
-      if (!schoolId) return;
-      if (isDemoMode) return;
-      try {
-        const res = await schoolsApi.getMembers(schoolId);
-        setSchoolMembers(Array.isArray(res.data) ? res.data : []);
-      } catch {
-        setSchoolMembers([]);
-      }
-    },
-    [isDemoMode],
+  // Mutation loading state (for form submit buttons — used in event handlers, NOT effects)
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  // Fetch school members via hook
+  const { data: membersData, refetch: refetchMembers } = useFetchData(
+    () => schoolsApi.getMembers(selectedSchoolId).then((res) => (Array.isArray(res.data) ? res.data : [])),
+    [selectedSchoolId],
+    !isDemoMode && !!selectedSchoolId,
   );
+  const schoolMembers = (membersData ?? []) as SchoolMember[];
 
-  const loadUsers = React.useCallback(async () => {
-    if (isDemoMode) return;
-    try {
-      const res = await usersApi.findAll({ limit: 100 });
-      setUsersList(Array.isArray(res.data) ? res.data : []);
-    } catch {
-      setUsersList([]);
-    }
-  }, [isDemoMode]);
-
-  React.useEffect(() => {
-    loadSchools();
-    loadUsers();
-  }, [loadSchools, loadUsers]);
-
-  React.useEffect(() => {
-    if (selectedSchoolId) {
-      loadAcademicYears(selectedSchoolId);
-      loadSchoolMembers(selectedSchoolId);
-    }
-  }, [selectedSchoolId, loadAcademicYears, loadSchoolMembers]);
+  // Fetch users via hook
+  const { data: usersData } = useFetchData(
+    () => usersApi.findAll({ limit: 100 }).then((res) => (Array.isArray(res.data) ? res.data : [])),
+    [],
+    !isDemoMode,
+  );
+  const usersList = usersData ?? [];
 
   // Handlers
   const handleCreateSchool = async (e: React.FormEvent) => {
@@ -199,11 +145,6 @@ export default function AdminPage() {
       setFeedback(null);
       setIsLoading(true);
       if (isDemoMode) {
-        const newSchool: School = {
-          id: `school-${Date.now()}`,
-          name: schoolName,
-        };
-        setSchools((prev) => [...prev, newSchool]);
         setSchoolName("");
         setFeedback({ type: "success", message: "School created (Demo Mode)" });
         return;
@@ -211,7 +152,7 @@ export default function AdminPage() {
       await schoolsApi.create({ name: schoolName });
       setSchoolName("");
       setFeedback({ type: "success", message: "School created successfully!" });
-      loadSchools();
+      refetchSchools();
     } catch (error) {
       setFeedback({
         type: "error",
@@ -229,15 +170,6 @@ export default function AdminPage() {
       setFeedback(null);
       setIsLoading(true);
       if (isDemoMode) {
-        const newAy: AcademicYear = {
-          id: `ay-${Date.now()}`,
-          schoolId: selectedSchoolId,
-          name: ayName,
-          startsAt: ayStartsAt,
-          endsAt: ayEndsAt,
-          isActive: true,
-        };
-        setAcademicYears((prev) => [...prev, newAy]);
         setAyName("");
         setFeedback({
           type: "success",
@@ -258,7 +190,7 @@ export default function AdminPage() {
         type: "success",
         message: "Academic year created successfully!",
       });
-      loadAcademicYears(selectedSchoolId);
+      refetchAcademicYears();
     } catch (error) {
       setFeedback({
         type: "error",
@@ -288,7 +220,7 @@ export default function AdminPage() {
         type: "success",
         message: "School member added successfully!",
       });
-      loadSchoolMembers(selectedSchoolId);
+      refetchMembers();
     } catch (error) {
       setFeedback({
         type: "error",

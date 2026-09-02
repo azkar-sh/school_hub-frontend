@@ -4,9 +4,11 @@ import * as React from "react";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useRoleThemeStore } from "@/stores/use-role-theme-store";
 import { getMockSubjects } from "@/lib/mock-data";
-import { subjectsApi, schoolsApi } from "@/lib/api-client";
+import { subjectsApi } from "@/lib/api-client";
+import { useFetchData } from "@/lib/use-fetch-data";
+import { useSchoolSelection } from "@/lib/use-school-selection";
 import { getErrorMessage } from "@/lib/errors";
-import { Subject, School } from "@/types";
+import { Subject } from "@/types";
 import { DemoModeBanner } from "@/components/ui/DemoModeBanner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,11 +35,12 @@ export default function SubjectsPage() {
   const { activeRole } = useRoleThemeStore();
   const currentRole = user?.role || activeRole;
 
-  // Real backend subjects state
-  const [subjectsList, setSubjectsList] = React.useState<Subject[]>([]);
-  const [schools, setSchools] = React.useState<School[]>([]);
-  const [selectedSchoolId, setSelectedSchoolId] = React.useState<string>("");
-  const [isLoading, setIsLoading] = React.useState(false);
+  // School selection is cached & shared across all dashboard pages
+  const {
+    schools,
+    selectedSchoolId,
+    setSelectedSchoolId,
+  } = useSchoolSelection();
   const [feedbackMsg, setFeedbackMsg] = React.useState<string | null>(null);
 
   // Modal / Form Dialog States
@@ -57,38 +60,16 @@ export default function SubjectsPage() {
   const [newSubTopicName, setNewSubTopicName] = React.useState("");
   const [newSubTopicDesc, setNewSubTopicDesc] = React.useState("");
 
-  // Fetch schools for real users
-  React.useEffect(() => {
-    if (isDemoMode) return;
-    schoolsApi
-      .findAll()
-      .then((res) => {
-        const list = Array.isArray(res.data) ? res.data : [];
-        setSchools(list);
-        if (list.length > 0) setSelectedSchoolId(list[0].id);
-      })
-      .catch(() => {});
-  }, [isDemoMode]);
-
-  // Fetch subjects for selected school
-  const loadSubjects = React.useCallback(async (schoolId: string) => {
-    if (!schoolId) return;
-    setIsLoading(true);
-    try {
-      const res = await subjectsApi.findSubjectsBySchool(schoolId);
-      setSubjectsList(Array.isArray(res.data) ? res.data : []);
-    } catch {
-      setSubjectsList([]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  React.useEffect(() => {
-    if (!isDemoMode && selectedSchoolId) {
-      loadSubjects(selectedSchoolId);
-    }
-  }, [isDemoMode, selectedSchoolId, loadSubjects]);
+  // Fetch subjects via hook (no sync setState in effects)
+  const { data: subjectsData, isLoading, refetch: refetchSubjects } = useFetchData(
+    () =>
+      subjectsApi
+        .findSubjectsBySchool(selectedSchoolId)
+        .then((res) => (Array.isArray(res.data) ? res.data : [])),
+    [selectedSchoolId],
+    !isDemoMode && !!selectedSchoolId,
+  );
+  const subjectsList = (subjectsData ?? []) as Subject[];
 
   // Handlers
   const handleCreateSubject = async (e: React.FormEvent) => {
@@ -113,7 +94,7 @@ export default function SubjectsPage() {
       setNewSubjectCode("");
       setShowAddSubjectModal(false);
       setFeedbackMsg("Subject created successfully!");
-      loadSubjects(selectedSchoolId);
+      refetchSubjects();
     } catch (error) {
       setFeedbackMsg(getErrorMessage(error, "Failed to create subject"));
     }
@@ -137,7 +118,7 @@ export default function SubjectsPage() {
       setNewTopicDesc("");
       setActiveTopicSubjectId(null);
       setFeedbackMsg("Topic added successfully!");
-      if (selectedSchoolId) loadSubjects(selectedSchoolId);
+      if (selectedSchoolId) refetchSubjects();
     } catch (error) {
       setFeedbackMsg(getErrorMessage(error, "Failed to add topic"));
     }
@@ -161,7 +142,7 @@ export default function SubjectsPage() {
       setNewSubTopicDesc("");
       setActiveSubTopicTopicId(null);
       setFeedbackMsg("Sub-topic added successfully!");
-      if (selectedSchoolId) loadSubjects(selectedSchoolId);
+      if (selectedSchoolId) refetchSubjects();
     } catch (error) {
       setFeedbackMsg(getErrorMessage(error, "Failed to add sub-topic"));
     }
