@@ -106,3 +106,142 @@ export function getMockTeacherResultsSummary(
     lowest: Math.min(...scores),
   };
 }
+
+export interface MockTeacherSubjectAssessment {
+  assessmentId: string;
+  submissionId: string;
+  title: string;
+  type: "QUIZ" | "EXAM" | "ASSIGNMENT";
+  classId: string;
+  className: string;
+  scorePercentage: number | null;
+  submittedAt?: string;
+  status: "SUBMITTED" | "GRADED";
+}
+
+export interface MockTeacherSubjectStudent {
+  studentId: string;
+  studentName: string;
+  averageScore: number;
+  assessmentCount: number;
+  assessments: MockTeacherSubjectAssessment[];
+}
+
+export interface MockTeacherSubjectResult {
+  subjectId: string;
+  subjectName: string;
+  subjectCode: string;
+  averageScore: number;
+  studentCount: number;
+  students: MockTeacherSubjectStudent[];
+}
+
+export function getMockTeacherSubjectResults(): MockTeacherSubjectResult[] {
+  return [
+    {
+      subjectId: "sub-math",
+      subjectName: "Mathematics",
+      subjectCode: "MATH",
+      averageScore: 87,
+      studentCount: 2,
+      students: [
+        {
+          studentId: "u-budi",
+          studentName: "Budi Santoso",
+          averageScore: 88,
+          assessmentCount: 2,
+          assessments: [
+            {
+              assessmentId: "1",
+              submissionId: "s1",
+              title: "Mathematics Quiz 1 - 8A",
+              type: "QUIZ",
+              classId: "c1",
+              className: "8A",
+              scorePercentage: 100,
+              submittedAt: "2026-08-23",
+              status: "GRADED",
+            },
+            {
+              assessmentId: "4",
+              submissionId: "s5",
+              title: "Mathematics Quiz 1 - 8B",
+              type: "QUIZ",
+              classId: "c3",
+              className: "8B",
+              scorePercentage: 75,
+              submittedAt: "2026-09-01",
+              status: "GRADED",
+            },
+          ],
+        },
+        {
+          studentId: "u-siti",
+          studentName: "Siti Rahma",
+          averageScore: 85,
+          assessmentCount: 1,
+          assessments: [
+            {
+              assessmentId: "1",
+              submissionId: "s2",
+              title: "Mathematics Quiz 1 - 8A",
+              type: "QUIZ",
+              classId: "c1",
+              className: "8A",
+              scorePercentage: 85,
+              submittedAt: "2026-08-23",
+              status: "GRADED",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      subjectId: "sub-sci",
+      subjectName: "Science",
+      subjectCode: "SCI",
+      averageScore: 76,
+      studentCount: 2,
+      students: [
+        {
+          studentId: "u-dewi",
+          studentName: "Dewi Lestari",
+          averageScore: 92,
+          assessmentCount: 1,
+          assessments: [
+            {
+              assessmentId: "2",
+              submissionId: "s3",
+              title: "Science Quiz 1 - 8A",
+              type: "EXAM",
+              classId: "c2",
+              className: "8A",
+              scorePercentage: 92,
+              submittedAt: "2026-09-05",
+              status: "GRADED",
+            },
+          ],
+        },
+        {
+          studentId: "u-andi",
+          studentName: "Andi Wijaya",
+          averageScore: 60,
+          assessmentCount: 1,
+          assessments: [
+            {
+              assessmentId: "3",
+              submissionId: "s4",
+              title: "Science Homework 1 - 8A",
+              type: "ASSIGNMENT",
+              classId: "c2",
+              className: "8A",
+              scorePercentage: 60,
+              submittedAt: "2026-08-20",
+              status: "SUBMITTED",
+            },
+          ],
+        },
+      ],
+    },
+  ];
+}

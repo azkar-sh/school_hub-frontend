@@ -6,15 +6,20 @@ import { StudentResultsView } from "./_components/StudentResultsView";
 import { ParentResultsView } from "./_components/ParentResultsView";
 
 export default function ResultsPage() {
-  const { isDemoMode, currentRole, liveAssessments, isLoading } =
-    useResultsPage();
+  const {
+    isDemoMode,
+    currentRole,
+    isLoading,
+    studentSubjects,
+    teacherSubjects,
+  } = useResultsPage();
 
   if (currentRole === "TEACHER") {
     return (
       <TeacherResultsView
         isDemoMode={isDemoMode}
         isLoading={isLoading}
-        liveAssessments={liveAssessments}
+        teacherSubjects={teacherSubjects}
       />
     );
   }
@@ -24,7 +29,7 @@ export default function ResultsPage() {
       <StudentResultsView
         isDemoMode={isDemoMode}
         isLoading={isLoading}
-        liveAssessments={liveAssessments}
+        studentSubjects={studentSubjects}
       />
     );
   }
