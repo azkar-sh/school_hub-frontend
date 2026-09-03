@@ -139,10 +139,6 @@ export default function RegisterPage() {
                       label: "Parent (Monitor child progress)",
                       value: "PARENT",
                     },
-                    {
-                      label: "School Administrator (Manage schools & classes)",
-                      value: "SCHOOL_ADMIN",
-                    },
                   ]}
                 />
 
