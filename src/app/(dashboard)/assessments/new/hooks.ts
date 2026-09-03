@@ -31,6 +31,11 @@ const DEFAULT_OPTIONS: NewQuestionOption[] = [
   { text: "Option D", isCorrect: false },
 ];
 
+const TRUE_FALSE_OPTIONS: NewQuestionOption[] = [
+  { text: "True", isCorrect: true },
+  { text: "False", isCorrect: false },
+];
+
 export function useNewAssessmentForm() {
   const router = useRouter();
   const { user, isDemoMode } = useAuthStore();
@@ -64,6 +69,19 @@ export function useNewAssessmentForm() {
   const [qPoints, setQPoints] = React.useState(10);
   const [options, setOptions] =
     React.useState<NewQuestionOption[]>(DEFAULT_OPTIONS);
+
+  // When the question type changes, reset the options to a sensible default
+  // so the teacher can mark the correct answer for the new type.
+  const handleChangeQType = (value: "MCQ" | "TRUE_FALSE" | "SHORT_ANSWER") => {
+    setQType(value);
+    if (value === "MCQ") {
+      setOptions(DEFAULT_OPTIONS);
+    } else if (value === "TRUE_FALSE") {
+      setOptions(TRUE_FALSE_OPTIONS);
+    } else {
+      setOptions([]);
+    }
+  };
 
   // Load teaching assignments and subtopics for real users
   React.useEffect(() => {
@@ -143,15 +161,7 @@ export function useNewAssessmentForm() {
       question: qText,
       type: qType,
       points: Number(qPoints) || 10,
-      options:
-        qType === "MCQ"
-          ? options
-          : qType === "TRUE_FALSE"
-            ? [
-                { text: "True", isCorrect: true },
-                { text: "False", isCorrect: false },
-              ]
-            : [],
+      options: qType === "SHORT_ANSWER" ? [] : options,
     });
 
     resetQuestionCreator();
@@ -208,7 +218,7 @@ export function useNewAssessmentForm() {
     qText,
     setQText,
     qType,
-    setQType,
+    handleChangeQType,
     qPoints,
     setQPoints,
     options,

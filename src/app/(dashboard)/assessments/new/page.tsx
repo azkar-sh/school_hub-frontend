@@ -26,7 +26,7 @@ export default function NewAssessmentPage() {
     qText,
     setQText,
     qType,
-    setQType,
+    handleChangeQType,
     qPoints,
     setQPoints,
     options,
@@ -100,7 +100,7 @@ export default function NewAssessmentPage() {
             qText={qText}
             onChangeQText={setQText}
             qType={qType}
-            onChangeQType={setQType}
+            onChangeQType={handleChangeQType}
             qPoints={qPoints}
             onChangeQPoints={setQPoints}
             options={options}

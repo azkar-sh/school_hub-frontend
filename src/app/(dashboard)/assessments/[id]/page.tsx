@@ -9,13 +9,34 @@ import { useAssessmentPlayer } from "./hooks";
 import { QuizHeaderBar } from "./_components/QuizHeaderBar";
 import { CompletionCard } from "./_components/CompletionCard";
 import { QuestionCard } from "./_components/QuestionCard";
+import { ReviewResults } from "./_components/ReviewResults";
+import { ManageQuestionsView } from "./_components/ManageQuestionsView";
 
-export default function AssessmentPlayerPage() {
-  const router = useRouter();
+export default function AssessmentDetailPage() {
   const params = useParams();
   const assessmentId = params?.id as string;
   const { user, isDemoMode } = useAuthStore();
 
+  // Teachers manage questions; students/parents take or review the assessment.
+  if (user?.role === "TEACHER") {
+    return (
+      <ManageQuestionsView assessmentId={assessmentId} isDemoMode={isDemoMode} />
+    );
+  }
+
+  return <AssessmentPlayer assessmentId={assessmentId} isDemoMode={isDemoMode} userRole={user?.role} />;
+}
+
+function AssessmentPlayer({
+  assessmentId,
+  isDemoMode,
+  userRole,
+}: {
+  assessmentId: string;
+  isDemoMode: boolean;
+  userRole?: string;
+}) {
+  const router = useRouter();
   const {
     assessment,
     isLoading,
@@ -34,7 +55,9 @@ export default function AssessmentPlayerPage() {
     goToNextQuestion,
     handleSubmitQuiz,
     resetQuiz,
-  } = useAssessmentPlayer({ assessmentId, isDemoMode, userRole: user?.role });
+    reviewMode,
+    reviewSubmission,
+  } = useAssessmentPlayer({ assessmentId, isDemoMode, userRole });
 
   if (isLoading) {
     return (
@@ -42,6 +65,17 @@ export default function AssessmentPlayerPage() {
         <Loader2 className="w-6 h-6 animate-spin text-primary" />
         <span>Loading assessment details...</span>
       </div>
+    );
+  }
+
+  // Student already submitted/graded — show review of grade + answers.
+  if (reviewMode && reviewSubmission) {
+    return (
+      <ReviewResults
+        submission={reviewSubmission}
+        assessment={assessment}
+        onBack={() => router.push("/assessments")}
+      />
     );
   }
 

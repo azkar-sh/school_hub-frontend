@@ -74,7 +74,7 @@ export function QuestionListCard({
                   </Badge>
                 </div>
                 <p className="font-semibold text-sm">{q.question}</p>
-                {q.type === "MCQ" && (
+                {(q.type === "MCQ" || q.type === "TRUE_FALSE") && (
                   <div className="flex flex-wrap gap-2 text-xs text-muted-foreground mt-1">
                     {q.options.map((o, i) => (
                       <span

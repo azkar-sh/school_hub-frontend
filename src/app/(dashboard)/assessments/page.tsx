@@ -12,7 +12,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { PlusCircle, Search, Clock, CheckCircle2, BookOpen, Loader2, BarChart3 } from 'lucide-react';
+import { PlusCircle, Search, Clock, CheckCircle2, BookOpen, Loader2, BarChart3, PencilLine } from 'lucide-react';
+
+interface LiveSubmission {
+  id: string;
+  status: string;
+  score?: number | string | null;
+  submittedAt?: string | null;
+}
 
 interface LiveAssessment {
   id: string;
@@ -20,21 +27,61 @@ interface LiveAssessment {
   type: string;
   dueAt?: string;
   questions?: unknown[];
+  submissions?: LiveSubmission[];
+  teachingAssignment?: {
+    subject?: { id: string; name: string; code: string };
+    class?: { id: string; name: string };
+    teacher?: { id: string; name: string };
+  };
+  _count?: { questions?: number; submissions?: number };
   submissionsCount?: number;
   avgScore?: number;
 }
 
-function toDisplayItem(a: LiveAssessment, _role: string): MockAssessment {
+function toDisplayItem(a: LiveAssessment, role: string): MockAssessment {
+  const subject = a.teachingAssignment?.subject?.name ?? '—';
+  const questionsCount = a._count?.questions ?? a.questions?.length ?? 0;
+  const due = a.dueAt ? new Date(a.dueAt).toLocaleDateString() : 'No due date';
+
+  if (role === 'TEACHER') {
+    return {
+      id: a.id,
+      title: a.title,
+      type: a.type as MockAssessment['type'],
+      subject,
+      due,
+      questionsCount,
+      points: 0,
+      status: 'AVAILABLE',
+      submissionsCount: a._count?.submissions ?? a.submissionsCount,
+      avgScore: a.avgScore,
+    };
+  }
+
+  // Student (and fallback) — map the student's own submission, if any.
+  const sub = a.submissions?.[0];
+  const rawStatus = sub?.status ?? 'AVAILABLE';
+  const status: MockAssessment['status'] =
+    rawStatus === 'DRAFT'
+      ? 'DRAFT'
+      : rawStatus === 'SUBMITTED'
+        ? 'SUBMITTED'
+        : rawStatus === 'GRADED'
+          ? 'GRADED'
+          : 'AVAILABLE';
+
   return {
     id: a.id,
     title: a.title,
     type: a.type as MockAssessment['type'],
-    subject: '—',
-    due: a.dueAt ? new Date(a.dueAt).toLocaleDateString() : 'No due date',
-    questionsCount: a.questions?.length ?? 0,
+    subject,
+    due,
+    questionsCount,
     points: 0,
-    status: 'AVAILABLE',
-    submissionsCount: a.submissionsCount,
+    status,
+    submissionId: sub?.id,
+    score: sub?.score !== undefined && sub?.score !== null ? Number(sub.score) : undefined,
+    submittedAt: sub?.submittedAt ?? undefined,
   };
 }
 
@@ -76,7 +123,9 @@ export default function AssessmentsPage() {
   const actionLabel = (item: MockAssessment) => {
     if (currentRole === 'TEACHER') return 'Manage Questions';
     if (currentRole === 'PARENT') return 'View Results';
-    return item.status === 'SUBMITTED' || item.status === 'GRADED' ? 'Review Score' : 'Start Assessment';
+    if (item.status === 'SUBMITTED' || item.status === 'GRADED') return 'Review Score';
+    if (item.status === 'DRAFT') return 'Continue Assessment';
+    return 'Start Assessment';
   };
 
   return (
@@ -177,6 +226,11 @@ export default function AssessmentsPage() {
                           <CheckCircle2 className="w-3 h-3" />
                           <span>{item.status === 'GRADED' ? 'Graded' : 'Submitted'}</span>
                         </Badge>
+                      ) : item.status === 'DRAFT' ? (
+                        <Badge variant="outline" className="text-indigo-500 border-indigo-500/30 gap-1">
+                          <PencilLine className="w-3 h-3" />
+                          <span>In Progress</span>
+                        </Badge>
                       ) : (
                         <Badge variant="outline" className="text-amber-500 border-amber-500/30 gap-1">
                           <Clock className="w-3 h-3" />
@@ -201,6 +255,9 @@ export default function AssessmentsPage() {
                     {item.points > 0 && ` • ${item.points} Points`}
                     {currentRole === 'TEACHER' && item.avgScore !== undefined && (
                       <span className="text-emerald-600 font-semibold"> • Avg: {item.avgScore}%</span>
+                    )}
+                    {currentRole !== 'TEACHER' && item.score !== undefined && item.status !== 'DRAFT' && (
+                      <span className="text-emerald-600 font-semibold"> • Score: {item.score} pts</span>
                     )}
                   </CardDescription>
                 </CardHeader>
