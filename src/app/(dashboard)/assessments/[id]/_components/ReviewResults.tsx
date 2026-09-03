@@ -17,14 +17,22 @@ interface ReviewResultsProps {
   onBack: () => void;
 }
 
-function optionMatches(answer: string | undefined, opt: { id?: string; text: string }) {
+function optionMatches(
+  answer: string | undefined,
+  opt: { id?: string; text: string },
+) {
   if (!answer) return false;
   const a = answer.trim();
   return a === (opt.id ?? "").trim() || a === opt.text.trim();
 }
 
-export function ReviewResults({ submission, assessment, onBack }: ReviewResultsProps) {
-  const questions: Question[] = submission.assessment?.questions ?? assessment?.questions ?? [];
+export function ReviewResults({
+  submission,
+  assessment,
+  onBack,
+}: ReviewResultsProps) {
+  const questions: Question[] =
+    submission.assessment?.questions ?? assessment?.questions ?? [];
   const answers = submission.answers ?? [];
   const answerMap = new Map(answers.map((a) => [a.questionId, a]));
 
@@ -34,7 +42,9 @@ export function ReviewResults({ submission, assessment, onBack }: ReviewResultsP
       ? Number(submission.score)
       : 0;
   const pct = totalPoints > 0 ? (earnedPoints / totalPoints) * 100 : 0;
-  const hasPendingManual = answers.some((a) => a.pointsEarned === null || a.pointsEarned === undefined);
+  const hasPendingManual = answers.some(
+    (a) => a.pointsEarned === null || a.pointsEarned === undefined,
+  );
 
   const subjectName = submission.assessment?.teachingAssignment?.subject?.name;
   const submittedDate = submission.submittedAt
@@ -60,7 +70,9 @@ export function ReviewResults({ submission, assessment, onBack }: ReviewResultsP
             </div>
             <div className="flex-1 min-w-0">
               <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight truncate">
-                {submission.assessment?.title ?? assessment?.title ?? "Assessment"}
+                {submission.assessment?.title ??
+                  assessment?.title ??
+                  "Assessment"}
               </h1>
               <p className="text-xs text-muted-foreground mt-1">
                 {subjectName ? `${subjectName} • ` : ""}
@@ -108,7 +120,8 @@ export function ReviewResults({ submission, assessment, onBack }: ReviewResultsP
           {hasPendingManual && (
             <div className="flex items-center gap-2 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-700 dark:text-amber-400 font-medium">
               <AlertCircle className="w-4 h-4 shrink-0" />
-              Some answers are awaiting manual grading by your teacher.
+              Some answers are awaiting manual grading by your teacher, so the
+              final score may change once grading is complete.
             </div>
           )}
         </CardContent>
@@ -124,9 +137,10 @@ export function ReviewResults({ submission, assessment, onBack }: ReviewResultsP
 
         {questions.map((q, idx) => {
           const ans = answerMap.get(q.id);
-          const earned = ans?.pointsEarned !== undefined && ans?.pointsEarned !== null
-            ? Number(ans.pointsEarned)
-            : null;
+          const earned =
+            ans?.pointsEarned !== undefined && ans?.pointsEarned !== null
+              ? Number(ans.pointsEarned)
+              : null;
           const isPending = earned === null;
           const isCorrect = !isPending && earned > 0;
 
@@ -173,18 +187,26 @@ export function ReviewResults({ submission, assessment, onBack }: ReviewResultsP
                     {q.options?.map((opt) => {
                       const selected = optionMatches(ans?.answer, opt);
                       const correct = !!opt.isCorrect;
-                      let cls = "border-border/80 bg-background/50 text-foreground";
+                      let cls =
+                        "border-border/80 bg-background/50 text-foreground";
                       let icon: React.ReactNode = null;
 
                       if (selected && correct) {
-                        cls = "border-emerald-500/50 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400";
-                        icon = <CheckCircle2 className="w-4 h-4 text-emerald-600" />;
+                        cls =
+                          "border-emerald-500/50 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400";
+                        icon = (
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                        );
                       } else if (selected && !correct) {
-                        cls = "border-red-500/50 bg-red-500/10 text-red-700 dark:text-red-400";
+                        cls =
+                          "border-red-500/50 bg-red-500/10 text-red-700 dark:text-red-400";
                         icon = <XCircle className="w-4 h-4 text-red-600" />;
                       } else if (!selected && correct) {
-                        cls = "border-emerald-500/40 bg-emerald-500/5 text-emerald-700 dark:text-emerald-400";
-                        icon = <CheckCircle2 className="w-4 h-4 text-emerald-600" />;
+                        cls =
+                          "border-emerald-500/40 bg-emerald-500/5 text-emerald-700 dark:text-emerald-400";
+                        icon = (
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                        );
                       }
 
                       return (

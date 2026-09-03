@@ -1,10 +1,11 @@
 "use client";
 
 import { DemoModeBanner } from "@/components/ui/DemoModeBanner";
-import { X } from "lucide-react";
-import { useSubmissionsPage } from "./hooks";
-import { SubmissionLookupBar } from "./_components/SubmissionLookupBar";
-import { SubmissionDetailCard } from "./_components/SubmissionDetailCard";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Search, Loader2 } from "lucide-react";
+import { useSubmissionsPage, STATUS_FILTERS, StatusFilter } from "./hooks";
 import { SubmissionsTableCard } from "./_components/SubmissionsTableCard";
 
 export default function SubmissionsPage() {
@@ -13,20 +14,11 @@ export default function SubmissionsPage() {
     isDemoMode,
     pageTitle,
     pageDescription,
-    searchSubId,
-    setSearchSubId,
-    isLoadingLive,
-    handleLookupSubmission,
-    feedbackMsg,
-    setFeedbackMsg,
-    activeSubmissionDetail,
-    gradeAnswerId,
-    gradePoints,
-    setGradePoints,
-    startGradingAnswer,
-    cancelGradingAnswer,
-    handleGradeSubmission,
-    displaySubmissions,
+    search,
+    setSearch,
+    statusFilter,
+    setStatusFilter,
+    filteredSubmissions,
     isLoadingSubmissions,
   } = useSubmissionsPage();
 
@@ -42,45 +34,54 @@ export default function SubmissionsPage() {
         <p className="text-sm text-muted-foreground mt-1">{pageDescription}</p>
       </div>
 
-      {feedbackMsg && (
-        <div className="p-3 rounded-xl bg-primary/10 border border-primary/20 text-xs text-primary font-medium flex items-center justify-between">
-          <span>{feedbackMsg}</span>
-          <button onClick={() => setFeedbackMsg(null)}>
-            <X className="w-4 h-4" />
-          </button>
+      {/* Filter & Search Bar */}
+      <Card className="p-4">
+        <div className="flex flex-col sm:flex-row items-center gap-4">
+          <div className="relative w-full sm:flex-1">
+            <Search className="w-4 h-4 absolute left-3.5 top-3.5 text-muted-foreground" />
+            <Input
+              placeholder={
+                currentRole === "TEACHER"
+                  ? "Search by student or assessment title…"
+                  : "Search by assessment title or subject…"
+              }
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+
+          <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+            {STATUS_FILTERS.map((status) => (
+              <Button
+                key={status}
+                variant={statusFilter === status ? "role" : "outline"}
+                size="sm"
+                onClick={() => setStatusFilter(status as StatusFilter)}
+                className="capitalize text-xs"
+              >
+                {status === "ALL" ? "All" : status === "SUBMITTED" ? "Pending Review" : "Graded"}
+              </Button>
+            ))}
+          </div>
+        </div>
+      </Card>
+
+      {/* Loading state (live mode only) */}
+      {!isDemoMode && isLoadingSubmissions && (
+        <div className="flex items-center justify-center py-16 text-muted-foreground gap-2">
+          <Loader2 className="w-5 h-5 animate-spin" />
+          <span className="text-sm">Loading submissions…</span>
         </div>
       )}
 
-      {/* Submission ID Lookup bar for real users */}
-      {!isDemoMode && (
-        <SubmissionLookupBar
-          searchSubId={searchSubId}
-          onChangeSearchSubId={setSearchSubId}
-          onSubmit={handleLookupSubmission}
-          isLoading={isLoadingLive}
-        />
-      )}
-
-      {/* Inspected Submission Detail View */}
-      {activeSubmissionDetail && (
-        <SubmissionDetailCard
-          submission={activeSubmissionDetail}
-          currentRole={currentRole}
-          gradeAnswerId={gradeAnswerId}
-          gradePoints={gradePoints}
-          onChangeGradePoints={setGradePoints}
-          onStartGrading={startGradingAnswer}
-          onCancelGrading={cancelGradingAnswer}
-          onSubmitGrade={handleGradeSubmission}
-        />
-      )}
-
       {/* Submissions List Card */}
-      <SubmissionsTableCard
-        currentRole={currentRole}
-        submissions={displaySubmissions}
-        isLoading={isLoadingSubmissions}
-      />
+      {(!isLoadingSubmissions || isDemoMode) && (
+        <SubmissionsTableCard
+          currentRole={currentRole}
+          submissions={filteredSubmissions}
+        />
+      )}
     </div>
   );
 }

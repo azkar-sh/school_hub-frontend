@@ -6,6 +6,9 @@ import { submissionsApi, parentStudentsApi } from "@/lib/api-client";
 import { useFetchData } from "@/lib/use-fetch-data";
 import { Submission } from "@/types";
 
+export const STATUS_FILTERS = ["ALL", "SUBMITTED", "GRADED"] as const;
+export type StatusFilter = (typeof STATUS_FILTERS)[number];
+
 function formatSubmittedAt(iso?: string): string {
   if (!iso) return "—";
   const d = new Date(iso);
@@ -33,18 +36,10 @@ export function useSubmissionsPage() {
   const { activeRole } = useRoleThemeStore();
   const currentRole = user?.role || activeRole;
 
-  const [searchSubId, setSearchSubId] = React.useState("");
-  const [activeSubmissionDetail, setActiveSubmissionDetail] =
-    React.useState<Submission | null>(null);
+  const [search, setSearch] = React.useState("");
+  const [statusFilter, setStatusFilter] = React.useState<StatusFilter>("ALL");
 
-  const [isLoadingLive, setIsLoadingLive] = React.useState(false);
-  const [feedbackMsg, setFeedbackMsg] = React.useState<string | null>(null);
-
-  // Manual grading state for teachers
-  const [gradeAnswerId, setGradeAnswerId] = React.useState("");
-  const [gradePoints, setGradePoints] = React.useState<number>(10);
-
-  // Live fetch for parents (fetch child wards) and lookup
+  // Live fetch for parents (fetch child wards)
   React.useEffect(() => {
     if (isDemoMode) return;
     if (currentRole === "PARENT") {
@@ -54,69 +49,36 @@ export function useSubmissionsPage() {
 
   // Load the role-aware submission history from the backend. Demo mode keeps
   // mock data so the page is still browsable without a server.
-  const { data: liveSubmissionsData, isLoading: isLoadingSubmissions, refetch: refetchSubmissions } =
-    useFetchData<SubmissionRow[]>(
-      () =>
-        submissionsApi
-          .findAll()
-          .then((res) =>
-            Array.isArray(res.data) ? res.data.map(toSubmissionRow) : [],
-          ),
-      [],
-      !isDemoMode,
-    );
-  const liveSubmissions = liveSubmissionsData ?? [];
-
-  const handleLookupSubmission = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchSubId.trim()) return;
-    try {
-      setIsLoadingLive(true);
-      const res = await submissionsApi.findOne(searchSubId.trim());
-      setActiveSubmissionDetail(res.data);
-    } catch {
-      setFeedbackMsg("Failed to find submission with specified ID");
-    } finally {
-      setIsLoadingLive(false);
-    }
-  };
-
-  const startGradingAnswer = (answerId: string, currentPoints?: number) => {
-    setGradeAnswerId(answerId);
-    setGradePoints(currentPoints || 10);
-  };
-
-  const cancelGradingAnswer = () => setGradeAnswerId("");
-
-  const handleGradeSubmission = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!activeSubmissionDetail || !gradeAnswerId) return;
-    try {
-      if (isDemoMode) {
-        setFeedbackMsg("Grade updated in demo mode");
-        return;
-      }
-      await submissionsApi.grade(activeSubmissionDetail.id, {
-        grades: [
-          { answerId: gradeAnswerId, pointsEarned: Number(gradePoints) || 0 },
-        ],
-      });
-      setFeedbackMsg("Submission grade updated successfully!");
-      // Reload submission detail
-      const updated = await submissionsApi.findOne(activeSubmissionDetail.id);
-      setActiveSubmissionDetail(updated.data);
-      // Refresh the history list so the row's score/status reflects the new grade
-      refetchSubmissions();
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Failed to grade submission";
-      setFeedbackMsg(message);
-    }
-  };
+  const {
+    data: liveSubmissionsData,
+    isLoading: isLoadingSubmissions,
+  } = useFetchData<SubmissionRow[]>(
+    () =>
+      submissionsApi
+        .findAll()
+        .then((res) =>
+          Array.isArray(res.data) ? res.data.map(toSubmissionRow) : [],
+        ),
+    [],
+    !isDemoMode,
+  );
 
   const displaySubmissions = isDemoMode
     ? getMockSubmissions(currentRole)
-    : liveSubmissions;
+    : (liveSubmissionsData ?? []);
+
+  // Client-side filtering by status + search (student name / assessment title)
+  const filteredSubmissions = displaySubmissions.filter((sub) => {
+    const matchesStatus =
+      statusFilter === "ALL" || sub.status === statusFilter;
+    const q = search.toLowerCase().trim();
+    const matchesSearch =
+      q === "" ||
+      sub.studentName.toLowerCase().includes(q) ||
+      sub.assessmentTitle.toLowerCase().includes(q) ||
+      sub.subject.toLowerCase().includes(q);
+    return matchesStatus && matchesSearch;
+  });
 
   const pageTitle =
     currentRole === "TEACHER"
@@ -137,20 +99,11 @@ export function useSubmissionsPage() {
     isDemoMode,
     pageTitle,
     pageDescription,
-    searchSubId,
-    setSearchSubId,
-    isLoadingLive,
-    handleLookupSubmission,
-    feedbackMsg,
-    setFeedbackMsg,
-    activeSubmissionDetail,
-    gradeAnswerId,
-    gradePoints,
-    setGradePoints,
-    startGradingAnswer,
-    cancelGradingAnswer,
-    handleGradeSubmission,
-    displaySubmissions,
+    search,
+    setSearch,
+    statusFilter,
+    setStatusFilter,
+    filteredSubmissions,
     isLoadingSubmissions,
   };
 }
