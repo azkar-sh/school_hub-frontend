@@ -48,19 +48,23 @@ export function Navbar({ onOpenMobileNav }: { onOpenMobileNav?: () => void }) {
             </div>
             <div className="flex flex-col">
               <span className="font-bold tracking-tight text-lg leading-tight bg-linear-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-                School<span className="text-primary">Hub</span>
+                School<span className="text-primary">Hub</span> |{" "}
+                <span>
+                  {user?.role !== "SCHOOL_ADMIN" &&
+                    user?.schoolMemberships?.[0]?.school?.name}
+                </span>
               </span>
               <span className="text-[10px] font-medium text-muted-foreground tracking-wider uppercase">
                 Assessment System
               </span>
             </div>
           </Link>
-          <Badge
+          {/* <Badge
             role={currentRole}
             className="ml-2 hidden md:inline-flex capitalize"
           >
             {currentRole.toLowerCase()} portal
-          </Badge>
+          </Badge> */}
         </div>
 
         {/* Center/Right Side: Role Switcher, Theme Toggle & User Info */}

@@ -28,6 +28,7 @@ export function RoleThemeSwitcher({ className }: { className?: string }) {
     label: string;
     icon: React.ComponentType<{ className?: string }>;
     colorClass: string;
+    lockedClass: string;
   }> = [
     {
       id: "STUDENT",
@@ -35,6 +36,8 @@ export function RoleThemeSwitcher({ className }: { className?: string }) {
       icon: GraduationCap,
       colorClass:
         "hover:text-indigo-500 data-[active=true]:bg-indigo-500 data-[active=true]:text-white",
+      lockedClass:
+        "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20",
     },
     {
       id: "TEACHER",
@@ -42,6 +45,8 @@ export function RoleThemeSwitcher({ className }: { className?: string }) {
       icon: BookOpen,
       colorClass:
         "hover:text-emerald-500 data-[active=true]:bg-emerald-600 data-[active=true]:text-white",
+      lockedClass:
+        "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
     },
     {
       id: "PARENT",
@@ -49,6 +54,8 @@ export function RoleThemeSwitcher({ className }: { className?: string }) {
       icon: Users,
       colorClass:
         "hover:text-amber-500 data-[active=true]:bg-amber-500 data-[active=true]:text-white",
+      lockedClass:
+        "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
     },
     {
       id: "SCHOOL_ADMIN",
@@ -56,6 +63,8 @@ export function RoleThemeSwitcher({ className }: { className?: string }) {
       icon: ShieldAlert,
       colorClass:
         "hover:text-purple-500 data-[active=true]:bg-purple-600 data-[active=true]:text-white",
+      lockedClass:
+        "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
     },
   ];
 
@@ -66,15 +75,16 @@ export function RoleThemeSwitcher({ className }: { className?: string }) {
     return (
       <div
         className={cn(
-          "flex items-center gap-2 bg-muted/60 px-3 py-2 rounded-2xl border border-border/50 shadow-inner text-xs text-muted-foreground",
+          "flex items-center gap-2 px-3 py-2 rounded-2xl border shadow-inner text-xs",
+          currentRoleConfig?.lockedClass ??
+            "bg-muted/60 text-muted-foreground border-border/50",
           className,
         )}
         title="Role is determined by your account"
       >
-        <Lock className="w-3 h-3 shrink-0" />
         <Icon className="w-3.5 h-3.5" />
         <span className="font-semibold capitalize">
-          {user.role.toLowerCase()} Role
+          {user.role.toLowerCase()} Portal
         </span>
       </div>
     );

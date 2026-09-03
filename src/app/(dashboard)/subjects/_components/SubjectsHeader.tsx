@@ -34,7 +34,7 @@ export function SubjectsHeader({
       </div>
 
       <div className="flex items-center gap-3">
-        {!isDemoMode && schools.length > 0 && (
+        {/* {!isDemoMode && schools.length > 0 && (
           <select
             className="h-10 px-3 rounded-xl border border-input bg-background text-xs font-semibold"
             value={selectedSchoolId}
@@ -46,7 +46,7 @@ export function SubjectsHeader({
               </option>
             ))}
           </select>
-        )}
+        )} */}
 
         {canEditCurriculum && (
           <Button variant="role" className="shadow-md" onClick={onAddSubject}>
