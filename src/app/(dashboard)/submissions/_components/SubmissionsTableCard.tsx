@@ -7,16 +7,18 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FileSpreadsheet, CheckCircle2, Clock, UserCheck } from "lucide-react";
-import { MockSubmission } from "@/lib/mock-data";
+import { SubmissionRow } from "@/lib/mock-data";
 
 interface SubmissionsTableCardProps {
   currentRole?: string;
-  submissions: MockSubmission[];
+  submissions: SubmissionRow[];
+  isLoading?: boolean;
 }
 
 export function SubmissionsTableCard({
   currentRole,
   submissions,
+  isLoading,
 }: SubmissionsTableCardProps) {
   return (
     <Card>
@@ -38,7 +40,11 @@ export function SubmissionsTableCard({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {submissions.length > 0 && (
+        {isLoading ? (
+          <p className="p-3.5 text-sm text-muted-foreground">
+            Loading submissions…
+          </p>
+        ) : submissions.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead className="text-xs uppercase text-muted-foreground bg-muted/50 rounded-xl">
@@ -107,6 +113,11 @@ export function SubmissionsTableCard({
               </tbody>
             </table>
           </div>
+        ) : (
+          <p className="p-3.5 text-sm text-muted-foreground">
+            No submissions yet. Completed and graded assessment attempts will
+            appear here.
+          </p>
         )}
       </CardContent>
     </Card>

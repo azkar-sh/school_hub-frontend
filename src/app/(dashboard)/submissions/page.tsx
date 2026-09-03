@@ -27,6 +27,7 @@ export default function SubmissionsPage() {
     cancelGradingAnswer,
     handleGradeSubmission,
     displaySubmissions,
+    isLoadingSubmissions,
   } = useSubmissionsPage();
 
   return (
@@ -78,6 +79,7 @@ export default function SubmissionsPage() {
       <SubmissionsTableCard
         currentRole={currentRole}
         submissions={displaySubmissions}
+        isLoading={isLoadingSubmissions}
       />
     </div>
   );

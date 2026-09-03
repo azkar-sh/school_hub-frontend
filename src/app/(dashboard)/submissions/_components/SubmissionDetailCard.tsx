@@ -51,8 +51,9 @@ export function SubmissionDetailCard({
             Score
           </span>
           <span className="text-2xl font-black text-emerald-600">
-            {submission.score !== undefined && submission.score !== null
-              ? `${submission.score}%`
+            {submission.scorePercentage !== undefined &&
+            submission.scorePercentage !== null
+              ? `${submission.scorePercentage}%`
               : "Pending"}
           </span>
         </div>

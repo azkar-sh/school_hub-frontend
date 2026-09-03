@@ -1,6 +1,6 @@
 import { UserRole } from "@/types";
 
-export interface MockSubmission {
+export interface SubmissionRow {
   id: string;
   studentName: string;
   assessmentTitle: string;
@@ -10,7 +10,7 @@ export interface MockSubmission {
   status: "SUBMITTED" | "GRADED";
 }
 
-export function getMockSubmissions(role: UserRole): MockSubmission[] {
+export function getMockSubmissions(role: UserRole): SubmissionRow[] {
   if (role === "TEACHER") {
     // Teachers see all students' submissions
     return [

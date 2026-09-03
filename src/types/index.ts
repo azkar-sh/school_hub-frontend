@@ -212,6 +212,7 @@ export interface Submission {
   submittedAt?: string;
   status: SubmissionStatus;
   score?: number | string;
+  scorePercentage?: number | null;
   assessment?: Assessment;
   student?: User;
   answers?: Answer[];
@@ -281,6 +282,15 @@ export interface CreateQuestionDto {
   subTopicId: string;
   type: QuestionType;
   question: string;
+  points?: number;
+  order?: number;
+  options?: Array<{ text: string; isCorrect?: boolean }>;
+}
+
+export interface UpdateQuestionDto {
+  subTopicId?: string;
+  type?: QuestionType;
+  question?: string;
   points?: number;
   order?: number;
   options?: Array<{ text: string; isCorrect?: boolean }>;

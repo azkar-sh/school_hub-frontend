@@ -29,6 +29,7 @@ import {
   SubTopic,
   TeachingAssignment,
   Topic,
+  UpdateQuestionDto,
   User,
 } from "@/types";
 
@@ -186,6 +187,10 @@ export const assessmentsApi = {
     apiClient.post<Assessment>("/assessments", data),
   addQuestion: (id: string, data: CreateQuestionDto) =>
     apiClient.post<Question>(`/assessments/${id}/questions`, data),
+  updateQuestion: (id: string, questionId: string, data: UpdateQuestionDto) =>
+    apiClient.put<Question>(`/assessments/${id}/questions/${questionId}`, data),
+  deleteQuestion: (id: string, questionId: string) =>
+    apiClient.delete<{ id: string; deleted: boolean }>(`/assessments/${id}/questions/${questionId}`),
   findForTeacher: () => apiClient.get<Assessment[]>("/assessments/teacher"),
   findForStudent: () => apiClient.get<Assessment[]>("/assessments/student"),
   findOne: (id: string) => apiClient.get<Assessment>(`/assessments/${id}`),
@@ -201,6 +206,7 @@ export const submissionsApi = {
     apiClient.post<Submission>(`/submissions/${id}/submit`, data),
   grade: (id: string, data: GradeSubmissionDto) =>
     apiClient.patch<Submission>(`/submissions/${id}/grade`, data),
+  findAll: () => apiClient.get<Submission[]>("/submissions"),
   findOne: (id: string) => apiClient.get<Submission>(`/submissions/${id}`),
 };
 

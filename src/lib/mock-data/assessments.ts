@@ -8,8 +8,14 @@ export interface MockAssessment {
   due: string;
   questionsCount: number;
   points: number;
-  /** Student-specific status */
-  status: "AVAILABLE" | "SUBMITTED" | "GRADED";
+  /** Student-specific status. DRAFT = started but not yet submitted. */
+  status: "AVAILABLE" | "DRAFT" | "SUBMITTED" | "GRADED";
+  /** Student-specific: id of the student's submission (when one exists) */
+  submissionId?: string;
+  /** Student-specific: raw points earned (when graded/submitted) */
+  score?: number;
+  /** Student-specific: ISO timestamp of submission */
+  submittedAt?: string;
   /** Teacher-specific: number of student submissions received */
   submissionsCount?: number;
   /** Teacher-specific: average score across submissions */
