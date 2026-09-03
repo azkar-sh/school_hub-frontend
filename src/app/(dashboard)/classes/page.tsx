@@ -4,11 +4,7 @@ import * as React from "react";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useRoleThemeStore } from "@/stores/use-role-theme-store";
 import { getMockClasses } from "@/lib/mock-data";
-import {
-  classesApi,
-  academicYearsApi,
-  usersApi,
-} from "@/lib/api-client";
+import { classesApi, academicYearsApi, usersApi } from "@/lib/api-client";
 import { useFetchData } from "@/lib/use-fetch-data";
 import { useSchoolSelection } from "@/lib/use-school-selection";
 import { getErrorMessage } from "@/lib/errors";
@@ -43,11 +39,8 @@ export default function ClassesPage() {
   const currentRole = user?.role || activeRole;
 
   // School selection is cached & shared across all dashboard pages
-  const {
-    schools,
-    selectedSchoolId,
-    setSelectedSchoolId,
-  } = useSchoolSelection();
+  const { schools, selectedSchoolId, setSelectedSchoolId } =
+    useSchoolSelection();
   const [academicYears, setAcademicYears] = React.useState<AcademicYear[]>([]);
   const [selectedAyId, setSelectedAyId] = React.useState<string>("");
   const [usersList, setUsersList] = React.useState<User[]>([]);
@@ -88,7 +81,11 @@ export default function ClassesPage() {
   }, [selectedSchoolId, isDemoMode]);
 
   // Fetch classes via hook (no sync setState in effects)
-  const { data: classesData, isLoading, refetch: refetchClasses } = useFetchData(
+  const {
+    data: classesData,
+    isLoading,
+    refetch: refetchClasses,
+  } = useFetchData(
     () =>
       classesApi
         .findBySchool(selectedSchoolId, selectedAyId)
@@ -191,7 +188,7 @@ export default function ClassesPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          {!isDemoMode && schools.length > 0 && (
+          {/* {!isDemoMode && schools.length > 0 && (
             <select
               className="h-10 px-3 rounded-xl border border-input bg-background text-xs font-semibold"
               value={selectedSchoolId}
@@ -203,7 +200,7 @@ export default function ClassesPage() {
                 </option>
               ))}
             </select>
-          )}
+          )} */}
 
           {(currentRole === "SCHOOL_ADMIN" || currentRole === "TEACHER") && (
             <Button
