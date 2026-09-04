@@ -3,15 +3,12 @@
 import * as React from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useAuthStore } from "@/stores/use-auth-store";
 import {
   getMockChildDetail,
   getMockChildAssessmentResults,
-  MockChildDetail,
-  MockRecentResult,
 } from "@/lib/mock-data";
-import { usersApi } from "@/lib/api-client";
-import { useFetchData } from "@/lib/use-fetch-data";
+import { useParentChildren } from "@/lib/use-parent-children";
+import { StudentSubjectResult } from "@/lib/result-grouping";
 import { DemoModeBanner } from "@/components/ui/DemoModeBanner";
 import {
   Card,
@@ -31,39 +28,92 @@ import {
   Loader2,
 } from "lucide-react";
 
+interface ResultRow {
+  id: string;
+  title: string;
+  type?: string;
+  subjectName: string;
+  scorePercentage: number | null;
+  submittedAt?: string;
+  dateLabel?: string;
+}
+
+function formatDate(value?: string) {
+  if (!value) return null;
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? null : d.toLocaleDateString();
+}
+
+function scoreBadgeClass(pct: number | null) {
+  if (pct === null) return "border-border/50 bg-muted/40 text-muted-foreground";
+  if (pct >= 80)
+    return "border-emerald-500/30 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400";
+  if (pct >= 60)
+    return "border-amber-500/30 bg-amber-500/15 text-amber-600 dark:text-amber-400";
+  return "border-red-500/30 bg-red-500/15 text-red-600 dark:text-red-400";
+}
+
+function flattenSubjects(subjects: StudentSubjectResult[]): ResultRow[] {
+  return subjects.flatMap((subj) =>
+    subj.assessments.map((a) => ({
+      id: a.id,
+      title: a.title,
+      type: a.type,
+      subjectName: subj.subjectName,
+      scorePercentage: a.scorePercentage,
+      submittedAt: a.submittedAt,
+    })),
+  );
+}
+
+interface ChildDetail {
+  id: string;
+  name: string;
+  className: string;
+  grade: number | null;
+  assessmentCount: number;
+  average: number;
+  results: ResultRow[];
+}
+
 export default function ChildDetailPage() {
   const params = useParams();
   const studentId = params.studentId as string;
-  const { isDemoMode } = useAuthStore();
+  const { isDemoMode, isLoading, children } = useParentChildren();
 
-  const { data: liveStudentData, isLoading } = useFetchData<{ name: string; email: string }>(
-    () => usersApi.findOne(studentId).then((res) => ({ name: res.data.name, email: res.data.email })),
-    [studentId],
-    !isDemoMode && !!studentId,
-  );
-  const liveStudent = liveStudentData ?? null;
-
-  const mockDetail = getMockChildDetail(studentId);
-  const mockResults = getMockChildAssessmentResults(studentId);
-
-  const childDetail: MockChildDetail = isDemoMode
-    ? mockDetail
-    : {
-        ...mockDetail,
-        name: liveStudent?.name || mockDetail.name,
+  const child: ChildDetail | null = React.useMemo(() => {
+    if (isDemoMode) {
+      const detail = getMockChildDetail(studentId);
+      return {
+        id: detail.id,
+        name: detail.name,
+        className: detail.className,
+        grade: detail.grade,
+        assessmentCount: detail.assessmentCount,
+        average: detail.average,
+        results: getMockChildAssessmentResults(studentId).map((r) => ({
+          id: r.id,
+          title: r.assessment,
+          subjectName: r.subject,
+          scorePercentage: r.score,
+          dateLabel: r.date,
+        })),
       };
+    }
+    const found = children.find((c) => c.id === studentId);
+    if (!found) return null;
+    return {
+      id: found.id,
+      name: found.name,
+      className: found.className,
+      grade: found.grade,
+      assessmentCount: found.assessmentCount,
+      average: found.average,
+      results: flattenSubjects(found.subjects),
+    };
+  }, [isDemoMode, children, studentId]);
 
-  const displayResults: MockRecentResult[] = isDemoMode
-    ? mockResults
-    : [];
-
-  const avgScore =
-    displayResults.length > 0
-      ? Math.round(
-          displayResults.reduce((acc, r) => acc + r.score, 0) /
-            displayResults.length,
-        )
-      : 0;
+  const avgScore = child?.average ?? 0;
 
   return (
     <div className="space-y-6">
@@ -87,7 +137,14 @@ export default function ChildDetailPage() {
         </div>
       )}
 
-      {(!isLoading || isDemoMode) && (
+      {/* Not found (live mode, finished loading, no matching child) */}
+      {(!isDemoMode && !isLoading && !child) && (
+        <Card className="py-14 text-center text-sm text-muted-foreground">
+          Child not found or not linked to your account.
+        </Card>
+      )}
+
+      {(!isLoading || isDemoMode) && child && (
         <>
           {/* Child Header — Tree: Name, Class */}
           <Card className="border-amber-500/20 bg-amber-500/5">
@@ -99,10 +156,11 @@ export default function ChildDetailPage() {
                   </div>
                   <div>
                     <h1 className="text-2xl font-extrabold text-foreground">
-                      {childDetail.name}
+                      {child.name}
                     </h1>
                     <p className="text-sm text-muted-foreground mt-0.5">
-                      Class {childDetail.className} • Grade {childDetail.grade}
+                      Class {child.className}
+                      {child.grade !== null ? ` • Grade ${child.grade}` : ""}
                     </p>
                   </div>
                 </div>
@@ -113,7 +171,7 @@ export default function ChildDetailPage() {
                       <span>Assessments</span>
                     </div>
                     <div className="text-2xl font-extrabold text-foreground">
-                      {childDetail.assessmentCount}
+                      {child.assessmentCount}
                     </div>
                   </div>
                   <div className="text-center">
@@ -142,43 +200,60 @@ export default function ChildDetailPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              {displayResults.length === 0 ? (
+              {child.results.length === 0 ? (
                 <div className="py-14 text-center text-sm text-muted-foreground">
                   No assessment results found.
                 </div>
               ) : (
-                displayResults.map((result) => (
-                  <div
-                    key={result.id}
-                    className="p-4 rounded-2xl bg-muted/40 border border-border/50 flex items-center justify-between gap-4"
-                  >
-                    <div className="space-y-1 min-w-0">
-                      <h4 className="font-semibold text-sm text-foreground truncate">
-                        {result.assessment}
-                      </h4>
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <BookOpen className="w-3 h-3" />
-                          {result.subject}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <CalendarDays className="w-3 h-3" />
-                          {result.date}
-                        </span>
-                      </div>
-                    </div>
-                    <Badge
-                      variant={result.score >= 80 ? "secondary" : "outline"}
-                      className={`text-sm font-extrabold shrink-0 ${
-                        result.score >= 80
-                          ? "bg-emerald-500/15 text-emerald-600"
-                          : "text-amber-500 border-amber-500/30"
-                      }`}
+                child.results.map((result) => {
+                  const date =
+                    result.dateLabel ?? formatDate(result.submittedAt);
+                  return (
+                    <div
+                      key={result.id}
+                      className="p-4 rounded-2xl bg-muted/40 border border-border/50 flex items-center justify-between gap-4"
                     >
-                      {result.score}%
-                    </Badge>
-                  </div>
-                ))
+                      <div className="space-y-1 min-w-0">
+                        <h4 className="font-semibold text-sm text-foreground truncate">
+                          {result.title}
+                        </h4>
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <BookOpen className="w-3 h-3" />
+                            {result.subjectName}
+                          </span>
+                          {result.type && (
+                            <Badge
+                              variant="outline"
+                              className="text-[10px] uppercase"
+                            >
+                              {result.type}
+                            </Badge>
+                          )}
+                          {date && (
+                            <span className="flex items-center gap-1">
+                              <CalendarDays className="w-3 h-3" />
+                              {date}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <Badge
+                        variant={
+                          result.scorePercentage !== null &&
+                          result.scorePercentage >= 80
+                            ? "secondary"
+                            : "outline"
+                        }
+                        className={`text-sm font-extrabold shrink-0 ${scoreBadgeClass(result.scorePercentage)}`}
+                      >
+                        {result.scorePercentage !== null
+                          ? `${result.scorePercentage}%`
+                          : "Pending"}
+                      </Badge>
+                    </div>
+                  );
+                })
               )}
             </CardContent>
           </Card>

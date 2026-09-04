@@ -2,14 +2,10 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useAuthStore } from "@/stores/use-auth-store";
 import {
   getMockParentChildrenDetail,
-  MockParentChildDetail,
 } from "@/lib/mock-data";
-import { parentStudentsApi } from "@/lib/api-client";
-import { useFetchData } from "@/lib/use-fetch-data";
-import { User } from "@/types";
+import { useParentChildren } from "@/lib/use-parent-children";
 import { DemoModeBanner } from "@/components/ui/DemoModeBanner";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,27 +24,36 @@ import {
   Loader2,
 } from "lucide-react";
 
-export default function ChildrenPage() {
-  const { user, isDemoMode } = useAuthStore();
+interface ChildCard {
+  id: string;
+  name: string;
+  className: string;
+  grade: number | null;
+  assessmentCount: number;
+  average: number;
+}
 
-  const { data: liveChildrenData, isLoading } = useFetchData<User[]>(
-    () =>
-      parentStudentsApi
-        .getChildren(user?.id)
-        .then((res) => (Array.isArray(res.data) ? res.data : [])),
-    [user?.id],
-    !isDemoMode,
-  );
-  const liveChildren = liveChildrenData ?? [];
+export default function ChildrenPage() {
+  const { isDemoMode, isLoading, children } = useParentChildren();
 
   const mockChildren = getMockParentChildrenDetail();
 
-  const displayChildren: MockParentChildDetail[] = isDemoMode
-    ? mockChildren
-    : liveChildren.map((c, idx) => ({
-        ...mockChildren[idx],
+  const displayChildren: ChildCard[] = isDemoMode
+    ? mockChildren.map((c) => ({
         id: c.id,
-        name: c.name || mockChildren[idx]?.name || "Unknown",
+        name: c.name,
+        className: c.className,
+        grade: 8,
+        assessmentCount: c.assessmentCount,
+        average: c.average,
+      }))
+    : children.map((c) => ({
+        id: c.id,
+        name: c.name,
+        className: c.className,
+        grade: c.grade,
+        assessmentCount: c.assessmentCount,
+        average: c.average,
       }));
 
   return (
@@ -94,15 +99,19 @@ export default function ChildrenPage() {
                         <GraduationCap className="w-6 h-6" />
                       </div>
                       <div>
-                        <CardTitle className="text-xl">{child.name}</CardTitle>
+                        <CardTitle className="text-xl">
+                          {child.name}
+                        </CardTitle>
                         <CardDescription className="text-xs mt-0.5">
                           Class {child.className}
                         </CardDescription>
                       </div>
                     </div>
-                    <Badge variant="role" className="text-xs">
-                      Grade 8
-                    </Badge>
+                    {child.grade !== null && (
+                      <Badge variant="role" className="text-xs">
+                        Grade {child.grade}
+                      </Badge>
+                    )}
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3 pt-2 border-t border-border/40 mt-3">
@@ -121,7 +130,9 @@ export default function ChildrenPage() {
                     <div className="flex items-center gap-2 text-sm">
                       <Award className="w-4 h-4 text-amber-500" />
                       <div>
-                        <p className="text-xs text-muted-foreground">Average</p>
+                        <p className="text-xs text-muted-foreground">
+                          Average
+                        </p>
                         <p className="font-bold text-amber-600 dark:text-amber-400">
                           {child.average}%
                         </p>
