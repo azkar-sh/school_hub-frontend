@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useRouter } from 'next/navigation';
 import { Navbar } from './Navbar';
 import { Sidebar } from './Sidebar';
 import { useRoleThemeStore } from '@/stores/use-role-theme-store';
@@ -8,8 +9,10 @@ import { useAuthStore } from '@/stores/use-auth-store';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileNavOpen, setMobileNavOpen] = React.useState(false);
+  const router = useRouter();
   const { activeRole } = useRoleThemeStore();
-  const { user, token, fetchProfile } = useAuthStore();
+  const { user, token, isAuthenticated, isLoading, fetchProfile } =
+    useAuthStore();
 
   const currentRole = user?.role || activeRole;
 
@@ -22,8 +25,26 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, [token, user, fetchProfile]);
 
   React.useEffect(() => {
+    if (!token) {
+      router.replace('/login');
+      return;
+    }
+    if (!isLoading && !isAuthenticated) {
+      router.replace('/login');
+    }
+  }, [token, isAuthenticated, isLoading, router]);
+
+  React.useEffect(() => {
     document.documentElement.setAttribute('data-role', currentRole);
   }, [currentRole]);
+
+  if (!token || isLoading || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="h-8 w-8 rounded-full border-2 border-muted border-t-primary animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-primary/20 selection:text-primary">

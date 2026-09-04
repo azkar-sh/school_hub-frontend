@@ -19,6 +19,7 @@ import {
   EnrollStudentDto,
   GradeSubmissionDto,
   ParentStudent,
+  ParentChildLink,
   Question,
   SaveAnswersDto,
   School,
@@ -215,7 +216,7 @@ export const parentStudentsApi = {
   link: (data: CreateParentStudentDto) =>
     apiClient.post<ParentStudent>("/parent-students", data),
   getChildren: (parentId?: string) =>
-    apiClient.get<User[]>("/parent-students/children", {
+    apiClient.get<ParentChildLink[]>("/parent-students/children", {
       params: parentId ? { parentId } : undefined,
     }),
   getParents: (studentId: string) =>

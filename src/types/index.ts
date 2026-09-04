@@ -160,6 +160,26 @@ export interface ParentStudent {
   student?: User;
 }
 
+/**
+ * Shape returned by `GET /parent-students/children` — a parent's ward plus
+ * their class enrollments (with grade info) for display on the Children pages.
+ */
+export interface ParentChildLink {
+  relationship: ParentRelationship;
+  student: {
+    id: string;
+    name: string;
+    email: string;
+    enrollments?: Array<{
+      id: string;
+      classId: string;
+      academicYearId: string;
+      class?: { id: string; name: string; grade: number };
+      academicYear?: { id: string; name: string };
+    }>;
+  };
+}
+
 export interface QuestionOption {
   id?: string;
   questionId?: string;

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useRoleThemeStore } from "@/stores/use-role-theme-store";
 import { useSchoolContextStore } from "@/stores/use-school-context-store";
@@ -19,6 +20,7 @@ import {
 } from "lucide-react";
 
 export function Navbar({ onOpenMobileNav }: { onOpenMobileNav?: () => void }) {
+  const router = useRouter();
   const { user, logout, isAuthenticated, isDemoMode } = useAuthStore();
   const { activeRole } = useRoleThemeStore();
   const { userSchools, activeSchoolId, setActiveSchool } =
@@ -27,6 +29,11 @@ export function Navbar({ onOpenMobileNav }: { onOpenMobileNav?: () => void }) {
   const currentRole = user?.role || activeRole;
   const showSchoolSwitcher =
     isAuthenticated && !isDemoMode && userSchools.length > 1;
+
+  const handleLogout = () => {
+    logout();
+    router.push("/login");
+  };
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl">
@@ -110,7 +117,7 @@ export function Navbar({ onOpenMobileNav }: { onOpenMobileNav?: () => void }) {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={logout}
+                onClick={handleLogout}
                 title="Logout"
                 className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl"
               >
