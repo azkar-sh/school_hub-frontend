@@ -3,46 +3,20 @@ import { useAuthStore } from "@/stores/use-auth-store";
 import { useRoleThemeStore } from "@/stores/use-role-theme-store";
 import { submissionsApi } from "@/lib/api-client";
 import { useFetchData } from "@/lib/use-fetch-data";
+import {
+  avg,
+  groupSubmissionsBySubject,
+  LiveSubmission,
+  StudentAssessmentResult,
+  StudentSubjectResult,
+} from "@/lib/result-grouping";
+import {
+  ParentChildSummary,
+  useParentChildren,
+} from "@/lib/use-parent-children";
 
-interface LiveSubmissionAssessment {
-  id: string;
-  title: string;
-  type: string;
-  dueAt?: string;
-  teachingAssignment?: {
-    subject?: { id: string; name: string; code: string };
-    class?: { id: string; name: string };
-  };
-}
-
-interface LiveSubmission {
-  id: string;
-  status: string;
-  score?: number | string | null;
-  scorePercentage?: number | null;
-  submittedAt?: string | null;
-  student?: { id: string; name: string; email?: string };
-  assessment?: LiveSubmissionAssessment;
-}
-
-export interface StudentAssessmentResult {
-  id: string;
-  submissionId?: string;
-  title: string;
-  type: string;
-  scorePercentage: number | null;
-  submittedAt?: string;
-  status: string;
-}
-
-export interface StudentSubjectResult {
-  subjectId: string;
-  subjectName: string;
-  subjectCode: string;
-  averageScore: number;
-  assessmentCount: number;
-  assessments: StudentAssessmentResult[];
-}
+// Re-export so the existing view components keep importing from "../hooks".
+export type { StudentAssessmentResult, StudentSubjectResult };
 
 export interface TeacherAssessmentResult {
   assessmentId: string;
@@ -73,15 +47,14 @@ export interface TeacherSubjectResult {
   students: TeacherStudentResult[];
 }
 
-function avg(values: number[]): number {
-  if (values.length === 0) return 0;
-  return Math.round(values.reduce((s, v) => s + v, 0) / values.length);
-}
-
 export function useResultsPage() {
   const { user, isDemoMode } = useAuthStore();
   const { activeRole } = useRoleThemeStore();
   const currentRole = user?.role || activeRole;
+
+  // PARENT data is fetched via the shared hook (children + role-scoped
+  // submissions merged into per-child subject groupings).
+  const parentFetch = useParentChildren();
 
   // Both TEACHER and STUDENT consume `/submissions` (role-scoped by the
   // backend). Teachers get all submissions for their assessments (with
@@ -101,55 +74,7 @@ export function useResultsPage() {
   // --- Student grouping: subject -> assessments (history) ---
   const studentSubjects: StudentSubjectResult[] = React.useMemo(() => {
     if (currentRole !== "STUDENT") return [];
-    const subs = submissionsData ?? [];
-    const graded = subs.filter(
-      (s) => s.status === "SUBMITTED" || s.status === "GRADED",
-    );
-
-    const bySubject = new Map<string, StudentSubjectResult>();
-
-    graded.forEach((s) => {
-      const subject = s.assessment?.teachingAssignment?.subject;
-      const subjectId = subject?.id ?? "unknown";
-      const assessment = s.assessment;
-
-      const item: StudentAssessmentResult = {
-        id: assessment?.id ?? s.id,
-        submissionId: s.id,
-        title: assessment?.title ?? "Assessment",
-        type: assessment?.type ?? "QUIZ",
-        scorePercentage:
-          s.scorePercentage !== undefined && s.scorePercentage !== null
-            ? Number(s.scorePercentage)
-            : null,
-        submittedAt: s.submittedAt ?? undefined,
-        status: s.status,
-      };
-
-      const existing = bySubject.get(subjectId);
-      if (existing) {
-        existing.assessments.push(item);
-        existing.assessmentCount += 1;
-      } else {
-        bySubject.set(subjectId, {
-          subjectId,
-          subjectName: subject?.name ?? "Unknown Subject",
-          subjectCode: subject?.code ?? "—",
-          averageScore: 0,
-          assessmentCount: 1,
-          assessments: [item],
-        });
-      }
-    });
-
-    bySubject.forEach((subj) => {
-      const scored = subj.assessments
-        .map((a) => a.scorePercentage)
-        .filter((v): v is number => v !== null);
-      subj.averageScore = avg(scored);
-    });
-
-    return Array.from(bySubject.values());
+    return groupSubmissionsBySubject(submissionsData ?? []);
   }, [submissionsData, currentRole]);
 
   // --- Teacher grouping: subject -> student -> assessments ---
@@ -240,11 +165,15 @@ export function useResultsPage() {
     return Array.from(bySubject.values());
   }, [submissionsData, currentRole]);
 
+  const parentChildrenResults: ParentChildSummary[] = parentFetch.children;
+
   return {
     isDemoMode,
     currentRole,
-    isLoading,
+    isLoading:
+      currentRole === "PARENT" ? parentFetch.isLoading : isLoading,
     studentSubjects,
     teacherSubjects,
+    parentChildrenResults,
   };
 }

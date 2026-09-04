@@ -12,6 +12,7 @@ export default function ResultsPage() {
     isLoading,
     studentSubjects,
     teacherSubjects,
+    parentChildrenResults,
   } = useResultsPage();
 
   if (currentRole === "TEACHER") {
@@ -34,5 +35,11 @@ export default function ResultsPage() {
     );
   }
 
-  return <ParentResultsView isDemoMode={isDemoMode} />;
+  return (
+    <ParentResultsView
+      isDemoMode={isDemoMode}
+      isLoading={isLoading}
+      parentChildrenResults={parentChildrenResults}
+    />
+  );
 }
