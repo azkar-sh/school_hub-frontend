@@ -168,6 +168,8 @@ export const classesApi = {
     apiClient.post(`/classes/${classId}/enroll`, data),
   assignHomeroom: (classId: string, data: AssignHomeroomDto) =>
     apiClient.post(`/classes/${classId}/assign-homeroom`, data),
+  getRegisteredStudents: (classId: string) =>
+    apiClient.get<User[]>(`/classes/${classId}/registered-students`),
 };
 
 // Teaching Assignments API
@@ -191,7 +193,9 @@ export const assessmentsApi = {
   updateQuestion: (id: string, questionId: string, data: UpdateQuestionDto) =>
     apiClient.put<Question>(`/assessments/${id}/questions/${questionId}`, data),
   deleteQuestion: (id: string, questionId: string) =>
-    apiClient.delete<{ id: string; deleted: boolean }>(`/assessments/${id}/questions/${questionId}`),
+    apiClient.delete<{ id: string; deleted: boolean }>(
+      `/assessments/${id}/questions/${questionId}`,
+    ),
   findForTeacher: () => apiClient.get<Assessment[]>("/assessments/teacher"),
   findForStudent: () => apiClient.get<Assessment[]>("/assessments/student"),
   findOne: (id: string) => apiClient.get<Assessment>(`/assessments/${id}`),

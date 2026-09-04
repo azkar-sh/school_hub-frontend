@@ -110,6 +110,7 @@ export interface Class {
   enrollments?: Enrollment[];
   teachingAssignments?: TeachingAssignment[];
   homeroomAssignments?: HomeroomAssignment[];
+  _count?: { enrollments?: number; teachingAssignments?: number };
 }
 
 export interface Enrollment {

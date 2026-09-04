@@ -13,6 +13,7 @@ import {
   Users,
   GraduationCap,
   UserPlus,
+  Crown,
 } from "lucide-react";
 import { Class } from "@/types";
 
@@ -20,7 +21,10 @@ interface ClassesGridProps {
   isLoading: boolean;
   classes: Class[];
   selectedAyId: string;
+  currentRole: string;
+  currentUserId?: string;
   canManageClasses: boolean;
+  onViewStudents: (classId: string) => void;
   onEnrollStudent: (classId: string) => void;
   onAssignHomeroom: (classId: string) => void;
 }
@@ -29,7 +33,10 @@ export function ClassesGrid({
   isLoading,
   classes,
   selectedAyId,
+  currentRole,
+  currentUserId,
   canManageClasses,
+  onViewStudents,
   onEnrollStudent,
   onAssignHomeroom,
 }: ClassesGridProps) {
@@ -50,67 +57,232 @@ export function ClassesGrid({
     );
   }
 
+  const isTeacher = currentRole === "TEACHER";
+
+  const isAssignedToTeacher = (cls: Class) =>
+    (cls.teachingAssignments?.length ?? 0) > 0 ||
+    !!cls.homeroomAssignments?.some((h) => h.teacherId === currentUserId);
+
+  const isHomeroomOfTeacher = (cls: Class) =>
+    !!cls.homeroomAssignments?.some((h) => h.teacherId === currentUserId);
+
+  if (isTeacher) {
+    const myClasses = classes.filter(isAssignedToTeacher);
+    const myClassIds = new Set(myClasses.map((c) => c.id));
+    const otherClasses = classes.filter((c) => !myClassIds.has(c.id));
+
+    return (
+      <div className="space-y-8">
+        <ClassSection
+          title="My Classes"
+          subtitle="Classes you teach or are the homeroom teacher for"
+          classes={myClasses}
+          selectedAyId={selectedAyId}
+          currentUserId={currentUserId}
+          canManageClasses={canManageClasses}
+          onViewStudents={onViewStudents}
+          onEnrollStudent={onEnrollStudent}
+          onAssignHomeroom={onAssignHomeroom}
+          isHomeroomOf={isHomeroomOfTeacher}
+          clickable
+        />
+        <ClassSection
+          title="Other Classes"
+          subtitle="Other classes in this school"
+          classes={otherClasses}
+          selectedAyId={selectedAyId}
+          currentUserId={currentUserId}
+          canManageClasses={canManageClasses}
+          onViewStudents={onViewStudents}
+          onEnrollStudent={onEnrollStudent}
+          onAssignHomeroom={onAssignHomeroom}
+          isHomeroomOf={isHomeroomOfTeacher}
+          clickable
+        />
+      </div>
+    );
+  }
+
+  const clickable = canManageClasses;
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-      {classes.map((cls) => {
-        const homeroom =
-          cls.homeroomAssignments?.[0]?.teacher?.name || "Unassigned";
-        const enrollmentsCount = cls.enrollments?.length || 0;
+    <ClassSection
+      classes={classes}
+      selectedAyId={selectedAyId}
+      currentUserId={currentUserId}
+      canManageClasses={canManageClasses}
+      onViewStudents={onViewStudents}
+      onEnrollStudent={onEnrollStudent}
+      onAssignHomeroom={onAssignHomeroom}
+      isHomeroomOf={isHomeroomOfTeacher}
+      clickable={clickable}
+    />
+  );
+}
 
-        return (
-          <Card key={cls.id} className="hover:border-primary/50 transition-all">
-            <CardHeader className="pb-3 flex flex-row items-start justify-between">
-              <div>
-                <Badge variant="role" className="mb-2">
-                  Grade {cls.grade}
-                </Badge>
-                <CardTitle className="text-xl">{cls.name}</CardTitle>
-                <CardDescription className="text-xs mt-0.5">
-                  Academic Year: {cls.academicYear?.name || selectedAyId}
-                </CardDescription>
-              </div>
-              <div className="p-3 rounded-2xl bg-primary/10 text-primary">
-                <SchoolIcon className="w-6 h-6" />
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3 pt-2 text-sm border-t border-border/40 mt-3">
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span className="flex items-center gap-1.5 font-medium">
-                  <GraduationCap className="w-4 h-4 text-emerald-500" />
-                  Homeroom: {homeroom}
-                </span>
-                <span className="flex items-center gap-1 font-bold text-foreground">
-                  <Users className="w-4 h-4 text-indigo-500" />
-                  {enrollmentsCount} Enrolled
-                </span>
-              </div>
+interface ClassSectionProps {
+  title?: string;
+  subtitle?: string;
+  classes: Class[];
+  selectedAyId: string;
+  currentUserId?: string;
+  canManageClasses: boolean;
+  onViewStudents: (classId: string) => void;
+  onEnrollStudent: (classId: string) => void;
+  onAssignHomeroom: (classId: string) => void;
+  isHomeroomOf: (cls: Class) => boolean;
+  clickable: boolean;
+}
 
-              {canManageClasses && (
-                <div className="flex items-center gap-2 pt-2 border-t border-border/30">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-xs gap-1 flex-1"
-                    onClick={() => onEnrollStudent(cls.id)}
-                  >
-                    <UserPlus className="w-3.5 h-3.5" />
-                    Enroll Student
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-xs gap-1 flex-1"
-                    onClick={() => onAssignHomeroom(cls.id)}
-                  >
-                    <GraduationCap className="w-3.5 h-3.5" />
-                    Assign Homeroom
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        );
-      })}
-    </div>
+function ClassSection({
+  title,
+  subtitle,
+  classes,
+  selectedAyId,
+  currentUserId,
+  canManageClasses,
+  onViewStudents,
+  onEnrollStudent,
+  onAssignHomeroom,
+  isHomeroomOf,
+  clickable,
+}: ClassSectionProps) {
+  if (classes.length === 0) return null;
+
+  return (
+    <section className="space-y-3">
+      {title && (
+        <div className="flex items-baseline justify-between">
+          <div>
+            <h2 className="text-lg font-bold tracking-tight">{title}</h2>
+            {subtitle && (
+              <p className="text-xs text-muted-foreground">{subtitle}</p>
+            )}
+          </div>
+          <Badge variant="role" className="text-xs">
+            {classes.length}
+          </Badge>
+        </div>
+      )}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {classes.map((cls) => (
+          <ClassCard
+            key={cls.id}
+            cls={cls}
+            selectedAyId={selectedAyId}
+            canManageClasses={canManageClasses}
+            isHomeroom={isHomeroomOf(cls) && !!currentUserId}
+            clickable={clickable}
+            onViewStudents={onViewStudents}
+            onEnrollStudent={onEnrollStudent}
+            onAssignHomeroom={onAssignHomeroom}
+          />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+interface ClassCardProps {
+  cls: Class;
+  selectedAyId: string;
+  canManageClasses: boolean;
+  isHomeroom: boolean;
+  clickable: boolean;
+  onViewStudents: (classId: string) => void;
+  onEnrollStudent: (classId: string) => void;
+  onAssignHomeroom: (classId: string) => void;
+}
+
+function ClassCard({
+  cls,
+  selectedAyId,
+  canManageClasses,
+  isHomeroom,
+  clickable,
+  onViewStudents,
+  onEnrollStudent,
+  onAssignHomeroom,
+}: ClassCardProps) {
+  const homeroom = cls.homeroomAssignments?.[0]?.teacher?.name || "Unassigned";
+  const enrolledCount =
+    cls._count?.enrollments ?? cls.enrollments?.length ?? 0;
+
+  return (
+    <Card
+      onClick={clickable ? () => onViewStudents(cls.id) : undefined}
+      className={`hover:border-primary/50 transition-all ${
+        clickable ? "cursor-pointer" : ""
+      } ${
+        isHomeroom
+          ? "border-amber-400/60 bg-amber-50/40 dark:bg-amber-500/5 ring-1 ring-amber-400/40"
+          : ""
+      }`}
+    >
+      <CardHeader className="pb-3 flex flex-row items-start justify-between">
+        <div>
+          {isHomeroom && (
+            <Badge
+              variant="role"
+              className="mb-2 gap-1 bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-400/40"
+            >
+              <Crown className="w-3 h-3" />
+              Your Homeroom
+            </Badge>
+          )}
+          <Badge variant="role" className="mb-2">
+            Grade {cls.grade}
+          </Badge>
+          <CardTitle className="text-xl">{cls.name}</CardTitle>
+          <CardDescription className="text-xs mt-0.5">
+            Academic Year: {cls.academicYear?.name || selectedAyId}
+          </CardDescription>
+        </div>
+        <div className="p-3 rounded-2xl bg-primary/10 text-primary">
+          <SchoolIcon className="w-6 h-6" />
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-3 pt-2 text-sm border-t border-border/40 mt-3">
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span className="flex items-center gap-1.5 font-medium">
+            <GraduationCap className="w-4 h-4 text-emerald-500" />
+            Homeroom: {homeroom}
+          </span>
+          <span className="flex items-center gap-1 font-bold text-foreground">
+            <Users className="w-4 h-4 text-indigo-500" />
+            {enrolledCount} Enrolled
+          </span>
+        </div>
+
+        {canManageClasses && (
+          <div className="flex items-center gap-2 pt-2 border-t border-border/30">
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs gap-1 flex-1"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEnrollStudent(cls.id);
+              }}
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              Enroll Student
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs gap-1 flex-1"
+              onClick={(e) => {
+                e.stopPropagation();
+                onAssignHomeroom(cls.id);
+              }}
+            >
+              <GraduationCap className="w-3.5 h-3.5" />
+              Assign Homeroom
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }

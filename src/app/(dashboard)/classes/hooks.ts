@@ -37,6 +37,10 @@ export function useClassesPage() {
   >(null);
   const [homeroomTeacherId, setHomeroomTeacherId] = React.useState("");
 
+  const [activeViewClassId, setActiveViewClassId] = React.useState<
+    string | null
+  >(null);
+
   // Initial fetch for real users
   React.useEffect(() => {
     if (isDemoMode) return;
@@ -68,7 +72,42 @@ export function useClassesPage() {
     [selectedSchoolId, selectedAyId],
     !isDemoMode && !!selectedSchoolId,
   );
-  const classesList = (classesData ?? []) as Class[];
+  const classesList = React.useMemo(
+    () => (classesData ?? []) as Class[],
+    [classesData],
+  );
+
+  const {
+    data: registeredStudentsData,
+    isLoading: isLoadingRegisteredStudents,
+    refetch: refetchRegisteredStudents,
+  } = useFetchData(
+    () =>
+      classesApi
+        .getRegisteredStudents(activeEnrollClassId!)
+        .then((res) => (Array.isArray(res.data) ? res.data : [])),
+    [activeEnrollClassId],
+    !isDemoMode && !!activeEnrollClassId,
+  );
+  const registeredStudentsList = (registeredStudentsData ?? []) as User[];
+
+  const {
+    data: viewStudentsData,
+    isLoading: isLoadingViewStudents,
+  } = useFetchData(
+    () =>
+      classesApi
+        .getRegisteredStudents(activeViewClassId!)
+        .then((res) => (Array.isArray(res.data) ? res.data : [])),
+    [activeViewClassId],
+    !isDemoMode && !!activeViewClassId,
+  );
+  const viewStudentsList = (viewStudentsData ?? []) as User[];
+
+  const activeViewClassName = React.useMemo(
+    () => classesList.find((c) => c.id === activeViewClassId)?.name ?? "",
+    [classesList, activeViewClassId],
+  );
 
   // Handlers
   const handleCreateClass = async (e: React.FormEvent) => {
@@ -112,6 +151,7 @@ export function useClassesPage() {
       setActiveEnrollClassId(null);
       setFeedbackMsg("Student enrolled successfully!");
       if (selectedSchoolId) refetchClasses();
+      refetchRegisteredStudents();
     } catch (error) {
       setFeedbackMsg(getErrorMessage(error, "Failed to enroll student"));
     }
@@ -144,12 +184,13 @@ export function useClassesPage() {
   // Demo classes fallback
   const mockClasses = getMockClasses(currentRole);
 
-  const canManageClasses =
-    currentRole === "SCHOOL_ADMIN" || currentRole === "TEACHER";
+  const canManageClasses = currentRole === "SCHOOL_ADMIN";
+  const currentUserId = user?.id;
 
   return {
     isDemoMode,
     currentRole,
+    currentUserId,
     canManageClasses,
     schools,
     selectedSchoolId,
@@ -174,8 +215,15 @@ export function useClassesPage() {
     setActiveHomeroomClassId,
     homeroomTeacherId,
     setHomeroomTeacherId,
+    activeViewClassId,
+    setActiveViewClassId,
+    activeViewClassName,
+    viewStudentsList,
+    isLoadingViewStudents,
     isLoading,
     classesList,
+    registeredStudentsList,
+    isLoadingRegisteredStudents,
     mockClasses,
     handleCreateClass,
     handleEnrollStudent,

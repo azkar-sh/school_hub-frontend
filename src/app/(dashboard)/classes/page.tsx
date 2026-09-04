@@ -9,11 +9,13 @@ import { ClassesGrid } from "./_components/ClassesGrid";
 import { CreateClassModal } from "./_components/CreateClassModal";
 import { EnrollStudentModal } from "./_components/EnrollStudentModal";
 import { AssignHomeroomModal } from "./_components/AssignHomeroomModal";
+import { ViewStudentsModal } from "./_components/ViewStudentsModal";
 
 export default function ClassesPage() {
   const {
     isDemoMode,
     currentRole,
+    currentUserId,
     canManageClasses,
     academicYears,
     selectedAyId,
@@ -35,9 +37,16 @@ export default function ClassesPage() {
     setActiveHomeroomClassId,
     homeroomTeacherId,
     setHomeroomTeacherId,
+    activeViewClassId,
+    setActiveViewClassId,
+    activeViewClassName,
+    viewStudentsList,
+    isLoadingViewStudents,
     isLoading,
     classesList,
     mockClasses,
+    isLoadingRegisteredStudents,
+    registeredStudentsList,
     handleCreateClass,
     handleEnrollStudent,
     handleAssignHomeroom,
@@ -49,6 +58,7 @@ export default function ClassesPage() {
       {isDemoMode && <DemoModeBanner />}
 
       <ClassesHeader
+        currentRole={currentRole}
         canManageClasses={canManageClasses}
         onCreateClass={() => setShowCreateClassModal(true)}
       />
@@ -79,7 +89,10 @@ export default function ClassesPage() {
           isLoading={isLoading}
           classes={classesList}
           selectedAyId={selectedAyId}
+          currentRole={currentRole}
+          currentUserId={currentUserId}
           canManageClasses={canManageClasses}
+          onViewStudents={setActiveViewClassId}
           onEnrollStudent={setActiveEnrollClassId}
           onAssignHomeroom={setActiveHomeroomClassId}
         />
@@ -102,6 +115,8 @@ export default function ClassesPage() {
       {activeEnrollClassId && (
         <EnrollStudentModal
           usersList={usersList}
+          isLoadingRegisteredStudents={isLoadingRegisteredStudents}
+          registeredStudentsList={registeredStudentsList}
           studentId={enrollStudentId}
           onChangeStudentId={setEnrollStudentId}
           onClose={() => setActiveEnrollClassId(null)}
@@ -116,6 +131,15 @@ export default function ClassesPage() {
           onChangeTeacherId={setHomeroomTeacherId}
           onClose={() => setActiveHomeroomClassId(null)}
           onSubmit={handleAssignHomeroom}
+        />
+      )}
+
+      {activeViewClassId && (
+        <ViewStudentsModal
+          className={activeViewClassName}
+          isLoading={isLoadingViewStudents}
+          students={viewStudentsList}
+          onClose={() => setActiveViewClassId(null)}
         />
       )}
     </div>

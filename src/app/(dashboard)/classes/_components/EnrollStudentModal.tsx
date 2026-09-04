@@ -5,6 +5,8 @@ import { ModalShell } from "./ModalShell";
 
 interface EnrollStudentModalProps {
   usersList: User[];
+  isLoadingRegisteredStudents: boolean;
+  registeredStudentsList: User[];
   studentId: string;
   onChangeStudentId: (value: string) => void;
   onClose: () => void;
@@ -13,6 +15,8 @@ interface EnrollStudentModalProps {
 
 export function EnrollStudentModal({
   usersList,
+  isLoadingRegisteredStudents,
+  registeredStudentsList,
   studentId,
   onChangeStudentId,
   onClose,
@@ -42,12 +46,24 @@ export function EnrollStudentModal({
                 ))}
             </select>
           ) : (
-            <Input
-              placeholder="Student UUID"
+            <select
+              className="w-full h-10 px-3 rounded-xl border border-input bg-background text-sm font-medium"
               value={studentId}
               onChange={(e) => onChangeStudentId(e.target.value)}
               required
-            />
+            >
+              <option value="">-- Select Student --</option>
+              {usersList
+                .filter((u) => u.role === "STUDENT")
+                .filter(
+                  (u) => !registeredStudentsList.some((s) => s.id === u.id),
+                )
+                .map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name} ({u.email})
+                  </option>
+                ))}
+            </select>
           )}
         </div>
         <Button type="submit" variant="role" className="w-full">
