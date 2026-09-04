@@ -4,14 +4,23 @@ import {
   GraduationCap,
   School as SchoolIcon,
   BookOpen,
+  Loader2,
 } from "lucide-react";
 import { MockSchoolAdminOverview } from "@/lib/mock-data";
 
 interface AdminStatsGridProps {
   overview: MockSchoolAdminOverview;
+  isLoading?: boolean;
 }
 
-export function AdminStatsGrid({ overview }: AdminStatsGridProps) {
+export function AdminStatsGrid({ overview, isLoading }: AdminStatsGridProps) {
+  const value = (v: number) =>
+    isLoading ? (
+      <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+    ) : (
+      v
+    );
+
   return (
     <>
       <Card className="border-purple-500/20 bg-purple-500/5">
@@ -23,7 +32,7 @@ export function AdminStatsGrid({ overview }: AdminStatsGridProps) {
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-extrabold text-foreground">
-            {overview.teachersCount}
+            {value(overview.teachersCount)}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
             Active teaching staff
@@ -40,7 +49,7 @@ export function AdminStatsGrid({ overview }: AdminStatsGridProps) {
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-extrabold text-foreground">
-            {overview.studentsCount}
+            {value(overview.studentsCount)}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
             Enrolled students
@@ -57,7 +66,7 @@ export function AdminStatsGrid({ overview }: AdminStatsGridProps) {
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-extrabold text-foreground">
-            {overview.classesCount}
+            {value(overview.classesCount)}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
             Active class sections
@@ -74,7 +83,7 @@ export function AdminStatsGrid({ overview }: AdminStatsGridProps) {
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-extrabold text-foreground">
-            {overview.subjectsCount}
+            {value(overview.subjectsCount)}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
             Registered subjects

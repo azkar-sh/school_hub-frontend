@@ -8,7 +8,11 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, GraduationCap } from "lucide-react";
+import {
+  ArrowRight,
+  GraduationCap,
+  Loader2,
+} from "lucide-react";
 import { MockParentChild, MockRecentResult } from "@/lib/mock-data";
 import { RecentResultsCard } from "./RecentResultsCard";
 
@@ -16,12 +20,14 @@ interface ParentDashboardContentProps {
   isDemoMode: boolean;
   parentChildren: MockParentChild[];
   parentRecentResults: MockRecentResult[];
+  isLoading: boolean;
 }
 
 export function ParentDashboardContent({
   isDemoMode,
   parentChildren,
   parentRecentResults,
+  isLoading,
 }: ParentDashboardContentProps) {
   return (
     <div className="space-y-6">
@@ -40,7 +46,16 @@ export function ParentDashboardContent({
           </Link>
         </CardHeader>
         <CardContent className="space-y-3">
-          {isDemoMode ? (
+          {isLoading && !isDemoMode ? (
+            <div className="flex items-center justify-center py-10 text-muted-foreground gap-2">
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span className="text-sm">Loading children…</span>
+            </div>
+          ) : parentChildren.length === 0 ? (
+            <div className="py-6 text-center text-xs text-muted-foreground">
+              No children linked yet.
+            </div>
+          ) : (
             parentChildren.map((child) => (
               <Link key={child.id} href={`/children/${child.id}`}>
                 <div className="p-4 rounded-2xl bg-muted/40 border border-border/50 flex items-center justify-between gap-4 hover:bg-muted/70 transition-colors cursor-pointer">
@@ -63,17 +78,14 @@ export function ParentDashboardContent({
                 </div>
               </Link>
             ))
-          ) : (
-            <div className="py-6 text-center text-xs text-muted-foreground">
-              No children linked yet.
-            </div>
           )}
         </CardContent>
       </Card>
 
       <RecentResultsCard
         description="Your child's latest graded assessments"
-        results={isDemoMode ? parentRecentResults : []}
+        results={parentRecentResults}
+        isLoading={!isDemoMode && isLoading}
       />
     </div>
   );

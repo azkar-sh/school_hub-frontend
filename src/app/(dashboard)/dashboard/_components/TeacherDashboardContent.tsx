@@ -12,6 +12,7 @@ import {
   School as SchoolIcon,
   Users,
   FileCheck2,
+  Loader2,
 } from "lucide-react";
 import { MockTeacherDashboardClass } from "@/lib/mock-data";
 import { DisplayAssessment } from "../hooks";
@@ -20,6 +21,7 @@ import { UpcomingAssessmentsCard } from "./UpcomingAssessmentsCard";
 interface TeacherDashboardContentProps {
   isDemoMode: boolean;
   teacherClasses: MockTeacherDashboardClass[];
+  isLoading: boolean;
   isLoadingLive: boolean;
   liveFetchError: unknown;
   displayAssessments: DisplayAssessment[];
@@ -28,6 +30,7 @@ interface TeacherDashboardContentProps {
 export function TeacherDashboardContent({
   isDemoMode,
   teacherClasses,
+  isLoading,
   isLoadingLive,
   liveFetchError,
   displayAssessments,
@@ -51,7 +54,16 @@ export function TeacherDashboardContent({
           </Link>
         </CardHeader>
         <CardContent className="space-y-3">
-          {isDemoMode ? (
+          {isLoading && !isDemoMode ? (
+            <div className="flex items-center justify-center py-10 text-muted-foreground gap-2">
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span className="text-sm">Loading your classes…</span>
+            </div>
+          ) : teacherClasses.length === 0 ? (
+            <div className="py-6 text-center text-xs text-muted-foreground">
+              No classes assigned yet.
+            </div>
+          ) : (
             teacherClasses.map((cls) => (
               <div
                 key={`${cls.id}-${cls.subject}`}
@@ -87,10 +99,6 @@ export function TeacherDashboardContent({
                 </div>
               </div>
             ))
-          ) : (
-            <div className="py-6 text-center text-xs text-muted-foreground">
-              No classes assigned yet.
-            </div>
           )}
         </CardContent>
       </Card>

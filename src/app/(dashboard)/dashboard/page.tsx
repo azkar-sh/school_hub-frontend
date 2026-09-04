@@ -24,11 +24,23 @@ export default function DashboardPage() {
     schoolAdminOverview,
     schoolAdminAcademicYear,
     schoolAdminActivity,
+    adminIsLoading,
     teacherClasses,
+    teacherPendingResults,
+    teacherClassAverage,
+    teacherIsLoading,
     studentClass,
+    studentQuizzesTaken,
+    studentAverageScore,
+    studentPendingDue,
     studentRecentResults,
+    studentIsLoading,
     parentChildren,
+    parentAvgScore,
+    parentCompletedCount,
     parentRecentResults,
+    parentFirstChildGrade,
+    parentIsLoading,
   } = useDashboardPage();
 
   return (
@@ -45,25 +57,37 @@ export default function DashboardPage() {
       {/* Metric Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {currentRole === "SCHOOL_ADMIN" && (
-          <AdminStatsGrid overview={schoolAdminOverview} />
+          <AdminStatsGrid
+            overview={schoolAdminOverview}
+            isLoading={adminIsLoading}
+          />
         )}
         {currentRole === "TEACHER" && (
           <TeacherStatsGrid
             isDemoMode={isDemoMode}
             teacherClasses={teacherClasses}
             liveAssessmentsCount={liveAssessments.length}
+            pendingResults={teacherPendingResults}
+            classAverage={teacherClassAverage}
+            isLoading={teacherIsLoading}
           />
         )}
         {currentRole === "STUDENT" && (
           <StudentStatsGrid
             isDemoMode={isDemoMode}
-            liveAssessmentsCount={liveAssessments.length}
+            quizzesTaken={studentQuizzesTaken}
+            averageScore={studentAverageScore}
+            pendingDue={studentPendingDue}
+            isLoading={studentIsLoading}
           />
         )}
         {currentRole === "PARENT" && (
           <ParentStatsGrid
             parentChildren={parentChildren}
-            studentClassGrade={studentClass.grade}
+            studentClassGrade={parentFirstChildGrade}
+            avgScore={parentAvgScore}
+            completedCount={parentCompletedCount}
+            isLoading={parentIsLoading}
           />
         )}
       </div>
@@ -72,6 +96,7 @@ export default function DashboardPage() {
         <AdminDashboardContent
           academicYear={schoolAdminAcademicYear}
           recentActivity={schoolAdminActivity}
+          isLoading={adminIsLoading}
         />
       )}
 
@@ -79,6 +104,7 @@ export default function DashboardPage() {
         <TeacherDashboardContent
           isDemoMode={isDemoMode}
           teacherClasses={teacherClasses}
+          isLoading={teacherIsLoading}
           isLoadingLive={isLoadingLive}
           liveFetchError={liveFetchError}
           displayAssessments={displayAssessments}
@@ -89,6 +115,7 @@ export default function DashboardPage() {
         <StudentDashboardContent
           isDemoMode={isDemoMode}
           studentClass={studentClass}
+          isLoading={studentIsLoading}
           isLoadingLive={isLoadingLive}
           liveFetchError={liveFetchError}
           displayAssessments={displayAssessments}
@@ -101,6 +128,7 @@ export default function DashboardPage() {
           isDemoMode={isDemoMode}
           parentChildren={parentChildren}
           parentRecentResults={parentRecentResults}
+          isLoading={parentIsLoading}
         />
       )}
     </div>

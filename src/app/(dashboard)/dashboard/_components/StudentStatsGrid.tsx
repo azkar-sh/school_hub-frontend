@@ -5,17 +5,35 @@ import {
   Clock,
   CheckCircle2,
   TrendingUp,
+  Loader2,
 } from "lucide-react";
 
 interface StudentStatsGridProps {
   isDemoMode: boolean;
-  liveAssessmentsCount: number;
+  quizzesTaken: number;
+  averageScore: number | null;
+  pendingDue: number;
+  isLoading?: boolean;
 }
 
 export function StudentStatsGrid({
   isDemoMode,
-  liveAssessmentsCount,
+  quizzesTaken,
+  averageScore,
+  pendingDue,
+  isLoading,
 }: StudentStatsGridProps) {
+  const taken = isDemoMode ? 12 : quizzesTaken;
+  const avg = isDemoMode ? 92.5 : averageScore;
+  const pending = isDemoMode ? 2 : pendingDue;
+
+  const num = (v: number) =>
+    isLoading ? (
+      <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+    ) : (
+      v
+    );
+
   return (
     <>
       <Card className="border-indigo-500/20 bg-indigo-500/5">
@@ -27,11 +45,13 @@ export function StudentStatsGrid({
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-extrabold text-foreground">
-            {isDemoMode ? 12 : liveAssessmentsCount}
+            {num(taken)}
           </div>
           <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
             <TrendingUp className="w-3 h-3 text-emerald-500" />
-            <span>{isDemoMode ? "+3 this week" : "from your account"}</span>
+            <span>
+              {isDemoMode ? "+3 this week" : "Submitted assessments"}
+            </span>
           </p>
         </CardContent>
       </Card>
@@ -45,10 +65,18 @@ export function StudentStatsGrid({
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-extrabold text-indigo-600 dark:text-indigo-400">
-            92.5%
+            {isLoading ? (
+              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+            ) : avg === null ? (
+              "—"
+            ) : (
+              `${avg}%`
+            )}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            Grade A (Honor Roll)
+            {isDemoMode
+              ? "Grade A (Honor Roll)"
+              : "Across graded assessments"}
           </p>
         </CardContent>
       </Card>
@@ -61,9 +89,11 @@ export function StudentStatsGrid({
           <Clock className="w-4 h-4 text-indigo-500" />
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-extrabold text-amber-500">2</div>
+          <div className="text-3xl font-extrabold text-amber-500">
+            {num(pending)}
+          </div>
           <p className="text-xs text-muted-foreground mt-1">
-            Math & Science Exams
+            {isDemoMode ? "Math & Science Exams" : "Awaiting submission"}
           </p>
         </CardContent>
       </Card>

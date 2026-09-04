@@ -1,7 +1,17 @@
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { School as SchoolIcon, GraduationCap, FileCheck2 } from "lucide-react";
+import {
+  School as SchoolIcon,
+  GraduationCap,
+  FileCheck2,
+  Loader2,
+} from "lucide-react";
 import { MockStudentClassInfo, MockRecentResult } from "@/lib/mock-data";
 import { DisplayAssessment } from "../hooks";
 import { UpcomingAssessmentsCard } from "./UpcomingAssessmentsCard";
@@ -9,7 +19,8 @@ import { RecentResultsCard } from "./RecentResultsCard";
 
 interface StudentDashboardContentProps {
   isDemoMode: boolean;
-  studentClass: MockStudentClassInfo;
+  studentClass: MockStudentClassInfo | null;
+  isLoading: boolean;
   isLoadingLive: boolean;
   liveFetchError: unknown;
   displayAssessments: DisplayAssessment[];
@@ -19,6 +30,7 @@ interface StudentDashboardContentProps {
 export function StudentDashboardContent({
   isDemoMode,
   studentClass,
+  isLoading,
   isLoadingLive,
   liveFetchError,
   displayAssessments,
@@ -35,30 +47,41 @@ export function StudentDashboardContent({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-2xl bg-indigo-500/10 text-indigo-500">
-                <GraduationCap className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="text-xl font-extrabold text-foreground">
-                  Class {studentClass.name}
-                </h3>
-                <p className="text-xs text-muted-foreground">
-                  Grade {studentClass.grade} • {studentClass.academicYear}
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Homeroom: {studentClass.homeroomTeacher}
-                </p>
-              </div>
+          {isLoading && !isDemoMode ? (
+            <div className="flex items-center justify-center py-8 text-muted-foreground gap-2">
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span className="text-sm">Loading your class…</span>
             </div>
-            <Link href="/assessments">
-              <Button variant="role" size="sm">
-                <FileCheck2 className="w-4 h-4 mr-1.5" />
-                View Assessments
-              </Button>
-            </Link>
-          </div>
+          ) : studentClass ? (
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-2xl bg-indigo-500/10 text-indigo-500">
+                  <GraduationCap className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-extrabold text-foreground">
+                    Class {studentClass.name}
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Grade {studentClass.grade} • {studentClass.academicYear}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Homeroom: {studentClass.homeroomTeacher}
+                  </p>
+                </div>
+              </div>
+              <Link href="/assessments">
+                <Button variant="role" size="sm">
+                  <FileCheck2 className="w-4 h-4 mr-1.5" />
+                  View Assessments
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <div className="py-8 text-center text-sm text-muted-foreground">
+              You are not enrolled in a class for the current academic year.
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -74,7 +97,8 @@ export function StudentDashboardContent({
 
       <RecentResultsCard
         description="Your latest graded assessments"
-        results={isDemoMode ? studentRecentResults : []}
+        results={studentRecentResults}
+        isLoading={!isDemoMode && isLoading}
       />
     </div>
   );

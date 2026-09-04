@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 
 interface RecentResultItem {
   id: string;
@@ -21,11 +21,13 @@ interface RecentResultItem {
 interface RecentResultsCardProps {
   description: string;
   results: RecentResultItem[];
+  isLoading?: boolean;
 }
 
 export function RecentResultsCard({
   description,
   results,
+  isLoading,
 }: RecentResultsCardProps) {
   return (
     <Card>
@@ -42,7 +44,12 @@ export function RecentResultsCard({
         </Link>
       </CardHeader>
       <CardContent className="space-y-3">
-        {results.length > 0 ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center py-10 text-muted-foreground gap-2">
+            <Loader2 className="w-5 h-5 animate-spin" />
+            <span className="text-sm">Loading results…</span>
+          </div>
+        ) : results.length > 0 ? (
           results.map((result) => (
             <div
               key={result.id}

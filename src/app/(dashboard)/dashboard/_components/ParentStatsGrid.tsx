@@ -1,16 +1,35 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Award, CheckCircle2, GraduationCap } from "lucide-react";
+import {
+  Users,
+  Award,
+  CheckCircle2,
+  GraduationCap,
+  Loader2,
+} from "lucide-react";
 import { MockParentChild } from "@/lib/mock-data";
 
 interface ParentStatsGridProps {
   parentChildren: MockParentChild[];
   studentClassGrade: number;
+  avgScore: number | null;
+  completedCount: number;
+  isLoading?: boolean;
 }
 
 export function ParentStatsGrid({
   parentChildren,
   studentClassGrade,
+  avgScore,
+  completedCount,
+  isLoading,
 }: ParentStatsGridProps) {
+  const num = (v: number) =>
+    isLoading ? (
+      <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+    ) : (
+      v
+    );
+
   return (
     <>
       <Card className="border-amber-500/20 bg-amber-500/5">
@@ -22,10 +41,11 @@ export function ParentStatsGrid({
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-extrabold text-foreground">
-            {parentChildren.length}
+            {num(parentChildren.length)}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            {parentChildren[0]?.name} (Grade {studentClassGrade})
+            {parentChildren[0]?.name ?? "No children"}
+            {studentClassGrade ? ` (Grade ${studentClassGrade})` : ""}
           </p>
         </CardContent>
       </Card>
@@ -39,10 +59,16 @@ export function ParentStatsGrid({
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-extrabold text-amber-600 dark:text-amber-400">
-            92.5%
+            {isLoading ? (
+              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+            ) : avgScore === null ? (
+              "—"
+            ) : (
+              `${avgScore}%`
+            )}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            Grade 10 Class Rank #3
+            Across graded assessments
           </p>
         </CardContent>
       </Card>
@@ -56,10 +82,10 @@ export function ParentStatsGrid({
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-extrabold text-emerald-500">
-            12 / 14
+            {num(completedCount)}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            85% Completion rate
+            Submitted assessments
           </p>
         </CardContent>
       </Card>

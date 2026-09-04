@@ -1,18 +1,42 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { SchoolIcon, FileCheck2, Clock, BarChart3 } from "lucide-react";
+import {
+  School as SchoolIcon,
+  FileCheck2,
+  Clock,
+  BarChart3,
+  Loader2,
+} from "lucide-react";
 import { MockTeacherDashboardClass } from "@/lib/mock-data";
 
 interface TeacherStatsGridProps {
   isDemoMode: boolean;
   teacherClasses: MockTeacherDashboardClass[];
   liveAssessmentsCount: number;
+  pendingResults: number;
+  classAverage: number | null;
+  isLoading?: boolean;
 }
 
 export function TeacherStatsGrid({
   isDemoMode,
   teacherClasses,
   liveAssessmentsCount,
+  pendingResults,
+  classAverage,
+  isLoading,
 }: TeacherStatsGridProps) {
+  const num = (v: number, fallback = 0) =>
+    isLoading ? (
+      <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+    ) : (
+      v ?? fallback
+    );
+
+  const myClassesCount = teacherClasses.length;
+  const assessmentsCount = isDemoMode ? 8 : liveAssessmentsCount;
+  const pendingCount = isDemoMode ? 14 : pendingResults;
+  const avg = isDemoMode ? 86.4 : classAverage;
+
   return (
     <>
       <Card className="border-emerald-500/20 bg-emerald-500/5">
@@ -24,7 +48,7 @@ export function TeacherStatsGrid({
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-extrabold text-foreground">
-            {isDemoMode ? teacherClasses.length : 0}
+            {num(myClassesCount)}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
             Teaching assignments
@@ -41,10 +65,10 @@ export function TeacherStatsGrid({
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-extrabold text-foreground">
-            {isDemoMode ? 8 : liveAssessmentsCount}
+            {num(assessmentsCount)}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            Quizzes & exams published
+            Quizzes &amp; exams published
           </p>
         </CardContent>
       </Card>
@@ -57,7 +81,9 @@ export function TeacherStatsGrid({
           <Clock className="w-4 h-4 text-amber-500" />
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-extrabold text-amber-500">14</div>
+          <div className="text-3xl font-extrabold text-amber-500">
+            {num(pendingCount)}
+          </div>
           <p className="text-xs text-muted-foreground mt-1">
             Submissions waiting review
           </p>
@@ -72,9 +98,17 @@ export function TeacherStatsGrid({
           <BarChart3 className="w-4 h-4 text-emerald-500" />
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-extrabold text-emerald-500">86.4%</div>
+          <div className="text-3xl font-extrabold text-emerald-500">
+            {isLoading ? (
+              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+            ) : avg === null ? (
+              "—"
+            ) : (
+              `${avg}%`
+            )}
+          </div>
           <p className="text-xs text-muted-foreground mt-1">
-            +2.1% from last term
+            Across graded submissions
           </p>
         </CardContent>
       </Card>
