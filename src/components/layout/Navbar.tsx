@@ -55,8 +55,10 @@ export function Navbar({ onOpenMobileNav }: { onOpenMobileNav?: () => void }) {
             </div>
             <div className="flex flex-col">
               <span className="font-bold tracking-tight text-lg leading-tight bg-linear-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-                School<span className="text-primary">Hub</span> |{" "}
-                <span>
+                School<span className="text-primary">Hub</span>
+                <span className="lg:inline hidden">
+                  {" "}
+                  |{" "}
                   {user?.role !== "SCHOOL_ADMIN" &&
                     user?.schoolMemberships?.[0]?.school?.name}
                 </span>

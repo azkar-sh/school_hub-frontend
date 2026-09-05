@@ -75,7 +75,7 @@ export function RoleThemeSwitcher({ className }: { className?: string }) {
     return (
       <div
         className={cn(
-          "flex items-center gap-2 px-3 py-2 rounded-2xl border shadow-inner text-xs",
+          "flex items-center gap-2 px-3 py-2 rounded-2xl border shadow-inner text-xs md:hidden",
           currentRoleConfig?.lockedClass ??
             "bg-muted/60 text-muted-foreground border-border/50",
           className,

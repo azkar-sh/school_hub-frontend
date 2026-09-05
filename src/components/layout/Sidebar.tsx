@@ -165,7 +165,7 @@ export function Sidebar({
       </nav>
 
       {/* Role Footer Box */}
-      <div className="p-3.5 rounded-2xl bg-muted/50 border border-border/40 text-xs flex flex-col gap-1">
+      <div className="lg:hidden p-3.5 rounded-2xl bg-muted/50 border border-border/40 text-xs flex flex-col gap-1">
         <div className="font-semibold text-foreground flex items-center justify-between">
           <span>Active Role</span>
           <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/15 text-primary font-bold">
@@ -200,7 +200,9 @@ export function Sidebar({
           />
           <div className="fixed inset-y-0 left-0 z-50 w-64 bg-background shadow-2xl flex flex-col">
             <div className="p-4 flex items-center justify-between border-b border-border">
-              <span className="font-bold text-sm">School Hub Menu</span>
+              <span className="font-bold text-sm text-primary">
+                {user?.schoolMemberships?.[0]?.school?.name}
+              </span>
               <button
                 onClick={onClose}
                 className="p-1 rounded-lg hover:bg-muted text-muted-foreground"
