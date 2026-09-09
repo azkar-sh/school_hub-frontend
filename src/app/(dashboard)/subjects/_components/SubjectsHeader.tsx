@@ -5,6 +5,7 @@ import { School } from "@/types";
 interface SubjectsHeaderProps {
   currentRole?: string;
   canEditCurriculum: boolean;
+  canAddSubject: boolean;
   isDemoMode: boolean;
   schools: School[];
   selectedSchoolId: string;
@@ -14,6 +15,7 @@ interface SubjectsHeaderProps {
 
 export function SubjectsHeader({
   canEditCurriculum,
+  canAddSubject,
   isDemoMode,
   schools,
   selectedSchoolId,
@@ -48,7 +50,7 @@ export function SubjectsHeader({
           </select>
         )} */}
 
-        {canEditCurriculum && (
+        {canAddSubject && (
           <Button variant="role" className="shadow-md" onClick={onAddSubject}>
             <PlusCircle className="w-4 h-4 mr-2" />
             Add Subject

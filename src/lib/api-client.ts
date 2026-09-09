@@ -180,6 +180,10 @@ export const teachingAssignmentsApi = {
     apiClient.get<TeachingAssignment[]>("/teaching-assignments", {
       params: teacherId ? { teacherId } : undefined,
     }),
+  findBySchool: (schoolId: string) =>
+    apiClient.get<TeachingAssignment[]>("/teaching-assignments/by-school", {
+      params: { schoolId },
+    }),
   findOne: (id: string) =>
     apiClient.get<TeachingAssignment>(`/teaching-assignments/${id}`),
 };

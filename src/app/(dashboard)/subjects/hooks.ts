@@ -2,16 +2,17 @@ import * as React from "react";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useRoleThemeStore } from "@/stores/use-role-theme-store";
 import { getMockSubjects } from "@/lib/mock-data";
-import { subjectsApi } from "@/lib/api-client";
+import { subjectsApi, teachingAssignmentsApi } from "@/lib/api-client";
 import { useFetchData } from "@/lib/use-fetch-data";
 import { useSchoolSelection } from "@/lib/use-school-selection";
 import { getErrorMessage } from "@/lib/errors";
-import { Subject } from "@/types";
+import { Subject, TeachingAssignment } from "@/types";
 
 export function useSubjectsPage() {
   const { user, isDemoMode } = useAuthStore();
   const { activeRole } = useRoleThemeStore();
   const currentRole = user?.role || activeRole;
+  const isTeacher = currentRole === "TEACHER";
 
   // School selection is cached & shared across all dashboard pages
   const { schools, selectedSchoolId, setSelectedSchoolId } =
@@ -49,6 +50,72 @@ export function useSubjectsPage() {
     !isDemoMode && !!selectedSchoolId,
   );
   const subjectsList = (subjectsData ?? []) as Subject[];
+
+  // Fetch teaching assignments for teacher role (for assigned/other split)
+  const { data: teachingAssignmentsData } = useFetchData(
+    () =>
+      teachingAssignmentsApi
+        .findByTeacher(user?.id)
+        .then((res) => (Array.isArray(res.data) ? res.data : [])),
+    [user?.id],
+    !isDemoMode && isTeacher && !!user?.id,
+  );
+  const teachingAssignments = (teachingAssignmentsData ?? []) as TeachingAssignment[];
+
+  // Fetch all teaching assignments for the school (all roles — for teacher names display)
+  const { data: schoolAssignmentsData } = useFetchData(
+    () =>
+      teachingAssignmentsApi
+        .findBySchool(selectedSchoolId)
+        .then((res) => (Array.isArray(res.data) ? res.data : [])),
+    [selectedSchoolId],
+    !isDemoMode && !!selectedSchoolId,
+  );
+  const schoolAssignments = (schoolAssignmentsData ?? []) as TeachingAssignment[];
+
+  // Compute assigned vs other subjects for teacher
+  const assignedSubjectIds = React.useMemo(
+    () => new Set(teachingAssignments.map((ta) => ta.subjectId)),
+    [teachingAssignments],
+  );
+
+  const subjectClassesMap = React.useMemo(() => {
+    const map: Record<string, TeachingAssignment[]> = {};
+    for (const ta of teachingAssignments) {
+      if (!map[ta.subjectId]) map[ta.subjectId] = [];
+      map[ta.subjectId].push(ta);
+    }
+    return map;
+  }, [teachingAssignments]);
+
+  // Map subjectId → unique teacher names (from school-wide assignments)
+  const subjectTeachersMap = React.useMemo(() => {
+    const map: Record<string, string[]> = {};
+    for (const ta of schoolAssignments) {
+      if (!map[ta.subjectId]) map[ta.subjectId] = [];
+      const teacherName = ta.teacher?.name;
+      if (teacherName && !map[ta.subjectId].includes(teacherName)) {
+        map[ta.subjectId].push(teacherName);
+      }
+    }
+    return map;
+  }, [schoolAssignments]);
+
+  const assignedSubjects = React.useMemo(
+    () =>
+      isTeacher
+        ? subjectsList.filter((s) => assignedSubjectIds.has(s.id))
+        : [],
+    [isTeacher, subjectsList, assignedSubjectIds],
+  );
+
+  const otherSubjects = React.useMemo(
+    () =>
+      isTeacher
+        ? subjectsList.filter((s) => !assignedSubjectIds.has(s.id))
+        : [],
+    [isTeacher, subjectsList, assignedSubjectIds],
+  );
 
   // Handlers
   const handleCreateSubject = async (e: React.FormEvent) => {
@@ -133,10 +200,14 @@ export function useSubjectsPage() {
   const canEditCurriculum =
     currentRole === "TEACHER" || currentRole === "SCHOOL_ADMIN";
 
+  const canAddSubject = currentRole === "SCHOOL_ADMIN";
+
   return {
     isDemoMode,
     currentRole,
+    isTeacher,
     canEditCurriculum,
+    canAddSubject,
     schools,
     selectedSchoolId,
     setSelectedSchoolId,
@@ -162,6 +233,10 @@ export function useSubjectsPage() {
     setNewSubTopicDesc,
     isLoading,
     subjectsList,
+    assignedSubjects,
+    otherSubjects,
+    subjectClassesMap,
+    subjectTeachersMap,
     displaySubjects,
     handleCreateSubject,
     handleCreateTopic,

@@ -14,7 +14,9 @@ export default function SubjectsPage() {
   const {
     isDemoMode,
     currentRole,
+    isTeacher,
     canEditCurriculum,
+    canAddSubject,
     schools,
     selectedSchoolId,
     setSelectedSchoolId,
@@ -40,6 +42,10 @@ export default function SubjectsPage() {
     setNewSubTopicDesc,
     isLoading,
     subjectsList,
+    assignedSubjects,
+    otherSubjects,
+    subjectClassesMap,
+    subjectTeachersMap,
     displaySubjects,
     handleCreateSubject,
     handleCreateTopic,
@@ -54,6 +60,7 @@ export default function SubjectsPage() {
       <SubjectsHeader
         currentRole={currentRole}
         canEditCurriculum={canEditCurriculum}
+        canAddSubject={canAddSubject}
         isDemoMode={isDemoMode}
         schools={schools}
         selectedSchoolId={selectedSchoolId}
@@ -87,6 +94,11 @@ export default function SubjectsPage() {
           canEditCurriculum={canEditCurriculum}
           onAddTopic={setActiveTopicSubjectId}
           onAddSubTopic={setActiveSubTopicTopicId}
+          isTeacher={isTeacher}
+          assignedSubjects={assignedSubjects}
+          otherSubjects={otherSubjects}
+          subjectClassesMap={subjectClassesMap}
+          subjectTeachersMap={subjectTeachersMap}
         />
       )}
 

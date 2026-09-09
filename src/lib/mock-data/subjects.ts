@@ -12,6 +12,8 @@ export interface MockSubject {
   topics: MockSubjectTopic[];
   /** Teacher-only: can create/edit topics */
   canEdit?: boolean;
+  /** Teacher names responsible for this subject */
+  teachers?: string[];
 }
 
 export function getMockSubjects(role: UserRole): MockSubject[] {
@@ -22,6 +24,7 @@ export function getMockSubjects(role: UserRole): MockSubject[] {
       name: "Mathematics",
       code: "MATH",
       canEdit,
+      teachers: ["Mr. Smith", "Ms. Johnson"],
       topics: [
         {
           name: "Algebra",
@@ -34,6 +37,7 @@ export function getMockSubjects(role: UserRole): MockSubject[] {
       name: "Science",
       code: "SCI",
       canEdit,
+      teachers: ["Dr. Lee"],
       topics: [
         {
           name: "Biology Basics",

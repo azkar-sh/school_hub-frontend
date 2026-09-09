@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Layers, BookmarkCheck, PlusCircle } from "lucide-react";
+import { BookOpen, Layers, BookmarkCheck, PlusCircle, UserCircle } from "lucide-react";
 import { MockSubject } from "@/lib/mock-data";
 
 interface MockSubjectsListProps {
@@ -32,6 +32,14 @@ export function MockSubjectsList({ subjects }: MockSubjectsListProps) {
                 <CardDescription className="text-xs mt-0.5">
                   {sub.topics.length} Major Topics
                 </CardDescription>
+                {sub.teachers && sub.teachers.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                    <UserCircle className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground">
+                      {sub.teachers.join(", ")}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
