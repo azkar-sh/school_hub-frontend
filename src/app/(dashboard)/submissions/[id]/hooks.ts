@@ -54,6 +54,22 @@ export function useSubmissionDetailPage(submissionId: string) {
     }
   };
 
+  const [autoGrading, setAutoGrading] = React.useState(false);
+
+  const handleAutoGradeSubmission = async () => {
+    if (!submission || isDemoMode) return;
+    setAutoGrading(true);
+    try {
+      await submissionsApi.autoGrade(submission.id);
+      setFeedbackMsg("Submission auto-graded successfully!");
+      refetch();
+    } catch (err: unknown) {
+      setFeedbackMsg(getErrorMessage(err, "Failed to auto-grade submission"));
+    } finally {
+      setAutoGrading(false);
+    }
+  };
+
   return {
     currentRole,
     isDemoMode,
@@ -67,5 +83,7 @@ export function useSubmissionDetailPage(submissionId: string) {
     startGradingAnswer,
     cancelGradingAnswer,
     handleGradeSubmission,
+    handleAutoGradeSubmission,
+    autoGrading,
   };
 }

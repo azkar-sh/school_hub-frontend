@@ -14,6 +14,8 @@ import {
   XCircle,
   Clock,
   AlertCircle,
+  Wand2,
+  Loader2,
 } from "lucide-react";
 import { Submission } from "@/types";
 
@@ -26,6 +28,8 @@ interface SubmissionDetailCardProps {
   onStartGrading: (answerId: string, currentPoints?: number) => void;
   onCancelGrading: () => void;
   onSubmitGrade: (e: React.FormEvent) => void;
+  onAutoGrade?: () => void;
+  autoGrading?: boolean;
 }
 
 function optionMatches(
@@ -46,15 +50,23 @@ export function SubmissionDetailCard({
   onStartGrading,
   onCancelGrading,
   onSubmitGrade,
+  onAutoGrade,
+  autoGrading,
 }: SubmissionDetailCardProps) {
   const answers = submission.answers ?? [];
   const hasPendingManual = answers.some(
     (a) => a.pointsEarned === null || a.pointsEarned === undefined,
   );
+  const autoGradableAnswers = answers.filter(
+    (a) => a.question?.type === "MCQ" || a.question?.type === "TRUE_FALSE",
+  );
+  const hasPendingAuto = autoGradableAnswers.some(
+    (a) => a.pointsEarned === null || a.pointsEarned === undefined,
+  );
 
   return (
     <Card className="border-primary/40 bg-primary/5">
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-row items-center justify-between gap-3">
         <div>
           <Badge variant="role" className="mb-1">
             Submission Detail ({submission.status})
@@ -66,7 +78,7 @@ export function SubmissionDetailCard({
             Student: {submission.student?.name || submission.studentId}
           </CardDescription>
         </div>
-        <div className="text-right">
+        <div className="text-right shrink-0">
           <span className="text-xs uppercase font-semibold text-muted-foreground block">
             Score
           </span>
@@ -76,6 +88,22 @@ export function SubmissionDetailCard({
               ? `${submission.scorePercentage}%`
               : "Pending"}
           </span>
+          {/* {currentRole === "TEACHER" && autoGradableAnswers.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-2 h-8 text-[11px]"
+              onClick={onAutoGrade}
+              disabled={autoGrading}
+            >
+              {autoGrading ? (
+                <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" />
+              ) : (
+                <Wand2 className="w-3.5 h-3.5 mr-1" />
+              )}
+              {hasPendingAuto ? "Auto-grade MCQ" : "Re-run auto-grade"}
+            </Button>
+          )} */}
         </div>
       </CardHeader>
 
@@ -84,6 +112,23 @@ export function SubmissionDetailCard({
           <div className="flex items-center gap-2 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-700 dark:text-amber-400 font-medium">
             <AlertCircle className="w-4 h-4 shrink-0" />
             Some short-answer questions are awaiting manual grading.
+          </div>
+        )}
+        {hasPendingAuto && currentRole === "TEACHER" && (
+          <div className="flex items-center justify-between gap-2 p-3 rounded-xl bg-sky-500/10 border border-sky-500/30 text-xs text-sky-700 dark:text-sky-400 font-medium">
+            <span className="flex items-center gap-2">
+              <Wand2 className="w-4 h-4 shrink-0" />
+              Some MCQ / True-False answers are ungraded.
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 text-[11px]"
+              onClick={onAutoGrade}
+              disabled={autoGrading}
+            >
+              {autoGrading ? "Grading…" : "Auto-grade now"}
+            </Button>
           </div>
         )}
 
@@ -102,6 +147,8 @@ export function SubmissionDetailCard({
                 : null;
             const isPending = earned === null;
             const isShortAnswer = q?.type === "SHORT_ANSWER";
+            const isAutoGradable =
+              q?.type === "MCQ" || q?.type === "TRUE_FALSE";
             const selectedOption = q?.options?.find((o) =>
               optionMatches(ans.answer, o),
             );
@@ -117,7 +164,10 @@ export function SubmissionDetailCard({
                   </span>
                   <div className="flex items-center gap-2">
                     {q?.type && (
-                      <Badge variant="outline" className="text-[10px] uppercase">
+                      <Badge
+                        variant="outline"
+                        className="text-[10px] uppercase"
+                      >
                         {q.type.replace("_", " ").toLowerCase()}
                       </Badge>
                     )}
@@ -155,7 +205,9 @@ export function SubmissionDetailCard({
                           variant="ghost"
                           size="sm"
                           className="h-8 text-[11px]"
-                          onClick={() => onStartGrading(ans.id, earned ?? undefined)}
+                          onClick={() =>
+                            onStartGrading(ans.id, earned ?? undefined)
+                          }
                         >
                           <Edit3 className="w-3.5 h-3.5 mr-1" />
                           {isPending ? "Grade Answer" : "Update Grade"}
@@ -213,19 +265,34 @@ export function SubmissionDetailCard({
                           ? "Correct"
                           : "Incorrect"}
                       </span>
-                      <span
-                        className={`font-semibold ${
-                          isPending
-                            ? "text-amber-600 dark:text-amber-400"
-                            : (earned ?? 0) > 0
-                              ? "text-emerald-600 dark:text-emerald-400"
-                              : "text-red-600 dark:text-red-400"
-                        }`}
-                      >
-                        {isPending
-                          ? "Pending"
-                          : `${earned} / ${q?.points ?? 1} pts`}
-                      </span>
+
+                      <div className="flex items-center gap-2">
+                        {isAutoGradable && currentRole === "TEACHER" && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 text-[11px]"
+                            onClick={onAutoGrade}
+                            disabled={autoGrading}
+                          >
+                            <Wand2 className="w-3.5 h-3.5 mr-1" />
+                            Auto
+                          </Button>
+                        )}
+                        <div
+                          className={`font-semibold ${
+                            isPending
+                              ? "text-amber-600 dark:text-amber-400"
+                              : (earned ?? 0) > 0
+                                ? "text-emerald-600 dark:text-emerald-400"
+                                : "text-red-600 dark:text-red-400"
+                          }`}
+                        >
+                          {isPending
+                            ? "Pending and ready to grade"
+                            : `${earned} / ${q?.points ?? 1} pts`}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}

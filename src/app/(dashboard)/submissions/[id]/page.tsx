@@ -24,6 +24,8 @@ export default function SubmissionDetailPage() {
     startGradingAnswer,
     cancelGradingAnswer,
     handleGradeSubmission,
+    handleAutoGradeSubmission,
+    autoGrading,
   } = useSubmissionDetailPage(submissionId);
 
   return (
@@ -70,6 +72,8 @@ export default function SubmissionDetailPage() {
           onStartGrading={startGradingAnswer}
           onCancelGrading={cancelGradingAnswer}
           onSubmitGrade={handleGradeSubmission}
+          onAutoGrade={handleAutoGradeSubmission}
+          autoGrading={autoGrading}
         />
       )}
     </div>

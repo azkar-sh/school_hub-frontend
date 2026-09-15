@@ -215,6 +215,8 @@ export const submissionsApi = {
     apiClient.post<Submission>(`/submissions/${id}/submit`, data),
   grade: (id: string, data: GradeSubmissionDto) =>
     apiClient.patch<Submission>(`/submissions/${id}/grade`, data),
+  autoGrade: (id: string) =>
+    apiClient.post<Submission>(`/submissions/${id}/auto-grade`),
   findAll: () => apiClient.get<Submission[]>("/submissions"),
   findOne: (id: string) => apiClient.get<Submission>(`/submissions/${id}`),
 };
