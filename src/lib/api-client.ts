@@ -200,8 +200,11 @@ export const assessmentsApi = {
     apiClient.delete<{ id: string; deleted: boolean }>(
       `/assessments/${id}/questions/${questionId}`,
     ),
-  findForTeacher: () => apiClient.get<Assessment[]>("/assessments/teacher"),
-  findForStudent: () => apiClient.get<Assessment[]>("/assessments/student"),
+  // Pagination params: page, limit, search, subjectId
+  findForTeacher: (params?: { page?: number; limit?: number; search?: string; subjectId?: string }) =>
+    apiClient.get<Assessment[]>("/assessments/teacher", { params }),
+  findForStudent: (params?: { page?: number; limit?: number; search?: string; subjectId?: string }) =>
+    apiClient.get<{ assessments: Assessment[]; meta: { page: number; limit: number; total: number; totalPages: number } }>("/assessments/student", { params }),
   findOne: (id: string) => apiClient.get<Assessment>(`/assessments/${id}`),
 };
 

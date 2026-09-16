@@ -1,3 +1,21 @@
+/**
+ * Assessment detail hooks — two modes:
+ *  1. Student player (take + submit + review)
+ *  2. Teacher manage (add / edit / delete questions)
+ *
+ * Backend contracts used here (see assessments.service.ts):
+ *  GET  /assessments/:id                    -> Assessment with questions (role-filtered)
+ *  POST /assessments/:id/questions          -> Question (needs teacher ownership)
+ *  PUT  /assessments/:id/questions/:qId     -> Question (blocked if submissions exist)
+ *  DELETE /assessments/:id/questions/:qId   -> { id, deleted }
+ *  POST /submissions/start  { assessmentId }-> Submission (DRAFT)
+ *  POST /submissions/:id/submit { answers } -> Submission (GRADED if auto-grade)
+ *  GET  /submissions/:id                    -> Submission with answers
+ *
+ * Learn: Prisma ownership guard lives in backend verifyTeacherOwnership;
+ * frontend just surfaces its 403/400 as getErrorMessage.
+ */
+
 import * as React from "react";
 import { useAssessmentStore } from "@/stores/use-assessment-store";
 import {
@@ -10,7 +28,7 @@ import { getErrorMessage } from "@/lib/errors";
 import { Assessment, Submission, SubTopic } from "@/types";
 import { mockQuestions } from "./mock-questions";
 
-const QUIZ_DURATION_SECONDS = 600; // 10 minutes
+const QUIZ_DURATION_SECONDS = 600;
 
 interface UseAssessmentPlayerArgs {
   assessmentId: string;
@@ -27,7 +45,7 @@ export function useAssessmentPlayer({
 
   const [assessment, setAssessment] = React.useState<Assessment | null>(null);
   const [submission, setSubmission] = React.useState<Submission | null>(null);
-  // Full submission (answers + questions + options) loaded for review mode.
+  // Full submission for review mode (includes answers + question snapshots)
   const [reviewSubmission, setReviewSubmission] = React.useState<Submission | null>(null);
 
   const [currentIdx, setCurrentIdx] = React.useState(0);
@@ -43,54 +61,63 @@ export function useAssessmentPlayer({
   const [isSubmittingApi, setIsSubmittingApi] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
 
-  // Fetch assessment & start submission for real users
+  // Load assessment; if STUDENT, start (or resume) submission.
   React.useEffect(() => {
     if (isDemoMode || !assessmentId) return;
+    let cancelled = false;
 
     assessmentsApi
       .findOne(assessmentId)
       .then(async (res) => {
+        if (cancelled) return;
         const data = res.data;
         setAssessment(data);
         setErrorMsg(null);
 
-        // Start submission attempt if student
         if (userRole === "STUDENT") {
           try {
             const subRes = await submissionsApi.start({ assessmentId });
             const sub = subRes.data;
+            if (cancelled) return;
             setSubmission(sub);
 
-            // If the attempt is already submitted/graded, load full review
-            // data (answers + questions + options incl. correct markers).
+            // Already submitted/graded -> fetch full review payload
+            // so ReviewResults can render without extra navigation.
             if (sub.status === "SUBMITTED" || sub.status === "GRADED") {
               try {
                 const full = await submissionsApi.findOne(sub.id);
-                setReviewSubmission(full.data);
+                if (!cancelled) setReviewSubmission(full.data);
               } catch {
-                // Review detail unavailable — fall back to player below.
+                // Non-fatal: keep player fallback
               }
             }
           } catch {
-            // submission might already exist
+            // start may 409 if submission already exists — ignore
           }
         }
       })
       .catch((error: unknown) => {
+        if (cancelled) return;
         setErrorMsg(
           getErrorMessage(error, "Failed to load assessment questions."),
         );
       })
-      .finally(() => setIsLoading(false));
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [isDemoMode, assessmentId, userRole]);
 
-  // Questions source: backend assessment questions if available, else mock questions
+  // Backend questions first; mock fallback for demo / empty assessment
   const questionsList =
     !isDemoMode && assessment?.questions && assessment.questions.length > 0
       ? assessment.questions
       : mockQuestions;
 
-  // Timer Countdown Effect
+  // Simple countdown — stops on submit or when it hits 0
   React.useEffect(() => {
     if (isSubmitted || timeLeft <= 0) return;
     const timer = setInterval(
@@ -121,8 +148,8 @@ export function useAssessmentPlayer({
   };
 
   const handleSubmitQuiz = async () => {
+    // Demo or no submission id -> local grading from mockQuestions
     if (isDemoMode || !submission?.id) {
-      // Client side calculation for demo mode
       let earned = 0;
       let totalPossible = 0;
 
@@ -138,7 +165,7 @@ export function useAssessmentPlayer({
         }
       });
 
-      const scorePct = (earned / totalPossible) * 100;
+      const scorePct = totalPossible > 0 ? (earned / totalPossible) * 100 : 0;
       setCalculatedScore(scorePct);
       setIsSubmitted(true);
       return;
@@ -161,16 +188,14 @@ export function useAssessmentPlayer({
 
       const updatedSub = res.data;
       setSubmission(updatedSub);
-      // Load full review data so the review screen can render immediately.
       try {
         const full = await submissionsApi.findOne(updatedSub.id);
         setReviewSubmission(full.data);
       } catch {
-        // non-fatal — review screen falls back to summary
+        // Review fetch is best-effort
       }
 
-      // Backend stores raw points earned in `score`; derive a percentage
-      // from the total possible points of the loaded questions.
+      // Backend score is raw points; convert to percent for CompletionCard
       const earned =
         updatedSub?.score !== undefined && updatedSub?.score !== null
           ? Number(updatedSub.score)
@@ -193,7 +218,6 @@ export function useAssessmentPlayer({
   const seconds = timeLeft % 60;
   const timeFormatted = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
 
-  // Review mode = student already submitted/graded and full submission loaded.
   const reviewMode =
     !isDemoMode &&
     !!reviewSubmission &&
@@ -224,7 +248,7 @@ export function useAssessmentPlayer({
 }
 
 // ---------------------------------------------------------------------------
-// Teacher: Manage Questions hook
+// Teacher: Manage Questions
 // ---------------------------------------------------------------------------
 
 interface NewQuestionOption {
@@ -280,14 +304,11 @@ export function useManageQuestions({
   const [isAddingQuestion, setIsAddingQuestion] = React.useState(false);
   const [isSavingQuestion, setIsSavingQuestion] = React.useState(false);
   const [isDeletingQuestion, setIsDeletingQuestion] = React.useState(false);
-  // When set, the creator form is in "edit" mode for this question.
   const [editingQuestionId, setEditingQuestionId] = React.useState<string | null>(null);
 
-  // Subtopics for the add-question form
   const [subTopics, setSubTopics] = React.useState<SubTopic[]>([]);
   const [selectedSubTopicId, setSelectedSubTopicId] = React.useState("");
 
-  // Question creator state
   const [qText, setQText] = React.useState("");
   const [qType, setQType] = React.useState<
     "MCQ" | "TRUE_FALSE" | "SHORT_ANSWER"
@@ -298,6 +319,7 @@ export function useManageQuestions({
 
   const fetchAssessment = React.useCallback(() => {
     if (isDemoMode || !assessmentId) return;
+    setIsLoading(true);
     assessmentsApi
       .findOne(assessmentId)
       .then((res) => {
@@ -312,20 +334,20 @@ export function useManageQuestions({
       .finally(() => setIsLoading(false));
   }, [isDemoMode, assessmentId]);
 
-  // Fetch assessment details (real mode only — demo mode uses the
-  // mock data from the useState initializer above).
   React.useEffect(() => {
     fetchAssessment();
   }, [fetchAssessment]);
 
-  // Load subtopics for the add-question form (real mode only).
+  // Subtopics for question form (flatten subject -> topic -> subTopic)
   React.useEffect(() => {
     if (isDemoMode) return;
     const activeSchoolId = useSchoolContextStore.getState().activeSchoolId;
     if (!activeSchoolId) return;
+    let cancelled = false;
     subjectsApi
       .findSubjectsBySchool(activeSchoolId)
       .then((res) => {
+        if (cancelled) return;
         const subs = Array.isArray(res.data) ? res.data : [];
         const allSubTopics: SubTopic[] = [];
         subs.forEach((sub) => {
@@ -339,7 +361,10 @@ export function useManageQuestions({
         if (allSubTopics.length > 0) setSelectedSubTopicId(allSubTopics[0].id);
       })
       .catch(() => {});
-  }, [isDemoMode, fetchAssessment]);
+    return () => {
+      cancelled = true;
+    };
+  }, [isDemoMode]);
 
   const handleChangeQType = (
     value: "MCQ" | "TRUE_FALSE" | "SHORT_ANSWER",
@@ -363,17 +388,22 @@ export function useManageQuestions({
 
   const handleAddQuestion = async () => {
     if (!qText.trim() || isDemoMode) return;
-
-    const subTopicId = selectedSubTopicId || "demo-subtopic-id";
+    if (!selectedSubTopicId) {
+      setErrorMsg("Select a sub-topic before adding a question.");
+      return;
+    }
 
     try {
       setIsAddingQuestion(true);
       setErrorMsg(null);
+      // POST /assessments/:id/questions { subTopicId, type, question, points, order, options }
+      // Backend derives order from dto.order ?? 0; we send current count.
       await assessmentsApi.addQuestion(assessmentId, {
-        subTopicId,
+        subTopicId: selectedSubTopicId,
         type: qType,
         question: qText,
         points: Number(qPoints) || 10,
+        order: assessment?.questions?.length ?? 0,
         options: qType === "SHORT_ANSWER" ? undefined : options,
       });
       resetQuestionCreator();
@@ -385,7 +415,6 @@ export function useManageQuestions({
     }
   };
 
-  // Load a question into the creator form for editing.
   const startEditQuestion = (question: {
     id: string;
     question: string;
@@ -422,14 +451,18 @@ export function useManageQuestions({
 
   const handleSaveQuestion = async () => {
     if (!editingQuestionId || !qText.trim() || isDemoMode) return;
-
-    const subTopicId = selectedSubTopicId || "demo-subtopic-id";
+    if (!selectedSubTopicId) {
+      setErrorMsg("Select a sub-topic before saving.");
+      return;
+    }
 
     try {
       setIsSavingQuestion(true);
       setErrorMsg(null);
+      // PUT /assessments/:id/questions/:questionId
+      // Backend replaces options when provided; send [] to clear for SHORT_ANSWER
       await assessmentsApi.updateQuestion(assessmentId, editingQuestionId, {
-        subTopicId,
+        subTopicId: selectedSubTopicId,
         type: qType,
         question: qText,
         points: Number(qPoints) || 10,
@@ -438,6 +471,7 @@ export function useManageQuestions({
       cancelEdit();
       fetchAssessment();
     } catch (error) {
+      // 400 "Cannot modify questions after students have started" surfaces here
       setErrorMsg(getErrorMessage(error, "Failed to save question."));
     } finally {
       setIsSavingQuestion(false);

@@ -12,6 +12,7 @@ interface AssessmentDraft {
     question: string;
     type: "MCQ" | "TRUE_FALSE" | "SHORT_ANSWER";
     points: number;
+    order?: number;
     options: Array<{ text: string; isCorrect: boolean }>;
   }>;
 }

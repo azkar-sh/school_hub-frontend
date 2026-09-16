@@ -214,6 +214,9 @@ export interface Assessment {
   questions?: Question[];
   submissions?: Submission[];
   submissionsCount?: number;
+  // Prisma _count aggregate - avoids loading full relations
+  // { questions: number of questions, submissions: number of attempts }
+  _count?: { questions?: number; submissions?: number };
 }
 
 export interface Answer {
