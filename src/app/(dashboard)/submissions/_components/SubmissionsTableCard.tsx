@@ -98,7 +98,7 @@ export function SubmissionsTableCard({
                         {sub.status === "GRADED" ? (
                           <Badge
                             variant="secondary"
-                            className="bg-emerald-500/15 text-emerald-600 gap-1"
+                            className="bg-success/15 text-success gap-1"
                           >
                             <CheckCircle2 className="w-3 h-3" />
                             Graded
@@ -106,7 +106,7 @@ export function SubmissionsTableCard({
                         ) : (
                           <Badge
                             variant="outline"
-                            className="text-amber-500 border-amber-500/30 gap-1"
+                            className="text-warning border-warning/30 gap-1"
                           >
                             <Clock className="w-3 h-3" />
                             Pending Review

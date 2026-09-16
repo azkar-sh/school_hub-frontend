@@ -62,10 +62,10 @@ export function ReviewResults({
       </div>
 
       {/* Score summary */}
-      <Card className="border-emerald-500/30 bg-emerald-500/5">
+      <Card className="border-success/30 bg-success/5">
         <CardContent className="pt-6 pb-6 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
-            <div className="h-16 w-16 shrink-0 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+            <div className="h-16 w-16 shrink-0 rounded-full bg-success/20 text-success flex items-center justify-center">
               <Award className="w-8 h-8" />
             </div>
             <div className="flex-1 min-w-0">
@@ -81,7 +81,7 @@ export function ReviewResults({
             </div>
             <Badge
               variant="secondary"
-              className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 gap-1 self-start"
+              className="bg-success/15 text-success gap-1 self-start"
             >
               <CheckCircle2 className="w-3.5 h-3.5" />
               {submission.status === "GRADED" ? "Graded" : "Submitted"}
@@ -93,7 +93,7 @@ export function ReviewResults({
               <span className="text-[10px] uppercase font-semibold text-muted-foreground block">
                 Score
               </span>
-              <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
+              <span className="text-2xl font-black text-success">
                 {pct.toFixed(1)}%
               </span>
             </div>
@@ -118,7 +118,7 @@ export function ReviewResults({
           </div>
 
           {hasPendingManual && (
-            <div className="flex items-center gap-2 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-700 dark:text-amber-400 font-medium">
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-warning/10 border border-warning/30 text-xs text-warning font-medium">
               <AlertCircle className="w-4 h-4 shrink-0" />
               Some answers are awaiting manual grading by your teacher, so the
               final score may change once grading is complete.
@@ -171,7 +171,7 @@ export function ReviewResults({
                     </div>
                     <div className="flex items-center gap-2 text-xs">
                       {isPending ? (
-                        <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium">
+                        <span className="flex items-center gap-1 text-warning font-medium">
                           <Clock className="w-3.5 h-3.5" />
                           Awaiting manual grading
                         </span>
@@ -193,19 +193,19 @@ export function ReviewResults({
 
                       if (selected && correct) {
                         cls =
-                          "border-emerald-500/50 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400";
+                          "border-success/50 bg-success/10 text-success";
                         icon = (
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                          <CheckCircle2 className="w-4 h-4 text-success" />
                         );
                       } else if (selected && !correct) {
                         cls =
-                          "border-red-500/50 bg-red-500/10 text-red-700 dark:text-red-400";
-                        icon = <XCircle className="w-4 h-4 text-red-600" />;
+                          "border-destructive/50 bg-destructive/10 text-destructive";
+                        icon = <XCircle className="w-4 h-4 text-destructive" />;
                       } else if (!selected && correct) {
                         cls =
-                          "border-emerald-500/40 bg-emerald-500/5 text-emerald-700 dark:text-emerald-400";
+                          "border-success/40 bg-success/5 text-success";
                         icon = (
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                          <CheckCircle2 className="w-4 h-4 text-success" />
                         );
                       }
 
@@ -234,17 +234,17 @@ export function ReviewResults({
                     {q.type.replace("_", " ").toLowerCase()}
                   </span>
                   {isPending ? (
-                    <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400 font-semibold">
+                    <span className="flex items-center gap-1 text-warning font-semibold">
                       <Clock className="w-3.5 h-3.5" />
                       Pending
                     </span>
                   ) : isCorrect ? (
-                    <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
+                    <span className="flex items-center gap-1 text-success font-semibold">
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       {earned} / {q.points ?? 1} pts
                     </span>
                   ) : (
-                    <span className="flex items-center gap-1 text-red-600 dark:text-red-400 font-semibold">
+                    <span className="flex items-center gap-1 text-destructive font-semibold">
                       <XCircle className="w-3.5 h-3.5" />
                       {earned ?? 0} / {q.points ?? 1} pts
                     </span>

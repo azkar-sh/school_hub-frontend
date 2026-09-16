@@ -215,7 +215,7 @@ function ClassCard({
         clickable ? "cursor-pointer" : ""
       } ${
         isHomeroom
-          ? "border-amber-400/60 bg-amber-50/40 dark:bg-amber-500/5 ring-1 ring-amber-400/40"
+          ? "border-primary/60 bg-primary/5 ring-1 ring-primary/40"
           : ""
       }`}
     >
@@ -224,7 +224,7 @@ function ClassCard({
           {isHomeroom && (
             <Badge
               variant="role"
-              className="mb-2 gap-1 bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-400/40"
+              className="mb-2 gap-1 bg-primary/15 text-primary border-primary/40"
             >
               <Crown className="w-3 h-3" />
               Your Homeroom
@@ -245,11 +245,11 @@ function ClassCard({
       <CardContent className="space-y-3 pt-2 text-sm border-t border-border/40 mt-3">
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span className="flex items-center gap-1.5 font-medium">
-            <GraduationCap className="w-4 h-4 text-emerald-500" />
+            <GraduationCap className="w-4 h-4 text-success" />
             Homeroom: {homeroom}
           </span>
           <span className="flex items-center gap-1 font-bold text-foreground">
-            <Users className="w-4 h-4 text-indigo-500" />
+            <Users className="w-4 h-4 text-primary" />
             {enrolledCount} Enrolled
           </span>
         </div>

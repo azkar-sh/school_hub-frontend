@@ -67,8 +67,8 @@ export function RecentResultsCard({
                 variant={result.score >= 80 ? "secondary" : "outline"}
                 className={`text-sm font-extrabold ${
                   result.score >= 80
-                    ? "bg-emerald-500/15 text-emerald-600"
-                    : "text-amber-500 border-amber-500/30"
+                    ? "bg-success/15 text-success"
+                    : "text-warning border-warning/30"
                 }`}
               >
                 {result.score}%

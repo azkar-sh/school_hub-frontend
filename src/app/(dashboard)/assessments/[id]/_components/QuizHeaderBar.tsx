@@ -23,7 +23,7 @@ export function QuizHeaderBar({
       </Button>
 
       <div className="flex items-center gap-4">
-        <div className="flex items-center gap-1.5 font-bold text-sm text-amber-500">
+        <div className="flex items-center gap-1.5 font-bold text-sm text-warning">
           <Clock className="w-4 h-4 animate-pulse" />
           <span>Time Left: {timeFormatted}</span>
         </div>

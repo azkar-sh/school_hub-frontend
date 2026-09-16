@@ -214,7 +214,7 @@ export function ManageQuestionsView({
                           key={i}
                           className={
                             o.isCorrect
-                              ? "text-emerald-500 font-bold"
+                              ? "text-success font-bold"
                               : ""
                           }
                         >

@@ -35,36 +35,32 @@ export function RoleThemeSwitcher({ className }: { className?: string }) {
       label: "Student",
       icon: GraduationCap,
       colorClass:
-        "hover:text-indigo-500 data-[active=true]:bg-indigo-500 data-[active=true]:text-white",
-      lockedClass:
-        "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20",
+        "hover:text-primary data-[active=true]:bg-primary data-[active=true]:text-primary-foreground",
+      lockedClass: "bg-primary/10 text-primary border-primary/20",
     },
     {
       id: "TEACHER",
       label: "Teacher",
       icon: BookOpen,
       colorClass:
-        "hover:text-emerald-500 data-[active=true]:bg-emerald-600 data-[active=true]:text-white",
-      lockedClass:
-        "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+        "hover:text-primary data-[active=true]:bg-primary data-[active=true]:text-primary-foreground",
+      lockedClass: "bg-primary/10 text-primary border-primary/20",
     },
     {
       id: "PARENT",
       label: "Parent",
       icon: Users,
       colorClass:
-        "hover:text-amber-500 data-[active=true]:bg-amber-500 data-[active=true]:text-white",
-      lockedClass:
-        "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+        "hover:text-primary data-[active=true]:bg-primary data-[active=true]:text-primary-foreground",
+      lockedClass: "bg-primary/10 text-primary border-primary/20",
     },
     {
       id: "SCHOOL_ADMIN",
       label: "Admin",
       icon: ShieldAlert,
       colorClass:
-        "hover:text-purple-500 data-[active=true]:bg-purple-600 data-[active=true]:text-white",
-      lockedClass:
-        "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
+        "hover:text-primary data-[active=true]:bg-primary data-[active=true]:text-primary-foreground",
+      lockedClass: "bg-primary/10 text-primary border-primary/20",
     },
   ];
 
@@ -99,7 +95,7 @@ export function RoleThemeSwitcher({ className }: { className?: string }) {
       )}
     >
       <div className="flex items-center gap-1.5 px-2 text-xs font-semibold text-muted-foreground sm:flex">
-        <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-pulse" />
+        <Sparkles className="w-3.5 h-3.5 text-primary animate-pulse" />
         <span>Preview Role:</span>
       </div>
       {roles.map((r) => {

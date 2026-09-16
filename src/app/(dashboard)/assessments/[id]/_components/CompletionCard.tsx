@@ -14,8 +14,8 @@ export function CompletionCard({
   onReturnToDashboard,
 }: CompletionCardProps) {
   return (
-    <Card className="text-center py-10 px-6 space-y-4 border-emerald-500/30 bg-emerald-500/5">
-      <div className="h-20 w-20 mx-auto rounded-full bg-emerald-500/20 text-emerald-500 flex items-center justify-center">
+    <Card className="text-center py-10 px-6 space-y-4 border-success/30 bg-success/5">
+      <div className="h-20 w-20 mx-auto rounded-full bg-success/20 text-success flex items-center justify-center">
         <Award className="w-10 h-10" />
       </div>
       <h2 className="text-3xl font-black">Assessment Complete! 🎉</h2>
@@ -27,7 +27,7 @@ export function CompletionCard({
         <span className="text-xs uppercase font-semibold text-muted-foreground block">
           Final Score
         </span>
-        <span className="text-4xl font-extrabold text-emerald-600 dark:text-emerald-400">
+        <span className="text-4xl font-extrabold text-success">
           {calculatedScore !== null
             ? `${calculatedScore.toFixed(1)}%`
             : "Graded"}

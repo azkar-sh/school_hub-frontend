@@ -39,10 +39,10 @@ export function StudentDashboardContent({
   return (
     <div className="space-y-6">
       {/* My Class — Tree: class info card */}
-      <Card className="border-indigo-500/20 bg-indigo-500/5">
+      <Card className="border-primary/20 bg-primary/5">
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
-            <SchoolIcon className="w-5 h-5 text-indigo-500" />
+            <SchoolIcon className="w-5 h-5 text-primary" />
             My Class
           </CardTitle>
         </CardHeader>
@@ -55,7 +55,7 @@ export function StudentDashboardContent({
           ) : studentClass ? (
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-2xl bg-indigo-500/10 text-indigo-500">
+                <div className="p-3 rounded-2xl bg-primary/10 text-primary">
                   <GraduationCap className="w-6 h-6" />
                 </div>
                 <div>

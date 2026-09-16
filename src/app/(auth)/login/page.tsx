@@ -158,9 +158,9 @@ export default function LoginPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => handleQuickDemoLogin("STUDENT")}
-                className="text-xs flex flex-col h-auto py-2.5 gap-1 border-indigo-500/30 hover:bg-indigo-500/10 hover:text-indigo-600 dark:hover:text-indigo-400"
+                className="text-xs flex flex-col h-auto py-2.5 gap-1 border-primary/30 hover:bg-primary/10 hover:text-primary"
               >
-                <GraduationCap className="w-4 h-4 text-indigo-500" />
+                <GraduationCap className="w-4 h-4 text-primary" />
                 <span>Student</span>
               </Button>
 
@@ -169,9 +169,9 @@ export default function LoginPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => handleQuickDemoLogin("TEACHER")}
-                className="text-xs flex flex-col h-auto py-2.5 gap-1 border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-600 dark:hover:text-emerald-400"
+                className="text-xs flex flex-col h-auto py-2.5 gap-1 border-primary/30 hover:bg-primary/10 hover:text-primary"
               >
-                <BookOpen className="w-4 h-4 text-emerald-500" />
+                <BookOpen className="w-4 h-4 text-primary" />
                 <span>Teacher</span>
               </Button>
 
@@ -180,9 +180,9 @@ export default function LoginPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => handleQuickDemoLogin("PARENT")}
-                className="text-xs flex flex-col h-auto py-2.5 gap-1 border-amber-500/30 hover:bg-amber-500/10 hover:text-amber-600 dark:hover:text-amber-400"
+                className="text-xs flex flex-col h-auto py-2.5 gap-1 border-primary/30 hover:bg-primary/10 hover:text-primary"
               >
-                <Users className="w-4 h-4 text-amber-500" />
+                <Users className="w-4 h-4 text-primary" />
                 <span>Parent</span>
               </Button>
 
@@ -191,9 +191,9 @@ export default function LoginPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => handleQuickDemoLogin("SCHOOL_ADMIN")}
-                className="text-xs flex flex-col h-auto py-2.5 gap-1 border-purple-500/30 hover:bg-purple-500/10 hover:text-purple-600 dark:hover:text-purple-400"
+                className="text-xs flex flex-col h-auto py-2.5 gap-1 border-primary/30 hover:bg-primary/10 hover:text-primary"
               >
-                <ShieldAlert className="w-4 h-4 text-purple-500" />
+                <ShieldAlert className="w-4 h-4 text-primary" />
                 <span>Admin</span>
               </Button>
             </div>

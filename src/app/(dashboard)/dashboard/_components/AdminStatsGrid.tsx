@@ -23,12 +23,12 @@ export function AdminStatsGrid({ overview, isLoading }: AdminStatsGridProps) {
 
   return (
     <>
-      <Card className="border-purple-500/20 bg-purple-500/5">
+      <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
             Teachers
           </CardTitle>
-          <UserRound className="w-4 h-4 text-purple-500" />
+          <UserRound className="w-4 h-4 text-primary" />
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-extrabold text-foreground">
@@ -40,12 +40,12 @@ export function AdminStatsGrid({ overview, isLoading }: AdminStatsGridProps) {
         </CardContent>
       </Card>
 
-      <Card className="border-purple-500/20 bg-purple-500/5">
+      <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
             Students
           </CardTitle>
-          <GraduationCap className="w-4 h-4 text-purple-500" />
+          <GraduationCap className="w-4 h-4 text-primary" />
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-extrabold text-foreground">
@@ -57,12 +57,12 @@ export function AdminStatsGrid({ overview, isLoading }: AdminStatsGridProps) {
         </CardContent>
       </Card>
 
-      <Card className="border-purple-500/20 bg-purple-500/5">
+      <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
             Classes
           </CardTitle>
-          <SchoolIcon className="w-4 h-4 text-purple-500" />
+          <SchoolIcon className="w-4 h-4 text-primary" />
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-extrabold text-foreground">
@@ -74,12 +74,12 @@ export function AdminStatsGrid({ overview, isLoading }: AdminStatsGridProps) {
         </CardContent>
       </Card>
 
-      <Card className="border-purple-500/20 bg-purple-500/5">
+      <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
             Subjects
           </CardTitle>
-          <BookOpen className="w-4 h-4 text-purple-500" />
+          <BookOpen className="w-4 h-4 text-primary" />
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-extrabold text-foreground">

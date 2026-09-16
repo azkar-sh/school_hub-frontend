@@ -85,7 +85,7 @@ export function UpcomingAssessmentsCard({
                   {variant === "teacher" &&
                     item.points > 0 &&
                     `${item.points} Points • `}
-                  <span className="text-amber-500 font-medium">
+                  <span className="text-warning font-medium">
                     {variant === "teacher" ? item.due : `Due: ${item.due}`}
                   </span>
                 </p>

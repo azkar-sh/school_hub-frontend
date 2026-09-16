@@ -32,12 +32,12 @@ export function ParentStatsGrid({
 
   return (
     <>
-      <Card className="border-amber-500/20 bg-amber-500/5">
+      <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
             Children Linked
           </CardTitle>
-          <Users className="w-4 h-4 text-amber-500" />
+          <Users className="w-4 h-4 text-primary" />
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-extrabold text-foreground">
@@ -50,15 +50,15 @@ export function ParentStatsGrid({
         </CardContent>
       </Card>
 
-      <Card className="border-amber-500/20 bg-amber-500/5">
+      <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
             Child GPA / Avg
           </CardTitle>
-          <Award className="w-4 h-4 text-amber-500" />
+          <Award className="w-4 h-4 text-primary" />
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-extrabold text-amber-600 dark:text-amber-400">
+          <div className="text-3xl font-extrabold text-primary">
             {isLoading ? (
               <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
             ) : avgScore === null ? (
@@ -73,15 +73,15 @@ export function ParentStatsGrid({
         </CardContent>
       </Card>
 
-      <Card className="border-amber-500/20 bg-amber-500/5">
+      <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
             Completed Tests
           </CardTitle>
-          <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+          <CheckCircle2 className="w-4 h-4 text-success" />
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-extrabold text-emerald-500">
+          <div className="text-3xl font-extrabold text-success">
             {num(completedCount)}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
@@ -90,12 +90,12 @@ export function ParentStatsGrid({
         </CardContent>
       </Card>
 
-      <Card className="border-amber-500/20 bg-amber-500/5">
+      <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
             Attendance
           </CardTitle>
-          <GraduationCap className="w-4 h-4 text-amber-500" />
+          <GraduationCap className="w-4 h-4 text-primary" />
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-extrabold text-foreground">98%</div>

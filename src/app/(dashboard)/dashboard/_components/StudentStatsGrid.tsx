@@ -36,19 +36,19 @@ export function StudentStatsGrid({
 
   return (
     <>
-      <Card className="border-indigo-500/20 bg-indigo-500/5">
+      <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
             Quizzes Taken
           </CardTitle>
-          <FileCheck2 className="w-4 h-4 text-indigo-500" />
+          <FileCheck2 className="w-4 h-4 text-primary" />
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-extrabold text-foreground">
             {num(taken)}
           </div>
           <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-            <TrendingUp className="w-3 h-3 text-emerald-500" />
+            <TrendingUp className="w-3 h-3 text-success" />
             <span>
               {isDemoMode ? "+3 this week" : "Submitted assessments"}
             </span>
@@ -56,15 +56,15 @@ export function StudentStatsGrid({
         </CardContent>
       </Card>
 
-      <Card className="border-indigo-500/20 bg-indigo-500/5">
+      <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
             Average Score
           </CardTitle>
-          <Award className="w-4 h-4 text-indigo-500" />
+          <Award className="w-4 h-4 text-primary" />
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-extrabold text-indigo-600 dark:text-indigo-400">
+          <div className="text-3xl font-extrabold text-primary">
             {isLoading ? (
               <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
             ) : avg === null ? (
@@ -81,15 +81,15 @@ export function StudentStatsGrid({
         </CardContent>
       </Card>
 
-      <Card className="border-indigo-500/20 bg-indigo-500/5">
+      <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
             Pending Due
           </CardTitle>
-          <Clock className="w-4 h-4 text-indigo-500" />
+          <Clock className="w-4 h-4 text-primary" />
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-extrabold text-amber-500">
+          <div className="text-3xl font-extrabold text-warning">
             {num(pending)}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
@@ -98,15 +98,15 @@ export function StudentStatsGrid({
         </CardContent>
       </Card>
 
-      <Card className="border-indigo-500/20 bg-indigo-500/5">
+      <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
             Study Streak
           </CardTitle>
-          <CheckCircle2 className="w-4 h-4 text-indigo-500" />
+          <CheckCircle2 className="w-4 h-4 text-primary" />
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-extrabold text-emerald-500">5 Days</div>
+          <div className="text-3xl font-extrabold text-success">5 Days</div>
           <p className="text-xs text-muted-foreground mt-1">Keep it up!</p>
         </CardContent>
       </Card>

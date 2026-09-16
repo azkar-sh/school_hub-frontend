@@ -47,10 +47,10 @@ function formatDate(value?: string) {
 function scoreBadgeClass(pct: number | null) {
   if (pct === null) return "border-border/50 bg-muted/40 text-muted-foreground";
   if (pct >= 80)
-    return "border-emerald-500/30 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400";
+    return "border-success/30 bg-success/15 text-success";
   if (pct >= 60)
-    return "border-amber-500/30 bg-amber-500/15 text-amber-600 dark:text-amber-400";
-  return "border-red-500/30 bg-red-500/15 text-red-600 dark:text-red-400";
+    return "border-warning/30 bg-warning/15 text-warning";
+  return "border-destructive/30 bg-destructive/15 text-destructive";
 }
 
 function flattenSubjects(subjects: StudentSubjectResult[]): ResultRow[] {
@@ -147,11 +147,11 @@ export default function ChildDetailPage() {
       {(!isLoading || isDemoMode) && child && (
         <>
           {/* Child Header — Tree: Name, Class */}
-          <Card className="border-amber-500/20 bg-amber-500/5">
+          <Card className="border-primary/20 bg-primary/5">
             <CardHeader>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                  <div className="p-4 rounded-2xl bg-amber-500/10 text-amber-500">
+                  <div className="p-4 rounded-2xl bg-primary/10 text-primary">
                     <GraduationCap className="w-8 h-8" />
                   </div>
                   <div>
@@ -179,7 +179,7 @@ export default function ChildDetailPage() {
                       <Award className="w-3.5 h-3.5" />
                       <span>Average</span>
                     </div>
-                    <div className="text-2xl font-extrabold text-amber-600 dark:text-amber-400">
+                    <div className="text-2xl font-extrabold text-primary">
                       {avgScore}%
                     </div>
                   </div>

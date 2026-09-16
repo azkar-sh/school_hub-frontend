@@ -133,7 +133,7 @@ function SubjectCard({
               <div className="pl-6 space-y-1 text-xs text-muted-foreground">
                 {t.subTopics?.map((st) => (
                   <div key={st.id} className="flex items-center gap-1.5">
-                    <BookmarkCheck className="w-3.5 h-3.5 text-emerald-500" />
+                    <BookmarkCheck className="w-3.5 h-3.5 text-success" />
                     <span className="font-medium text-foreground">
                       {st.name}
                     </span>

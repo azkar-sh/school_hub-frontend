@@ -50,10 +50,10 @@ function formatDate(value?: string) {
 function scoreBadgeClass(pct: number | null) {
   if (pct === null) return "border-border/50 bg-muted/40 text-muted-foreground";
   if (pct >= 80)
-    return "border-emerald-500/30 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400";
+    return "border-success/30 bg-success/15 text-success";
   if (pct >= 60)
-    return "border-amber-500/30 bg-amber-500/15 text-amber-600 dark:text-amber-400";
-  return "border-red-500/30 bg-red-500/15 text-red-600 dark:text-red-400";
+    return "border-warning/30 bg-warning/15 text-warning";
+  return "border-destructive/30 bg-destructive/15 text-destructive";
 }
 
 /** Flatten a child's subject groupings into a single recent-results list. */
@@ -128,7 +128,7 @@ export function ParentResultsView({
       </div>
 
       {/* Info Banner: results are also available in child detail */}
-      <Card className="border-amber-500/20 bg-amber-500/5 p-4">
+      <Card className="border-primary/20 bg-primary/5 p-4">
         <div className="flex items-center justify-between gap-4">
           <p className="text-xs text-muted-foreground">
             You can also view results per child from the Children page.
@@ -165,7 +165,7 @@ export function ParentResultsView({
                 <Card key={child.id} className="border-border/60">
                   <CardHeader className="flex flex-row items-center justify-between border-b border-border/40 pb-4">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="p-3 rounded-2xl bg-amber-500/10 text-amber-500 shrink-0">
+                      <div className="p-3 rounded-2xl bg-primary/10 text-primary shrink-0">
                         <GraduationCap className="w-6 h-6" />
                       </div>
                       <div className="min-w-0">
@@ -183,7 +183,7 @@ export function ParentResultsView({
                       <span className="text-[10px] uppercase font-semibold text-muted-foreground block">
                         Average
                       </span>
-                      <span className="text-2xl font-black text-amber-600 dark:text-amber-400">
+                      <span className="text-2xl font-black text-primary">
                         {child.average}%
                       </span>
                     </div>
@@ -230,7 +230,7 @@ export function ParentResultsView({
                             </div>
                             <div className="flex items-center gap-3 shrink-0">
                               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                <Award className="w-3.5 h-3.5 text-amber-500" />
+                                <Award className="w-3.5 h-3.5 text-primary" />
                                 <span>{child.average}%</span>
                               </div>
                               <Badge

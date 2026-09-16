@@ -195,7 +195,7 @@ export function Sidebar({
       {isOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-xs"
+            className="fixed inset-0 bg-overlay/60 backdrop-blur-xs"
             onClick={onClose}
           />
           <div className="fixed inset-y-0 left-0 z-50 w-64 bg-background shadow-2xl flex flex-col">

@@ -9,7 +9,7 @@ export function FeedbackBanner({ feedback }: FeedbackBannerProps) {
     <div
       className={`p-4 rounded-2xl border flex items-center gap-3 text-sm font-medium ${
         feedback.type === "success"
-          ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400"
+          ? "bg-success/10 border-success/30 text-success"
           : "bg-destructive/10 border-destructive/30 text-destructive"
       }`}
     >

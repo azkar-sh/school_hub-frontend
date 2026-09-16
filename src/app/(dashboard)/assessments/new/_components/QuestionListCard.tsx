@@ -80,7 +80,7 @@ export function QuestionListCard({
                       <span
                         key={i}
                         className={
-                          o.isCorrect ? "text-emerald-500 font-bold" : ""
+                          o.isCorrect ? "text-success font-bold" : ""
                         }
                       >
                         {o.isCorrect ? "✓ " : ""}

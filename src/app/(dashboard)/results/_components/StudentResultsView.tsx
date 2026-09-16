@@ -32,18 +32,18 @@ interface StudentResultsViewProps {
 
 function scoreColor(pct: number | null) {
   if (pct === null) return "text-muted-foreground";
-  if (pct >= 80) return "text-emerald-600 dark:text-emerald-400";
-  if (pct >= 60) return "text-amber-500";
+  if (pct >= 80) return "text-success";
+  if (pct >= 60) return "text-warning";
   return "text-destructive";
 }
 
 function scoreBadgeClass(pct: number | null) {
   if (pct === null) return "border-border/50 bg-muted/40 text-muted-foreground";
   if (pct >= 80)
-    return "border-emerald-500/30 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400";
+    return "border-success/30 bg-success/15 text-success";
   if (pct >= 60)
-    return "border-amber-500/30 bg-amber-500/15 text-amber-600 dark:text-amber-400";
-  return "border-red-500/30 bg-red-500/15 text-red-600 dark:text-red-400";
+    return "border-warning/30 bg-warning/15 text-warning";
+  return "border-destructive/30 bg-destructive/15 text-destructive";
 }
 
 function formatDate(value?: string) {

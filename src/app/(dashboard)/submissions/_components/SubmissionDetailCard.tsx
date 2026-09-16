@@ -82,7 +82,7 @@ export function SubmissionDetailCard({
           <span className="text-xs uppercase font-semibold text-muted-foreground block">
             Score
           </span>
-          <span className="text-2xl font-black text-emerald-600">
+          <span className="text-2xl font-black text-success">
             {submission.scorePercentage !== undefined &&
             submission.scorePercentage !== null
               ? `${submission.scorePercentage}%`
@@ -109,13 +109,13 @@ export function SubmissionDetailCard({
 
       <CardContent className="space-y-4 pt-2">
         {hasPendingManual && currentRole === "TEACHER" && (
-          <div className="flex items-center gap-2 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-700 dark:text-amber-400 font-medium">
+          <div className="flex items-center gap-2 p-3 rounded-xl bg-warning/10 border border-warning/30 text-xs text-warning font-medium">
             <AlertCircle className="w-4 h-4 shrink-0" />
             Some short-answer questions are awaiting manual grading.
           </div>
         )}
         {hasPendingAuto && currentRole === "TEACHER" && (
-          <div className="flex items-center justify-between gap-2 p-3 rounded-xl bg-sky-500/10 border border-sky-500/30 text-xs text-sky-700 dark:text-sky-400 font-medium">
+          <div className="flex items-center justify-between gap-2 p-3 rounded-xl bg-info/10 border border-info/30 text-xs text-info font-medium">
             <span className="flex items-center gap-2">
               <Wand2 className="w-4 h-4 shrink-0" />
               Some MCQ / True-False answers are ungraded.
@@ -191,7 +191,7 @@ export function SubmissionDetailCard({
                     </div>
                     <div className="flex items-center justify-between gap-3">
                       {isPending ? (
-                        <span className="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400 font-medium">
+                        <span className="flex items-center gap-1 text-xs text-warning font-medium">
                           <Clock className="w-3.5 h-3.5" />
                           Awaiting manual grading
                         </span>
@@ -226,19 +226,19 @@ export function SubmissionDetailCard({
 
                       if (selected && correct) {
                         cls =
-                          "border-emerald-500/50 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400";
+                          "border-success/50 bg-success/10 text-success";
                         icon = (
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                          <CheckCircle2 className="w-4 h-4 text-success" />
                         );
                       } else if (selected && !correct) {
                         cls =
-                          "border-red-500/50 bg-red-500/10 text-red-700 dark:text-red-400";
-                        icon = <XCircle className="w-4 h-4 text-red-600" />;
+                          "border-destructive/50 bg-destructive/10 text-destructive";
+                        icon = <XCircle className="w-4 h-4 text-destructive" />;
                       } else if (!selected && correct) {
                         cls =
-                          "border-emerald-500/40 bg-emerald-500/5 text-emerald-700 dark:text-emerald-400";
+                          "border-success/40 bg-success/5 text-success";
                         icon = (
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                          <CheckCircle2 className="w-4 h-4 text-success" />
                         );
                       }
 
@@ -282,10 +282,10 @@ export function SubmissionDetailCard({
                         <div
                           className={`font-semibold ${
                             isPending
-                              ? "text-amber-600 dark:text-amber-400"
+                              ? "text-warning"
                               : (earned ?? 0) > 0
-                                ? "text-emerald-600 dark:text-emerald-400"
-                                : "text-red-600 dark:text-red-400"
+                                ? "text-success"
+                                : "text-destructive"
                           }`}
                         >
                           {isPending

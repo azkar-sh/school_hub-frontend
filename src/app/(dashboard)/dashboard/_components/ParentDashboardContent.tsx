@@ -60,7 +60,7 @@ export function ParentDashboardContent({
               <Link key={child.id} href={`/children/${child.id}`}>
                 <div className="p-4 rounded-2xl bg-muted/40 border border-border/50 flex items-center justify-between gap-4 hover:bg-muted/70 transition-colors cursor-pointer">
                   <div className="flex items-center gap-3">
-                    <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-500">
+                    <div className="p-2.5 rounded-xl bg-primary/10 text-primary">
                       <GraduationCap className="w-5 h-5" />
                     </div>
                     <div>

@@ -29,7 +29,7 @@ function StatusBadge({
       item.submissionsCount !== undefined && (
         <Badge
           variant="secondary"
-          className="bg-emerald-500/10 text-emerald-600 gap-1"
+          className="bg-success/10 text-success gap-1"
         >
           <BarChart3 className="w-3 h-3" />
           <span>{item.submissionsCount} submissions</span>
@@ -42,7 +42,7 @@ function StatusBadge({
     return (
       <Badge
         variant="secondary"
-        className="bg-emerald-500/15 text-emerald-600 gap-1"
+        className="bg-success/15 text-success gap-1"
       >
         <CheckCircle2 className="w-3 h-3" />
         <span>{item.status === "GRADED" ? "Graded" : "Submitted"}</span>
@@ -54,7 +54,7 @@ function StatusBadge({
     return (
       <Badge
         variant="outline"
-        className="text-indigo-500 border-indigo-500/30 gap-1"
+        className="text-primary border-primary/30 gap-1"
       >
         <PencilLine className="w-3 h-3" />
         <span>In Progress</span>
@@ -65,7 +65,7 @@ function StatusBadge({
   return (
     <Badge
       variant="outline"
-      className="text-amber-500 border-amber-500/30 gap-1"
+      className="text-warning border-warning/30 gap-1"
     >
       <Clock className="w-3 h-3" />
       <span>Active</span>
@@ -106,7 +106,7 @@ export function AssessmentCard({
           {item.questionsCount > 0 && ` • ${item.questionsCount} Questions`}
           {item.points > 0 && ` • ${item.points} Points`}
           {currentRole === "TEACHER" && item.avgScore !== undefined && (
-            <span className="text-emerald-600 font-semibold">
+            <span className="text-success font-semibold">
               {" "}
               • Avg: {item.avgScore}%
             </span>
@@ -114,7 +114,7 @@ export function AssessmentCard({
           {currentRole !== "TEACHER" &&
             item.score !== undefined &&
             item.status !== "DRAFT" && (
-              <span className="text-emerald-600 font-semibold">
+              <span className="text-success font-semibold">
                 {" "}
                 • Score: {item.score} pts
               </span>

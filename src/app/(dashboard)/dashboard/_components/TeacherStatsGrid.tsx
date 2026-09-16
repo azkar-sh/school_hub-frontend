@@ -39,12 +39,12 @@ export function TeacherStatsGrid({
 
   return (
     <>
-      <Card className="border-emerald-500/20 bg-emerald-500/5">
+      <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
             My Classes
           </CardTitle>
-          <SchoolIcon className="w-4 h-4 text-emerald-500" />
+          <SchoolIcon className="w-4 h-4 text-primary" />
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-extrabold text-foreground">
@@ -56,12 +56,12 @@ export function TeacherStatsGrid({
         </CardContent>
       </Card>
 
-      <Card className="border-emerald-500/20 bg-emerald-500/5">
+      <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
             Assessments
           </CardTitle>
-          <FileCheck2 className="w-4 h-4 text-emerald-500" />
+          <FileCheck2 className="w-4 h-4 text-primary" />
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-extrabold text-foreground">
@@ -73,15 +73,15 @@ export function TeacherStatsGrid({
         </CardContent>
       </Card>
 
-      <Card className="border-emerald-500/20 bg-emerald-500/5">
+      <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
             Pending Results
           </CardTitle>
-          <Clock className="w-4 h-4 text-amber-500" />
+          <Clock className="w-4 h-4 text-warning" />
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-extrabold text-amber-500">
+          <div className="text-3xl font-extrabold text-warning">
             {num(pendingCount)}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
@@ -90,15 +90,15 @@ export function TeacherStatsGrid({
         </CardContent>
       </Card>
 
-      <Card className="border-emerald-500/20 bg-emerald-500/5">
+      <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
             Class Average
           </CardTitle>
-          <BarChart3 className="w-4 h-4 text-emerald-500" />
+          <BarChart3 className="w-4 h-4 text-primary" />
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-extrabold text-emerald-500">
+          <div className="text-3xl font-extrabold text-primary">
             {isLoading ? (
               <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
             ) : avg === null ? (

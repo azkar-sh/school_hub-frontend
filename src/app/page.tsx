@@ -66,13 +66,13 @@ export default function LandingPage() {
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-primary/20 blur-[120px] rounded-full pointer-events-none -z-10" />
 
         <Badge variant="outline" className="mb-6 py-1.5 px-4 rounded-full border-primary/30 text-xs font-semibold backdrop-blur-md bg-background/80">
-          <Sparkles className="w-3.5 h-3.5 mr-2 text-amber-500 inline animate-spin" />
+          <Sparkles className="w-3.5 h-3.5 mr-2 text-primary inline animate-spin" />
           Modern Educational Assessment Platform
         </Badge>
 
         <h1 className="text-4xl sm:text-6xl font-black tracking-tight max-w-4xl leading-tight">
           Empowering Education with <br className="hidden sm:inline" />
-          <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-500 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-primary via-primary to-primary bg-clip-text text-transparent">
             Role-Adaptive Learning
           </span>
         </h1>
@@ -91,12 +91,12 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Student Role Card */}
             <Card
-              className="relative group border-indigo-500/30 hover:border-indigo-500/80 hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 cursor-pointer overflow-hidden"
+              className="relative group border-primary/30 hover:border-primary/80 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 cursor-pointer overflow-hidden"
               onClick={() => handlePortalEnter('STUDENT')}
             >
-              <div className="h-2 bg-gradient-to-r from-indigo-500 to-violet-500" />
+              <div className="h-2 gradient-role" />
               <CardContent className="p-6 flex flex-col items-center text-center">
-                <div className="h-14 w-14 rounded-2xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <div className="h-14 w-14 rounded-2xl bg-primary/15 text-primary flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <GraduationCap className="w-8 h-8" />
                 </div>
                 <Badge variant="student" className="mb-2">
@@ -106,7 +106,7 @@ export default function LandingPage() {
                 <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
                   Take online assessments, solve quizzes with instant timers, track progress badges, and view scores.
                 </p>
-                <Button variant="outline" size="sm" className="mt-6 w-full group-hover:bg-indigo-600 group-hover:text-white border-indigo-500/30">
+                <Button variant="outline" size="sm" className="mt-6 w-full group-hover:bg-primary group-hover:text-primary-foreground border-primary/30">
                   <span>Enter Student Portal</span>
                   <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
@@ -115,12 +115,12 @@ export default function LandingPage() {
 
             {/* Teacher Role Card */}
             <Card
-              className="relative group border-emerald-500/30 hover:border-emerald-500/80 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 cursor-pointer overflow-hidden"
+              className="relative group border-primary/30 hover:border-primary/80 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 cursor-pointer overflow-hidden"
               onClick={() => handlePortalEnter('TEACHER')}
             >
-              <div className="h-2 bg-gradient-to-r from-emerald-500 to-teal-500" />
+              <div className="h-2 gradient-role" />
               <CardContent className="p-6 flex flex-col items-center text-center">
-                <div className="h-14 w-14 rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <div className="h-14 w-14 rounded-2xl bg-primary/15 text-primary flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <BookOpen className="w-8 h-8" />
                 </div>
                 <Badge variant="teacher" className="mb-2">
@@ -130,7 +130,7 @@ export default function LandingPage() {
                 <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
                   Create customized question banks, publish exams, grade student submissions, and manage subject topics.
                 </p>
-                <Button variant="outline" size="sm" className="mt-6 w-full group-hover:bg-emerald-600 group-hover:text-white border-emerald-500/30">
+                <Button variant="outline" size="sm" className="mt-6 w-full group-hover:bg-primary group-hover:text-primary-foreground border-primary/30">
                   <span>Enter Teacher Portal</span>
                   <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
@@ -139,12 +139,12 @@ export default function LandingPage() {
 
             {/* Parent Role Card */}
             <Card
-              className="relative group border-amber-500/30 hover:border-amber-500/80 hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300 cursor-pointer overflow-hidden"
+              className="relative group border-primary/30 hover:border-primary/80 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 cursor-pointer overflow-hidden"
               onClick={() => handlePortalEnter('PARENT')}
             >
-              <div className="h-2 bg-gradient-to-r from-amber-500 to-rose-500" />
+              <div className="h-2 gradient-role" />
               <CardContent className="p-6 flex flex-col items-center text-center">
-                <div className="h-14 w-14 rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <div className="h-14 w-14 rounded-2xl bg-primary/15 text-primary flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <Users className="w-8 h-8" />
                 </div>
                 <Badge variant="parent" className="mb-2">
@@ -154,7 +154,7 @@ export default function LandingPage() {
                 <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
                   Monitor children&apos;s academic progression, review test score analytics, and track completed assignments.
                 </p>
-                <Button variant="outline" size="sm" className="mt-6 w-full group-hover:bg-amber-600 group-hover:text-white border-amber-500/30">
+                <Button variant="outline" size="sm" className="mt-6 w-full group-hover:bg-primary group-hover:text-primary-foreground border-primary/30">
                   <span>Enter Parent Portal</span>
                   <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>

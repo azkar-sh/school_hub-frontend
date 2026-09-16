@@ -95,7 +95,7 @@ export default function ChildrenPage() {
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="p-3 rounded-2xl bg-amber-500/10 text-amber-500">
+                      <div className="p-3 rounded-2xl bg-primary/10 text-primary">
                         <GraduationCap className="w-6 h-6" />
                       </div>
                       <div>
@@ -128,12 +128,12 @@ export default function ChildrenPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
-                      <Award className="w-4 h-4 text-amber-500" />
+                      <Award className="w-4 h-4 text-primary" />
                       <div>
                         <p className="text-xs text-muted-foreground">
                           Average
                         </p>
-                        <p className="font-bold text-amber-600 dark:text-amber-400">
+                        <p className="font-bold text-primary">
                           {child.average}%
                         </p>
                       </div>
