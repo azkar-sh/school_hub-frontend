@@ -18,13 +18,65 @@ import {
   ArrowRight,
   LayoutGrid,
   List,
+  X,
+  ChevronDown,
+  Check,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export interface DataDisplayFilter {
   value: string;
   label: string;
+}
+
+export interface FilterGroupOption {
+  value: string;
+  label: string;
+}
+
+export type FilterVariant = "pills" | "select" | "dropdown" | "combobox";
+
+export interface FilterGroup {
+  id: string;
+  label: string;
+  mode: "single" | "multi";
+  variant?: FilterVariant;
+  options: FilterGroupOption[];
+  value: string | string[];
+  onChange: (value: string | string[]) => void;
+  placeholder?: string;
+  searchable?: boolean;
 }
 
 export interface DataDisplayPagination {
@@ -47,8 +99,9 @@ interface DataDisplayProps<TItem> {
   search: string;
   onSearchChange: (value: string) => void;
   filters?: DataDisplayFilter[];
-  activeFilter: string;
-  onFilterChange: (value: string) => void;
+  activeFilter?: string;
+  onFilterChange?: (value: string) => void;
+  filterGroups?: FilterGroup[];
   items: TItem[];
   isDemoMode?: boolean;
   pagination?: DataDisplayPagination;
@@ -80,6 +133,245 @@ const gridColsClass: Record<string, string> = {
   "4": "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
 };
 
+function resolveVariant(group: FilterGroup): FilterVariant {
+  if (group.variant) return group.variant;
+  if (group.mode === "multi") return group.searchable ? "combobox" : "dropdown";
+  return "select";
+}
+
+function FilterSelect({
+  group,
+}: {
+  group: FilterGroup;
+}) {
+  const value = group.value as string;
+  const placeholder = group.placeholder ?? `Select ${group.label.toLowerCase()}`;
+  return (
+    <Select value={value} onValueChange={(v) => group.onChange(v as string)}>
+      <SelectTrigger size="sm" className="h-8 min-w-32 bg-background">
+        <SelectValue placeholder={placeholder} />
+      </SelectTrigger>
+      <SelectContent>
+        {group.options.map((opt) => (
+          <SelectItem key={opt.value} value={opt.value}>
+            {opt.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
+function FilterDropdown({
+  group,
+}: {
+  group: FilterGroup;
+}) {
+  const selected = group.value as string[];
+  const label =
+    selected.length === 0
+      ? group.placeholder ?? group.label
+      : selected.length === 1
+        ? (group.options.find((o) => o.value === selected[0])?.label ?? selected[0])
+        : `${selected.length} selected`;
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <Button variant="outline" size="sm" className="h-8 gap-1.5 bg-background">
+            {label}
+            <ChevronDown className="h-3.5 w-3.5 opacity-50" />
+          </Button>
+        }
+      />
+      <DropdownMenuContent align="start" className="w-56">
+        <DropdownMenuLabel>{group.label}</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        {group.options.map((opt) => (
+          <DropdownMenuCheckboxItem
+            key={opt.value}
+            checked={selected.includes(opt.value)}
+            onCheckedChange={(checked) => {
+              const next = checked
+                ? [...selected, opt.value]
+                : selected.filter((v) => v !== opt.value);
+              group.onChange(next);
+            }}
+          >
+            {opt.label}
+          </DropdownMenuCheckboxItem>
+        ))}
+        {selected.length > 0 && (
+          <>
+            <DropdownMenuSeparator />
+            <div className="p-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full h-7 text-xs"
+                onClick={() => group.onChange([])}
+              >
+                Clear
+              </Button>
+            </div>
+          </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+function FilterCombobox({
+  group,
+}: {
+  group: FilterGroup;
+}) {
+  const selected = group.value as string[];
+  const placeholder = group.placeholder ?? `Search ${group.label.toLowerCase()}…`;
+  const triggerLabel =
+    selected.length === 0
+      ? group.label
+      : selected.length === 1
+        ? (group.options.find((o) => o.value === selected[0])?.label ?? selected[0])
+        : `${selected.length} selected`;
+  const [open, setOpen] = React.useState(false);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger
+        render={
+          <Button variant="outline" size="sm" className="h-8 gap-1.5 bg-background">
+            {triggerLabel}
+            {selected.length > 1 && (
+              <Badge variant="secondary" className="h-4 px-1 text-[10px] leading-none">
+                {selected.length}
+              </Badge>
+            )}
+            <ChevronDown className="h-3.5 w-3.5 opacity-50" />
+          </Button>
+        }
+      />
+      <PopoverContent className="w-64 p-0" align="start">
+        <Command>
+          <CommandInput placeholder={placeholder} />
+          <CommandList>
+            <CommandEmpty>No results.</CommandEmpty>
+            <CommandGroup>
+              {group.options.map((opt) => {
+                const isSelected = selected.includes(opt.value);
+                return (
+                  <CommandItem
+                    key={opt.value}
+                    value={opt.label}
+                    onSelect={() => {
+                      const next = isSelected
+                        ? selected.filter((v) => v !== opt.value)
+                        : [...selected, opt.value];
+                      group.onChange(next);
+                    }}
+                  >
+                    <Checkbox checked={isSelected} className="mr-2" />
+                    {opt.label}
+                    {isSelected && <Check className="ml-auto h-3.5 w-3.5" />}
+                  </CommandItem>
+                );
+              })}
+            </CommandGroup>
+          </CommandList>
+          {selected.length > 0 && (
+            <div className="flex items-center justify-between border-t p-2">
+              <span className="text-xs text-muted-foreground">
+                {selected.length} selected
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 text-xs"
+                onClick={() => group.onChange([])}
+              >
+                Clear
+              </Button>
+            </div>
+          )}
+        </Command>
+        {selected.length > 0 && (
+          <div className="flex flex-wrap gap-1 border-t p-2">
+            {selected.map((val) => {
+              const opt = group.options.find((o) => o.value === val);
+              return (
+                <Badge
+                  key={val}
+                  variant="secondary"
+                  className="gap-1 pr-1 text-xs"
+                >
+                  {opt?.label ?? val}
+                  <button
+                    type="button"
+                    onClick={() => group.onChange(selected.filter((v) => v !== val))}
+                    className="ml-0.5 rounded-full p-0.5 hover:bg-muted-foreground/20"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              );
+            })}
+          </div>
+        )}
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function FilterPills({
+  group,
+}: {
+  group: FilterGroup;
+}) {
+  if (group.mode === "single") {
+    const active = group.value as string;
+    return (
+      <div className="flex flex-wrap items-center gap-1.5">
+        {group.options.map((opt) => (
+          <Button
+            key={opt.value}
+            variant={active === opt.value ? "role" : "outline"}
+            size="sm"
+            onClick={() => group.onChange(opt.value)}
+            className="h-8 rounded-full capitalize text-xs px-3.5 whitespace-nowrap"
+          >
+            {opt.label}
+          </Button>
+        ))}
+      </div>
+    );
+  }
+  const selected = group.value as string[];
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      {group.options.map((opt) => {
+        const isActive = selected.includes(opt.value);
+        return (
+          <Button
+            key={opt.value}
+            variant={isActive ? "role" : "outline"}
+            size="sm"
+            onClick={() => {
+              const next = isActive
+                ? selected.filter((v) => v !== opt.value)
+                : [...selected, opt.value];
+              group.onChange(next);
+            }}
+            className="h-8 rounded-full capitalize text-xs px-3.5 whitespace-nowrap"
+          >
+            {opt.label}
+          </Button>
+        );
+      })}
+    </div>
+  );
+}
+
 export function DataDisplay<TItem>({
   title,
   description,
@@ -89,6 +381,7 @@ export function DataDisplay<TItem>({
   filters = [],
   activeFilter,
   onFilterChange,
+  filterGroups = [],
   items,
   isDemoMode = false,
   pagination,
@@ -118,8 +411,10 @@ export function DataDisplay<TItem>({
   const hasItems = items.length > 0;
   const isBlocked = isLoading && !demoMode;
   const hasFilters = showFilters && filters.length > 0;
+  const hasFilterGroups = showFilters && filterGroups.length > 0;
+  const hasAnyFilters = hasFilters || hasFilterGroups;
   const showToolbar =
-    showSearch || hasFilters || showViewToggle || !!toolbarExtra;
+    showSearch || hasAnyFilters || showViewToggle || !!toolbarExtra;
 
   const resolveKey = React.useCallback(
     (item: TItem, index: number): string | number => {
@@ -127,7 +422,7 @@ export function DataDisplay<TItem>({
       const id = (item as { id?: string | number }).id;
       return id !== undefined && id !== null ? id : index;
     },
-    [getItemKey]
+    [getItemKey],
   );
 
   const goToPrev = () => {
@@ -182,8 +477,11 @@ export function DataDisplay<TItem>({
               !showToolbar && (
                 <p className="text-xs text-muted-foreground pt-1">
                   Showing {(pagination.page - 1) * pagination.limit + 1}–
-                  {Math.min(pagination.page * pagination.limit, pagination.total)} of{" "}
-                  {pagination.total}
+                  {Math.min(
+                    pagination.page * pagination.limit,
+                    pagination.total,
+                  )}{" "}
+                  of {pagination.total}
                 </p>
               )}
           </div>
@@ -198,7 +496,7 @@ export function DataDisplay<TItem>({
               <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:flex-wrap min-w-0">
                   {showSearch && (
-                    <div className="relative w-full sm:w-[280px] lg:w-[320px] shrink-0">
+                    <div className="relative w-full sm:w-1/2 lg:w-1/2 shrink-0">
                       <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         placeholder={searchPlaceholder}
@@ -209,18 +507,35 @@ export function DataDisplay<TItem>({
                     </div>
                   )}
 
-                  {(hasFilters || toolbarExtra) && (
+                  {(hasAnyFilters || toolbarExtra) && (
                     <div className="flex flex-wrap items-center gap-2 min-w-0">
+                      {hasFilterGroups &&
+                        filterGroups.map((group) => {
+                          const variant = resolveVariant(group);
+                          return (
+                            <div key={group.id} className="flex items-center gap-2">
+                              <span className="text-xs font-medium text-muted-foreground whitespace-nowrap hidden sm:inline">
+                                {group.label}:
+                              </span>
+                              {variant === "pills" && <FilterPills group={group} />}
+                              {variant === "select" && <FilterSelect group={group} />}
+                              {variant === "dropdown" && <FilterDropdown group={group} />}
+                              {variant === "combobox" && <FilterCombobox group={group} />}
+                            </div>
+                          );
+                        })}
                       {hasFilters && (
                         <div className="flex flex-wrap items-center gap-1.5">
                           {filters.map((filter) => (
                             <Button
                               key={filter.value}
                               variant={
-                                activeFilter === filter.value ? "role" : "outline"
+                                activeFilter === filter.value
+                                  ? "role"
+                                  : "outline"
                               }
                               size="sm"
-                              onClick={() => onFilterChange(filter.value)}
+                              onClick={() => onFilterChange?.(filter.value)}
                               className="h-8 rounded-full capitalize text-xs px-3.5 whitespace-nowrap"
                             >
                               {filter.label}
@@ -230,7 +545,7 @@ export function DataDisplay<TItem>({
                       )}
                       {toolbarExtra && (
                         <>
-                          {hasFilters && (
+                          {hasAnyFilters && (
                             <div className="hidden sm:block h-6 w-px bg-border mx-1" />
                           )}
                           <div className="flex flex-wrap items-center gap-2">
@@ -253,7 +568,8 @@ export function DataDisplay<TItem>({
                           {pagination.totalPages}
                         </span>
                         <span className="sm:hidden">
-                          {pagination.page}/{pagination.totalPages} · {pagination.total} items
+                          {pagination.page}/{pagination.totalPages} ·{" "}
+                          {pagination.total} items
                         </span>
                       </span>
                     )}
@@ -268,7 +584,7 @@ export function DataDisplay<TItem>({
                           "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
                           viewMode === "cards"
                             ? "bg-background shadow-sm border text-foreground"
-                            : "text-muted-foreground hover:text-foreground"
+                            : "text-muted-foreground hover:text-foreground",
                         )}
                       >
                         <LayoutGrid className="h-3.5 w-3.5" />
@@ -282,7 +598,7 @@ export function DataDisplay<TItem>({
                           "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
                           viewMode === "table"
                             ? "bg-background shadow-sm border text-foreground"
-                            : "text-muted-foreground hover:text-foreground"
+                            : "text-muted-foreground hover:text-foreground",
                         )}
                       >
                         <List className="h-3.5 w-3.5" />
@@ -352,7 +668,7 @@ export function DataDisplay<TItem>({
                             "p-3 font-semibold",
                             idx === 0 && "rounded-l-xl",
                             idx === arr.length - 1 && "rounded-r-xl",
-                            header.className
+                            header.className,
                           )}
                         >
                           {header.label}

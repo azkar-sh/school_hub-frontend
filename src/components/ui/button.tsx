@@ -1,4 +1,5 @@
 import { Button as ButtonPrimitive } from "@base-ui/react/button"
+import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "cn"
 
@@ -8,6 +9,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary/80",
+        role: "bg-role-accent text-role-accent-foreground hover:bg-role-accent/80",
         outline:
           "border-border bg-input/30 hover:bg-input/50 hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground",
         secondary:
@@ -41,14 +43,26 @@ function Button({
   className,
   variant = "default",
   size = "default",
+  isLoading,
   ...props
-}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+}: ButtonPrimitive.Props &
+  VariantProps<typeof buttonVariants> & { isLoading?: boolean }) {
   return (
     <ButtonPrimitive
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
+      disabled={isLoading || (props as { disabled?: boolean }).disabled}
       {...props}
-    />
+    >
+      {isLoading ? (
+        <span className="inline-flex items-center gap-2">
+          <span className="size-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+          {(props as { children?: React.ReactNode }).children}
+        </span>
+      ) : (
+        (props as { children?: React.ReactNode }).children
+      )}
+    </ButtonPrimitive>
   )
 }
 
