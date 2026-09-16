@@ -115,7 +115,11 @@ export function useAssessmentsPage() {
     error: isErrorLive,
   } = useFetchData<{ assessments: Assessment[]; meta: PaginationMeta }>(
     async () => {
-      if (!shouldFetchLive) return { assessments: [], meta: { page: 1, limit, total: 0, totalPages: 0 } };
+      if (!shouldFetchLive)
+        return {
+          assessments: [],
+          meta: { page: 1, limit, total: 0, totalPages: 0 },
+        };
 
       // Backend expects subjectId as foreign key, not assessment type.
       // Keep type filter client-side to avoid breaking existing UX.
@@ -129,10 +133,13 @@ export function useAssessmentsPage() {
           : assessmentsApi.findForStudent(params);
 
       const res = await req;
-      return res.data as unknown as { assessments: Assessment[]; meta: PaginationMeta };
+      return res.data as unknown as {
+        assessments: Assessment[];
+        meta: PaginationMeta;
+      };
     },
     [shouldFetchLive, currentRole, page, limit, debouncedSearch],
-    shouldFetchLive
+    shouldFetchLive,
   );
 
   // Transform live data
@@ -141,13 +148,10 @@ export function useAssessmentsPage() {
     return liveData.assessments.map((a) => toDisplayItem(a, currentRole));
   }, [liveData, currentRole]);
 
-  const liveMeta = React.useMemo(
-    () => {
-      if (!liveData) return { page: 1, limit, total: 0, totalPages: 0 };
-      return liveData.meta;
-    },
-    [liveData]
-  );
+  const liveMeta = React.useMemo(() => {
+    if (!liveData) return { page: 1, limit, total: 0, totalPages: 0 };
+    return liveData.meta;
+  }, [liveData]);
 
   // Source: mock in demo mode, live otherwise
   const mockItems = React.useMemo(
@@ -157,7 +161,12 @@ export function useAssessmentsPage() {
 
   const sourceItems = isDemoMode ? mockItems : liveItems;
   const meta = isDemoMode
-    ? { page: 1, limit: sourceItems.length, total: sourceItems.length, totalPages: 1 }
+    ? {
+        page: 1,
+        limit: sourceItems.length,
+        total: sourceItems.length,
+        totalPages: 1,
+      }
     : liveMeta;
 
   // Client-side type filter (assessment.type = QUIZ | EXAM | ASSIGNMENT)
@@ -177,15 +186,15 @@ export function useAssessmentsPage() {
         }
         return matchesType;
       }),
-    [sourceItems, filterType, isDemoMode, search]
+    [sourceItems, filterType, isDemoMode, search],
   );
 
   // Action label based on role and item status
   const actionLabel = (item: DisplayItem) => {
     if (currentRole === "TEACHER") return "Manage Questions";
     if (currentRole === "PARENT") return "View Results";
-    if (item.status === "SUBMITTED" || item.status === "GRADED")
-      return "Review Score";
+    if (item.status === "GRADED") return "Review Score";
+    if (item.status === "SUBMITTED") return "Review";
     if (item.status === "DRAFT") return "Continue Assessment";
     return "Start Assessment";
   };

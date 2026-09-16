@@ -1,19 +1,26 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import Link from 'next/link';
+import * as React from "react";
+import Link from "next/link";
 import {
   Card,
   CardHeader,
   CardTitle,
   CardDescription,
   CardContent,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Search, Loader2, Sparkles, ArrowRight, FileText, List } from 'lucide-react';
-import { useAuthStore } from '@/stores/use-auth-store';
-import { cn } from '@/lib/utils';
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Search,
+  Loader2,
+  Sparkles,
+  ArrowRight,
+  FileText,
+  List,
+} from "lucide-react";
+import { useAuthStore } from "@/stores/use-auth-store";
+import { cn } from "@/lib/utils";
 
 export interface DataDisplayFilter {
   value: string;
@@ -46,8 +53,8 @@ interface DataDisplayProps<TItem> {
   isDemoMode?: boolean;
   pagination?: DataDisplayPagination;
   onPageChange?: (page: number) => void;
-  viewMode?: 'cards' | 'table';
-  onViewToggle?: (mode: 'cards' | 'table') => void;
+  viewMode?: "cards" | "table";
+  onViewToggle?: (mode: "cards" | "table") => void;
   renderCard?: (item: TItem) => React.ReactNode;
   renderTableHeaders?: () => DataDisplayTableHeader[];
   renderTableRow?: (item: TItem) => React.ReactNode[];
@@ -59,22 +66,23 @@ interface DataDisplayProps<TItem> {
   showPagination?: boolean;
   showDemoBanner?: boolean;
   showPaginationSummary?: boolean;
-  cardGridCols?: '1' | '2' | '3' | '4';
+  cardGridCols?: "1" | "2" | "3" | "4";
   getItemKey?: (item: TItem, index: number) => string | number;
+  headerAction?: React.ReactNode;
   className?: string;
 }
 
 const gridColsClass: Record<string, string> = {
-  '1': 'grid-cols-1',
-  '2': 'grid-cols-1 sm:grid-cols-2',
-  '3': 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
-  '4': 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
+  "1": "grid-cols-1",
+  "2": "grid-cols-1 sm:grid-cols-2",
+  "3": "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+  "4": "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
 };
 
 export function DataDisplay<TItem>({
   title,
   description,
-  searchPlaceholder = 'Search...',
+  searchPlaceholder = "Search...",
   search,
   onSearchChange,
   filters = [],
@@ -84,7 +92,7 @@ export function DataDisplay<TItem>({
   isDemoMode = false,
   pagination,
   onPageChange,
-  viewMode = 'cards',
+  viewMode = "cards",
   onViewToggle,
   renderCard,
   renderTableHeaders,
@@ -97,15 +105,16 @@ export function DataDisplay<TItem>({
   showPagination = true,
   showDemoBanner = true,
   showPaginationSummary = true,
-  cardGridCols = '2',
+  cardGridCols = "2",
   getItemKey,
-  className = '',
+  headerAction,
+  className = "",
 }: DataDisplayProps<TItem>) {
   const { isDemoMode: storeIsDemoMode } = useAuthStore();
   const demoMode = isDemoMode ?? storeIsDemoMode;
 
   const hasItems = items.length > 0;
-  const showContent = !isLoading && !demoMode;
+  const isBlocked = isLoading && !demoMode;
   const showToolbar = showSearch || showFilters || showViewToggle;
 
   const resolveKey = React.useCallback(
@@ -122,7 +131,7 @@ export function DataDisplay<TItem>({
   };
 
   const toggleView = () => {
-    onViewToggle?.(viewMode === 'cards' ? 'table' : 'cards');
+    onViewToggle?.(viewMode === "cards" ? "table" : "cards");
   };
 
   const goToPrev = () => {
@@ -130,11 +139,12 @@ export function DataDisplay<TItem>({
   };
 
   const goToNext = () => {
-    if (pagination) onPageChange?.(Math.min(pagination.totalPages, pagination.page + 1));
+    if (pagination)
+      onPageChange?.(Math.min(pagination.totalPages, pagination.page + 1));
   };
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn("space-y-6", className)}>
       {/* Demo Mode Banner */}
       {showDemoBanner && demoMode && (
         <div className="flex items-center justify-between gap-3 rounded-2xl border border-amber-500/30 bg-amber-500/8 px-4 py-3 text-sm">
@@ -142,7 +152,8 @@ export function DataDisplay<TItem>({
             <Sparkles className="w-4 h-4 shrink-0 animate-pulse" />
             <span className="font-semibold shrink-0">Preview Mode</span>
             <span className="text-amber-600/80 dark:text-amber-400/70 text-xs truncate hidden sm:block">
-              — You are viewing sample demo data. Sign in with a real account to access live information.
+              — You are viewing sample demo data. Sign in with a real account to
+              access live information.
             </span>
           </div>
           <Link href="/login">
@@ -191,7 +202,7 @@ export function DataDisplay<TItem>({
                 {filters.map((filter) => (
                   <Button
                     key={filter.value}
-                    variant={activeFilter === filter.value ? 'role' : 'outline'}
+                    variant={activeFilter === filter.value ? "role" : "outline"}
                     size="sm"
                     onClick={() => onFilterChange(filter.value)}
                     className="capitalize text-xs"
@@ -209,7 +220,7 @@ export function DataDisplay<TItem>({
                 onClick={toggleView}
                 className="flex items-center gap-1 text-xs"
               >
-                {viewMode === 'cards' ? (
+                {viewMode === "cards" ? (
                   <>
                     <List className="w-4 h-4" />
                     <span>Table View</span>
@@ -226,17 +237,25 @@ export function DataDisplay<TItem>({
         )}
 
         {/* Pagination summary when toolbar hidden */}
-        {showPaginationSummary && !showToolbar && pagination && !demoMode && pagination.total > 0 && (
-          <div className="text-xs text-muted-foreground">
-            <span>
-              Showing {(pagination.page - 1) * pagination.limit + 1}–
-              {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total}
-            </span>
-          </div>
-        )}
+        {showPaginationSummary &&
+          !showToolbar &&
+          pagination &&
+          !demoMode &&
+          pagination.total > 0 && (
+            <div className="text-xs text-muted-foreground">
+              <span>
+                Showing {(pagination.page - 1) * pagination.limit + 1}–
+                {Math.min(pagination.page * pagination.limit, pagination.total)}{" "}
+                of {pagination.total}
+              </span>
+            </div>
+          )}
+
+        {/* Optional header action slot (e.g. "Create" button) */}
+        {headerAction}
       </div>
 
-      {/* Loading state */}
+      {/* Loading state — hidden in demo mode where data is local */}
       {isLoading && !demoMode && (
         <div className="flex items-center justify-center py-16 text-muted-foreground gap-2">
           <Loader2 className="w-5 h-5 animate-spin" />
@@ -244,7 +263,7 @@ export function DataDisplay<TItem>({
         </div>
       )}
 
-      {/* Error state */}
+      {/* Error state — hidden in demo mode */}
       {error && !isLoading && !demoMode && (
         <div className="p-4 text-sm text-destructive text-center border rounded-xl border-destructive/20 bg-destructive/5">
           {error}
@@ -252,7 +271,7 @@ export function DataDisplay<TItem>({
       )}
 
       {/* Empty state */}
-      {showContent && !hasItems && (
+      {!isBlocked && !hasItems && (
         <div className="text-center py-12">
           <p className="text-sm text-muted-foreground">
             No items match your search.
@@ -261,65 +280,67 @@ export function DataDisplay<TItem>({
       )}
 
       {/* Main content — cards view */}
-      {showContent && hasItems && viewMode === 'cards' && renderCard && (
-        <div className={cn('grid gap-5', gridColsClass[cardGridCols])}>
+      {!isBlocked && hasItems && viewMode === "cards" && renderCard && (
+        <div className={cn("grid gap-5", gridColsClass[cardGridCols])}>
           {items.map((item, index) => (
-            <div key={resolveKey(item, index)}>
-              {renderCard(item)}
-            </div>
+            <div key={resolveKey(item, index)}>{renderCard(item)}</div>
           ))}
         </div>
       )}
 
       {/* Main content — table view */}
-      {showContent && hasItems && viewMode === 'table' && renderTableHeaders && renderTableRow && (
-        <Card>
-          <CardHeader className="pb-4">
-            <CardTitle className="text-lg font-semibold">{title}</CardTitle>
-            {description && (
-              <CardDescription className="text-sm text-muted-foreground mt-1">
-                {description}
-              </CardDescription>
-            )}
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead className="text-xs uppercase text-muted-foreground bg-muted/50 rounded-xl">
-                  <tr>
-                    {renderTableHeaders().map((header, idx, arr) => (
-                      <th
-                        key={header.key}
-                        className={cn(
-                          'p-3 font-semibold',
-                          idx === 0 && 'rounded-l-xl',
-                          idx === arr.length - 1 && 'rounded-r-xl',
-                          header.className,
-                        )}
-                      >
-                        {header.label}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border/40">
-                  {items.map((item, index) => (
-                    <tr
-                      key={resolveKey(item, index)}
-                      className="hover:bg-muted/30 transition-colors group"
-                    >
-                      {renderTableRow(item)}
+      {!isBlocked &&
+        hasItems &&
+        viewMode === "table" &&
+        renderTableHeaders &&
+        renderTableRow && (
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg font-semibold">{title}</CardTitle>
+              {description && (
+                <CardDescription className="text-sm text-muted-foreground mt-1">
+                  {description}
+                </CardDescription>
+              )}
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead className="text-xs uppercase text-muted-foreground bg-muted/50 rounded-xl">
+                    <tr>
+                      {renderTableHeaders().map((header, idx, arr) => (
+                        <th
+                          key={header.key}
+                          className={cn(
+                            "p-3 font-semibold",
+                            idx === 0 && "rounded-l-xl",
+                            idx === arr.length - 1 && "rounded-r-xl",
+                            header.className,
+                          )}
+                        >
+                          {header.label}
+                        </th>
+                      ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+                  </thead>
+                  <tbody className="divide-y divide-border/40">
+                    {items.map((item, index) => (
+                      <tr
+                        key={resolveKey(item, index)}
+                        className="hover:bg-muted/30 transition-colors group"
+                      >
+                        {renderTableRow(item)}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
       {/* Main content — fallback list view */}
-      {showContent && hasItems && viewMode === 'cards' && !renderCard && (
+      {!isBlocked && hasItems && viewMode === "cards" && !renderCard && (
         <div className="space-y-4">
           {items.map((item, index) => (
             <div
@@ -333,29 +354,32 @@ export function DataDisplay<TItem>({
       )}
 
       {/* Pagination controls */}
-      {showPagination && pagination && !demoMode && pagination.totalPages > 1 && (
-        <div className="flex items-center justify-center gap-3 pt-4">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={pagination.page <= 1}
-            onClick={goToPrev}
-          >
-            Previous
-          </Button>
-          <span className="text-xs text-muted-foreground">
-            Page {pagination.page} of {pagination.totalPages}
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={pagination.page >= pagination.totalPages}
-            onClick={goToNext}
-          >
-            Next
-          </Button>
-        </div>
-      )}
+      {showPagination &&
+        pagination &&
+        !demoMode &&
+        pagination.totalPages > 1 && (
+          <div className="flex items-center justify-center gap-3 pt-4">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={pagination.page <= 1}
+              onClick={goToPrev}
+            >
+              Previous
+            </Button>
+            <span className="text-xs text-muted-foreground">
+              Page {pagination.page} of {pagination.totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={pagination.page >= pagination.totalPages}
+              onClick={goToNext}
+            >
+              Next
+            </Button>
+          </div>
+        )}
     </div>
   );
 }
