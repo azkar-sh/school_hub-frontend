@@ -16,7 +16,7 @@ import {
   Loader2,
   Sparkles,
   ArrowRight,
-  FileText,
+  LayoutGrid,
   List,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/use-auth-store";
@@ -69,6 +69,7 @@ interface DataDisplayProps<TItem> {
   cardGridCols?: "1" | "2" | "3" | "4";
   getItemKey?: (item: TItem, index: number) => string | number;
   headerAction?: React.ReactNode;
+  toolbarExtra?: React.ReactNode;
   className?: string;
 }
 
@@ -108,6 +109,7 @@ export function DataDisplay<TItem>({
   cardGridCols = "2",
   getItemKey,
   headerAction,
+  toolbarExtra,
   className = "",
 }: DataDisplayProps<TItem>) {
   const { isDemoMode: storeIsDemoMode } = useAuthStore();
@@ -115,7 +117,9 @@ export function DataDisplay<TItem>({
 
   const hasItems = items.length > 0;
   const isBlocked = isLoading && !demoMode;
-  const showToolbar = showSearch || showFilters || showViewToggle;
+  const hasFilters = showFilters && filters.length > 0;
+  const showToolbar =
+    showSearch || hasFilters || showViewToggle || !!toolbarExtra;
 
   const resolveKey = React.useCallback(
     (item: TItem, index: number): string | number => {
@@ -123,16 +127,8 @@ export function DataDisplay<TItem>({
       const id = (item as { id?: string | number }).id;
       return id !== undefined && id !== null ? id : index;
     },
-    [getItemKey],
+    [getItemKey]
   );
-
-  const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onSearchChange(e.target.value);
-  };
-
-  const toggleView = () => {
-    onViewToggle?.(viewMode === "cards" ? "table" : "cards");
-  };
 
   const goToPrev = () => {
     if (pagination) onPageChange?.(Math.max(1, pagination.page - 1));
@@ -144,8 +140,7 @@ export function DataDisplay<TItem>({
   };
 
   return (
-    <div className={cn("space-y-6", className)}>
-      {/* Demo Mode Banner */}
+    <div className={cn("space-y-5", className)}>
       {showDemoBanner && demoMode && (
         <div className="flex items-center justify-between gap-3 rounded-2xl border border-amber-500/30 bg-amber-500/8 px-4 py-3 text-sm">
           <div className="flex items-center gap-2.5 text-amber-700 dark:text-amber-400 min-w-0">
@@ -169,93 +164,139 @@ export function DataDisplay<TItem>({
         </div>
       )}
 
-      {/* Header with title and controls */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex flex-col sm:flex-row items-center gap-3">
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-            {title}
-          </h1>
-          {description && (
-            <p className="text-sm text-muted-foreground mt-1 sm:mt-0">
-              {description}
-            </p>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0 space-y-1.5">
+            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl leading-tight">
+              {title}
+            </h1>
+            {description && (
+              <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                {description}
+              </p>
+            )}
+            {showPaginationSummary &&
+              pagination &&
+              !demoMode &&
+              pagination.total > 0 &&
+              !showToolbar && (
+                <p className="text-xs text-muted-foreground pt-1">
+                  Showing {(pagination.page - 1) * pagination.limit + 1}–
+                  {Math.min(pagination.page * pagination.limit, pagination.total)} of{" "}
+                  {pagination.total}
+                </p>
+              )}
+          </div>
+          {headerAction && (
+            <div className="shrink-0 lg:pl-4">{headerAction}</div>
           )}
         </div>
 
-        {/* Controls: Search, Filters, View Toggle */}
         {showToolbar && (
-          <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-            {showSearch && (
-              <div className="relative w-full sm:w-64">
-                <Search className="w-4 h-4 absolute left-3.5 top-3.5 text-muted-foreground" />
-                <Input
-                  placeholder={searchPlaceholder}
-                  value={search}
-                  onChange={handleSearchInput}
-                  className="pl-10"
-                />
-              </div>
-            )}
+          <div className="rounded-xl border bg-card shadow-xs">
+            <div className="flex flex-col gap-3 p-3 sm:p-3.5">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:flex-wrap min-w-0">
+                  {showSearch && (
+                    <div className="relative w-full sm:w-[280px] lg:w-[320px] shrink-0">
+                      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        placeholder={searchPlaceholder}
+                        value={search}
+                        onChange={(e) => onSearchChange(e.target.value)}
+                        className="pl-9 h-9 bg-background"
+                      />
+                    </div>
+                  )}
 
-            {showFilters && filters.length > 0 && (
-              <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
-                {filters.map((filter) => (
-                  <Button
-                    key={filter.value}
-                    variant={activeFilter === filter.value ? "role" : "outline"}
-                    size="sm"
-                    onClick={() => onFilterChange(filter.value)}
-                    className="capitalize text-xs"
-                  >
-                    {filter.label}
-                  </Button>
-                ))}
-              </div>
-            )}
+                  {(hasFilters || toolbarExtra) && (
+                    <div className="flex flex-wrap items-center gap-2 min-w-0">
+                      {hasFilters && (
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          {filters.map((filter) => (
+                            <Button
+                              key={filter.value}
+                              variant={
+                                activeFilter === filter.value ? "role" : "outline"
+                              }
+                              size="sm"
+                              onClick={() => onFilterChange(filter.value)}
+                              className="h-8 rounded-full capitalize text-xs px-3.5 whitespace-nowrap"
+                            >
+                              {filter.label}
+                            </Button>
+                          ))}
+                        </div>
+                      )}
+                      {toolbarExtra && (
+                        <>
+                          {hasFilters && (
+                            <div className="hidden sm:block h-6 w-px bg-border mx-1" />
+                          )}
+                          <div className="flex flex-wrap items-center gap-2">
+                            {toolbarExtra}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
 
-            {showViewToggle && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={toggleView}
-                className="flex items-center gap-1 text-xs"
-              >
-                {viewMode === "cards" ? (
-                  <>
-                    <List className="w-4 h-4" />
-                    <span>Table View</span>
-                  </>
-                ) : (
-                  <>
-                    <FileText className="w-4 h-4" />
-                    <span>Cards View</span>
-                  </>
-                )}
-              </Button>
-            )}
+                <div className="flex items-center justify-between gap-3 lg:justify-end lg:shrink-0">
+                  {showPaginationSummary &&
+                    pagination &&
+                    !demoMode &&
+                    pagination.total > 0 && (
+                      <span className="text-xs text-muted-foreground whitespace-nowrap lg:text-right">
+                        <span className="hidden sm:inline">
+                          {pagination.total} items · Page {pagination.page} of{" "}
+                          {pagination.totalPages}
+                        </span>
+                        <span className="sm:hidden">
+                          {pagination.page}/{pagination.totalPages} · {pagination.total} items
+                        </span>
+                      </span>
+                    )}
+
+                  {showViewToggle && onViewToggle && (
+                    <div className="inline-flex items-center rounded-full border bg-muted/40 p-1 gap-0.5 shrink-0 ml-auto lg:ml-0">
+                      <button
+                        type="button"
+                        aria-pressed={viewMode === "cards"}
+                        onClick={() => onViewToggle("cards")}
+                        className={cn(
+                          "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
+                          viewMode === "cards"
+                            ? "bg-background shadow-sm border text-foreground"
+                            : "text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        <LayoutGrid className="h-3.5 w-3.5" />
+                        Cards
+                      </button>
+                      <button
+                        type="button"
+                        aria-pressed={viewMode === "table"}
+                        onClick={() => onViewToggle("table")}
+                        className={cn(
+                          "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
+                          viewMode === "table"
+                            ? "bg-background shadow-sm border text-foreground"
+                            : "text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        <List className="h-3.5 w-3.5" />
+                        Table
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         )}
-
-        {/* Pagination summary when toolbar hidden */}
-        {showPaginationSummary &&
-          !showToolbar &&
-          pagination &&
-          !demoMode &&
-          pagination.total > 0 && (
-            <div className="text-xs text-muted-foreground">
-              <span>
-                Showing {(pagination.page - 1) * pagination.limit + 1}–
-                {Math.min(pagination.page * pagination.limit, pagination.total)}{" "}
-                of {pagination.total}
-              </span>
-            </div>
-          )}
-
-        {/* Optional header action slot (e.g. "Create" button) */}
-        {headerAction}
       </div>
 
-      {/* Loading state — hidden in demo mode where data is local */}
       {isLoading && !demoMode && (
         <div className="flex items-center justify-center py-16 text-muted-foreground gap-2">
           <Loader2 className="w-5 h-5 animate-spin" />
@@ -263,14 +304,12 @@ export function DataDisplay<TItem>({
         </div>
       )}
 
-      {/* Error state — hidden in demo mode */}
       {error && !isLoading && !demoMode && (
         <div className="p-4 text-sm text-destructive text-center border rounded-xl border-destructive/20 bg-destructive/5">
           {error}
         </div>
       )}
 
-      {/* Empty state */}
       {!isBlocked && !hasItems && (
         <div className="text-center py-12">
           <p className="text-sm text-muted-foreground">
@@ -279,7 +318,6 @@ export function DataDisplay<TItem>({
         </div>
       )}
 
-      {/* Main content — cards view */}
       {!isBlocked && hasItems && viewMode === "cards" && renderCard && (
         <div className={cn("grid gap-5", gridColsClass[cardGridCols])}>
           {items.map((item, index) => (
@@ -288,7 +326,6 @@ export function DataDisplay<TItem>({
         </div>
       )}
 
-      {/* Main content — table view */}
       {!isBlocked &&
         hasItems &&
         viewMode === "table" &&
@@ -315,7 +352,7 @@ export function DataDisplay<TItem>({
                             "p-3 font-semibold",
                             idx === 0 && "rounded-l-xl",
                             idx === arr.length - 1 && "rounded-r-xl",
-                            header.className,
+                            header.className
                           )}
                         >
                           {header.label}
@@ -339,7 +376,6 @@ export function DataDisplay<TItem>({
           </Card>
         )}
 
-      {/* Main content — fallback list view */}
       {!isBlocked && hasItems && viewMode === "cards" && !renderCard && (
         <div className="space-y-4">
           {items.map((item, index) => (
@@ -353,12 +389,11 @@ export function DataDisplay<TItem>({
         </div>
       )}
 
-      {/* Pagination controls */}
       {showPagination &&
         pagination &&
         !demoMode &&
         pagination.totalPages > 1 && (
-          <div className="flex items-center justify-center gap-3 pt-4">
+          <div className="flex items-center justify-center gap-3 pt-2">
             <Button
               variant="outline"
               size="sm"
