@@ -20,13 +20,13 @@ const TYPE_FILTERS = [
 function getAssessmentTypeLabel(type: string) {
   switch (type) {
     case "QUIZ":
-      return "quiz";
+      return "Quiz";
     case "EXAM":
-      return "exam";
+      return "Exam";
     case "ASSIGNMENT":
-      return "assignment";
+      return "Assignment";
     default:
-      return type.toLowerCase();
+      return type.charAt(0).toUpperCase() + type.slice(1).toLowerCase();
   }
 }
 
@@ -99,6 +99,16 @@ export default function AssessmentsPage() {
     [],
   );
 
+  const renderStatus = React.useCallback(
+    (item: MockAssessment) =>
+      currentRole === "STUDENT"
+        ? getAssessmentTypeLabel(item.status).toUpperCase()
+        : item.dueAt > new Date().toLocaleDateString("id-ID")
+          ? "Available"
+          : "Expired",
+    [currentRole],
+  );
+
   const renderTableRow = React.useCallback(
     (item: MockAssessment) => [
       <td key="title" className="p-3.5 font-medium">
@@ -119,11 +129,11 @@ export default function AssessmentsPage() {
         {item.questionsCount}
       </td>,
       <td key="due" className="p-3.5 text-xs text-muted-foreground">
-        {item.due}
+        {item.dueAt}
       </td>,
       <td key="status" className="p-3.5">
         <span className="inline-flex items-center gap-1.5 text-xs">
-          {getAssessmentTypeLabel(item.status).toUpperCase()}
+          {renderStatus(item)}
         </span>
       </td>,
       <td key="action" className="p-3.5">

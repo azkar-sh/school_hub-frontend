@@ -27,10 +27,7 @@ function StatusBadge({
   if (currentRole === "TEACHER") {
     return (
       item.submissionsCount !== undefined && (
-        <Badge
-          variant="secondary"
-          className="bg-success/10 text-success gap-1"
-        >
+        <Badge variant="secondary" className="bg-success/10 text-success gap-1">
           <BarChart3 className="w-3 h-3" />
           <span>{item.submissionsCount} submissions</span>
         </Badge>
@@ -40,10 +37,7 @@ function StatusBadge({
 
   if (item.status === "SUBMITTED" || item.status === "GRADED") {
     return (
-      <Badge
-        variant="secondary"
-        className="bg-success/15 text-success gap-1"
-      >
+      <Badge variant="secondary" className="bg-success/15 text-success gap-1">
         <CheckCircle2 className="w-3 h-3" />
         <span>{item.status === "GRADED" ? "Graded" : "Submitted"}</span>
       </Badge>
@@ -52,10 +46,7 @@ function StatusBadge({
 
   if (item.status === "DRAFT") {
     return (
-      <Badge
-        variant="outline"
-        className="text-primary border-primary/30 gap-1"
-      >
+      <Badge variant="outline" className="text-primary border-primary/30 gap-1">
         <PencilLine className="w-3 h-3" />
         <span>In Progress</span>
       </Badge>
@@ -63,10 +54,7 @@ function StatusBadge({
   }
 
   return (
-    <Badge
-      variant="outline"
-      className="text-warning border-warning/30 gap-1"
-    >
+    <Badge variant="outline" className="text-warning border-warning/30 gap-1">
       <Clock className="w-3 h-3" />
       <span>Active</span>
     </Badge>
@@ -102,7 +90,7 @@ export function AssessmentCard({
 
         <CardTitle className="text-lg leading-snug">{item.title}</CardTitle>
         <CardDescription className="text-xs mt-1">
-          Due: {item.due}
+          Due: {item.dueAt}
           {item.questionsCount > 0 && ` • ${item.questionsCount} Questions`}
           {item.points > 0 && ` • ${item.points} Points`}
           {currentRole === "TEACHER" && item.avgScore !== undefined && (

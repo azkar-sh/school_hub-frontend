@@ -24,7 +24,9 @@ type DisplayItem = MockAssessment;
 function toDisplayItem(a: Assessment, role: string): DisplayItem {
   const subject = a.teachingAssignment?.subject?.name ?? "—";
   const questionsCount = a._count?.questions ?? a.questions?.length ?? 0;
-  const due = a.dueAt ? new Date(a.dueAt).toLocaleDateString() : "No due date";
+  const dueAt = a.dueAt
+    ? new Date(a.dueAt).toLocaleDateString("id-ID")
+    : "No due date";
 
   if (role === "TEACHER") {
     return {
@@ -33,7 +35,7 @@ function toDisplayItem(a: Assessment, role: string): DisplayItem {
       type: a.type as DisplayItem["type"],
       subject,
       class: a.teachingAssignment?.class?.name ?? "—",
-      due,
+      dueAt,
       questionsCount,
       points: 0,
       status: "AVAILABLE",
@@ -58,7 +60,7 @@ function toDisplayItem(a: Assessment, role: string): DisplayItem {
     title: a.title,
     type: a.type as DisplayItem["type"],
     subject,
-    due,
+    dueAt,
     questionsCount,
     class: a.teachingAssignment?.class?.name ?? "—",
     points: 0,
