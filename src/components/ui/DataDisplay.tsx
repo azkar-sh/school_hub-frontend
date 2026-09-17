@@ -35,6 +35,7 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -69,7 +70,7 @@ export type FilterVariant = "pills" | "select" | "dropdown" | "combobox";
 
 export interface FilterGroup {
   id: string;
-  label: string;
+  label?: string;
   mode: "single" | "multi";
   variant?: FilterVariant;
   options: FilterGroupOption[];
@@ -139,13 +140,10 @@ function resolveVariant(group: FilterGroup): FilterVariant {
   return "select";
 }
 
-function FilterSelect({
-  group,
-}: {
-  group: FilterGroup;
-}) {
+function FilterSelect({ group }: { group: FilterGroup }) {
   const value = group.value as string;
-  const placeholder = group.placeholder ?? `Select ${group.label.toLowerCase()}`;
+  const placeholder =
+    group.placeholder ?? `Select ${group.label?.toLowerCase() ?? ""}`;
   return (
     <Select value={value} onValueChange={(v) => group.onChange(v as string)}>
       <SelectTrigger size="sm" className="h-8 min-w-32 bg-background">
@@ -162,46 +160,48 @@ function FilterSelect({
   );
 }
 
-function FilterDropdown({
-  group,
-}: {
-  group: FilterGroup;
-}) {
+function FilterDropdown({ group }: { group: FilterGroup }) {
   const selected = group.value as string[];
   const label =
     selected.length === 0
-      ? group.placeholder ?? group.label
+      ? (group.placeholder ?? group.label)
       : selected.length === 1
-        ? (group.options.find((o) => o.value === selected[0])?.label ?? selected[0])
+        ? (group.options.find((o) => o.value === selected[0])?.label ??
+          selected[0])
         : `${selected.length} selected`;
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button variant="outline" size="sm" className="h-8 gap-1.5 bg-background">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 gap-1.5 bg-background"
+          >
             {label}
             <ChevronDown className="h-3.5 w-3.5 opacity-50" />
           </Button>
         }
       />
       <DropdownMenuContent align="start" className="w-56">
-        <DropdownMenuLabel>{group.label}</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        {group.options.map((opt) => (
-          <DropdownMenuCheckboxItem
-            key={opt.value}
-            checked={selected.includes(opt.value)}
-            onCheckedChange={(checked) => {
-              const next = checked
-                ? [...selected, opt.value]
-                : selected.filter((v) => v !== opt.value);
-              group.onChange(next);
-            }}
-          >
-            {opt.label}
-          </DropdownMenuCheckboxItem>
-        ))}
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>{group.label}</DropdownMenuLabel>
+          {group.options.map((opt) => (
+            <DropdownMenuCheckboxItem
+              key={opt.value}
+              checked={selected.includes(opt.value)}
+              onCheckedChange={(checked) => {
+                const next = checked
+                  ? [...selected, opt.value]
+                  : selected.filter((v) => v !== opt.value);
+                group.onChange(next);
+              }}
+            >
+              {opt.label}
+            </DropdownMenuCheckboxItem>
+          ))}
+        </DropdownMenuGroup>
         {selected.length > 0 && (
           <>
             <DropdownMenuSeparator />
@@ -222,18 +222,16 @@ function FilterDropdown({
   );
 }
 
-function FilterCombobox({
-  group,
-}: {
-  group: FilterGroup;
-}) {
+function FilterCombobox({ group }: { group: FilterGroup }) {
   const selected = group.value as string[];
-  const placeholder = group.placeholder ?? `Search ${group.label.toLowerCase()}…`;
+  const placeholder =
+    group.placeholder ?? `Search ${group.label?.toLowerCase() ?? ""}…`;
   const triggerLabel =
     selected.length === 0
       ? group.label
       : selected.length === 1
-        ? (group.options.find((o) => o.value === selected[0])?.label ?? selected[0])
+        ? (group.options.find((o) => o.value === selected[0])?.label ??
+          selected[0])
         : `${selected.length} selected`;
   const [open, setOpen] = React.useState(false);
 
@@ -241,10 +239,17 @@ function FilterCombobox({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         render={
-          <Button variant="outline" size="sm" className="h-8 gap-1.5 bg-background">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 gap-1.5 bg-background"
+          >
             {triggerLabel}
             {selected.length > 1 && (
-              <Badge variant="secondary" className="h-4 px-1 text-[10px] leading-none">
+              <Badge
+                variant="secondary"
+                className="h-4 px-1 text-[10px] leading-none"
+              >
                 {selected.length}
               </Badge>
             )}
@@ -308,7 +313,9 @@ function FilterCombobox({
                   {opt?.label ?? val}
                   <button
                     type="button"
-                    onClick={() => group.onChange(selected.filter((v) => v !== val))}
+                    onClick={() =>
+                      group.onChange(selected.filter((v) => v !== val))
+                    }
                     className="ml-0.5 rounded-full p-0.5 hover:bg-muted-foreground/20"
                   >
                     <X className="h-3 w-3" />
@@ -323,11 +330,7 @@ function FilterCombobox({
   );
 }
 
-function FilterPills({
-  group,
-}: {
-  group: FilterGroup;
-}) {
+function FilterPills({ group }: { group: FilterGroup }) {
   if (group.mode === "single") {
     const active = group.value as string;
     return (
@@ -513,14 +516,25 @@ export function DataDisplay<TItem>({
                         filterGroups.map((group) => {
                           const variant = resolveVariant(group);
                           return (
-                            <div key={group.id} className="flex items-center gap-2">
+                            <div
+                              key={group.id}
+                              className="flex items-center gap-2"
+                            >
                               <span className="text-xs font-medium text-muted-foreground whitespace-nowrap hidden sm:inline">
                                 {group.label}:
                               </span>
-                              {variant === "pills" && <FilterPills group={group} />}
-                              {variant === "select" && <FilterSelect group={group} />}
-                              {variant === "dropdown" && <FilterDropdown group={group} />}
-                              {variant === "combobox" && <FilterCombobox group={group} />}
+                              {variant === "pills" && (
+                                <FilterPills group={group} />
+                              )}
+                              {variant === "select" && (
+                                <FilterSelect group={group} />
+                              )}
+                              {variant === "dropdown" && (
+                                <FilterDropdown group={group} />
+                              )}
+                              {variant === "combobox" && (
+                                <FilterCombobox group={group} />
+                              )}
                             </div>
                           );
                         })}
@@ -564,8 +578,9 @@ export function DataDisplay<TItem>({
                     pagination.total > 0 && (
                       <span className="text-xs text-muted-foreground whitespace-nowrap lg:text-right">
                         <span className="hidden sm:inline">
-                          {pagination.total} items · Page {pagination.page} of{" "}
-                          {pagination.totalPages}
+                          {pagination.total} items
+                          {/* · Page {pagination.page} of{" "}
+                          {pagination.totalPages} */}
                         </span>
                         <span className="sm:hidden">
                           {pagination.page}/{pagination.totalPages} ·{" "}

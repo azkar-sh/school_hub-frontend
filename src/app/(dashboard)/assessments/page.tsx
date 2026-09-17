@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { DataDisplay } from "@/components/ui/DataDisplay";
+import { DataDisplay, FilterGroup } from "@/components/ui/DataDisplay";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PlusCircle, BookOpen } from "lucide-react";
@@ -44,8 +44,14 @@ export default function AssessmentsPage() {
     currentRole,
     search,
     filterType,
+    filterSubject,
+    filterClass,
+    subjectOptions,
+    classOptions,
     handleSearchChange,
     handleFilterTypeChange,
+    handleFilterSubjectChange,
+    handleFilterClassChange,
     setPage,
     isLoading,
     fetchError,
@@ -117,8 +123,7 @@ export default function AssessmentsPage() {
       </td>,
       <td key="status" className="p-3.5">
         <span className="inline-flex items-center gap-1.5 text-xs">
-          <BookOpen className="w-3.5 h-3.5 text-primary" />
-          {getAssessmentTypeLabel(item.type)}
+          {getAssessmentTypeLabel(item.status).toUpperCase()}
         </span>
       </td>,
       <td key="action" className="p-3.5">
@@ -136,6 +141,68 @@ export default function AssessmentsPage() {
     !isDemoMode && meta.total > 0
       ? `Showing ${(meta.page - 1) * meta.limit + 1}–${Math.min(meta.page * meta.limit, meta.total)} of ${meta.total}`
       : undefined;
+
+  const filterGroups = React.useMemo<FilterGroup[]>(
+    () => [
+      {
+        id: "type",
+        mode: "multi",
+        variant: "dropdown",
+        options: TYPE_FILTERS.filter((f) => f.value !== "ALL").map((f) => ({
+          value: f.value,
+          label: f.label,
+        })),
+        value: filterType,
+        onChange: (v) => handleFilterTypeChange(v),
+        placeholder: "All types",
+      },
+      ...(currentRole === "STUDENT"
+        ? [
+            {
+              id: "subject",
+              mode: "multi" as const,
+              variant:
+                subjectOptions.length > 6
+                  ? ("combobox" as const)
+                  : ("dropdown" as const),
+              options: subjectOptions,
+              value: filterSubject,
+              onChange: (v: string | string[]) => handleFilterSubjectChange(v),
+              placeholder: "All subjects",
+              searchable: subjectOptions.length > 6,
+            },
+          ]
+        : []),
+      ...(currentRole === "TEACHER"
+        ? [
+            {
+              id: "class",
+              mode: "multi" as const,
+              variant:
+                classOptions.length > 6
+                  ? ("combobox" as const)
+                  : ("dropdown" as const),
+              options: classOptions,
+              value: filterClass,
+              onChange: (v: string | string[]) => handleFilterClassChange(v),
+              placeholder: "All classes",
+              searchable: classOptions.length > 6,
+            },
+          ]
+        : []),
+    ],
+    [
+      currentRole,
+      filterType,
+      filterSubject,
+      filterClass,
+      subjectOptions,
+      classOptions,
+      handleFilterTypeChange,
+      handleFilterSubjectChange,
+      handleFilterClassChange,
+    ],
+  );
 
   return (
     <div className="space-y-6">
@@ -156,9 +223,7 @@ export default function AssessmentsPage() {
         searchPlaceholder={searchPlaceholder}
         search={search}
         onSearchChange={handleSearchChange}
-        filters={TYPE_FILTERS}
-        activeFilter={filterType}
-        onFilterChange={handleFilterTypeChange}
+        filterGroups={filterGroups}
         items={filtered}
         isDemoMode={isDemoMode}
         pagination={meta}

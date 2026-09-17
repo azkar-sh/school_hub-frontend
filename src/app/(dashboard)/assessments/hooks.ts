@@ -2,9 +2,9 @@ import * as React from "react";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useRoleThemeStore } from "@/stores/use-role-theme-store";
 import { getMockAssessments, MockAssessment } from "@/lib/mock-data";
-import { assessmentsApi } from "@/lib/api-client";
+import { assessmentsApi, teachingAssignmentsApi } from "@/lib/api-client";
 import { useFetchData } from "@/lib/use-fetch-data";
-import { Assessment } from "@/types";
+import { Assessment, Subject, TeachingAssignment } from "@/types";
 
 /**
  * Pagination meta returned by backend (page/limit/total/totalPages)
@@ -32,6 +32,7 @@ function toDisplayItem(a: Assessment, role: string): DisplayItem {
       title: a.title,
       type: a.type as DisplayItem["type"],
       subject,
+      class: a.teachingAssignment?.class?.name ?? "—",
       due,
       questionsCount,
       points: 0,
@@ -59,6 +60,7 @@ function toDisplayItem(a: Assessment, role: string): DisplayItem {
     subject,
     due,
     questionsCount,
+    class: a.teachingAssignment?.class?.name ?? "—",
     points: 0,
     status,
     submissionId: sub?.id,
@@ -87,9 +89,19 @@ export function useAssessmentsPage() {
 
   // UI state — search/filter drive backend query (server-side)
   const [search, setSearch] = React.useState("");
-  const [filterType, setFilterType] = React.useState<string>("ALL");
+  const [filterType, setFilterType] = React.useState<string[]>([]);
+  const [filterSubject, setFilterSubject] = React.useState<string[]>([]);
+  const [filterClass, setFilterClass] = React.useState<string[]>([]);
   const [page, setPage] = React.useState(1);
   const limit = 10;
+
+  // Subject options for filter dropdown — derived for demo, fetched for live
+  const [subjectOptions, setSubjectOptions] = React.useState<
+    { value: string; label: string }[]
+  >([]);
+  const [classOptions, setClassOptions] = React.useState<
+    { value: string; label: string }[]
+  >([]);
 
   // Reset page when search/filter changes (new query -> start at 1)
   const handleSearchChange = React.useCallback((value: string) => {
@@ -97,10 +109,113 @@ export function useAssessmentsPage() {
     setPage(1);
   }, []);
 
-  const handleFilterTypeChange = React.useCallback((type: string) => {
-    setFilterType(type);
-    setPage(1);
-  }, []);
+  const handleFilterTypeChange = React.useCallback(
+    (value: string | string[]) => {
+      setFilterType(
+        Array.isArray(value) ? value : value === "ALL" ? [] : [value],
+      );
+      setPage(1);
+    },
+    [],
+  );
+
+  const handleFilterClassChange = React.useCallback(
+    (value: string | string[]) => {
+      setFilterClass(
+        Array.isArray(value) ? value : value === "ALL" ? [] : [value],
+      );
+      setPage(1);
+    },
+    [],
+  );
+
+  const handleFilterSubjectChange = React.useCallback(
+    (value: string | string[]) => {
+      setFilterSubject(
+        Array.isArray(value) ? value : value === "ALL" ? [] : [value],
+      );
+      setPage(1);
+    },
+    [],
+  );
+
+  // Demo: derive subject options from mock data (no effect needed)
+  const demoSubjectOptions = React.useMemo(
+    () =>
+      Array.from(
+        new Set(getMockAssessments(currentRole).map((a) => a.class)),
+      ).map((name) => ({ value: name, label: name })),
+    [currentRole],
+  );
+  const demoClassOptions = React.useMemo(
+    () =>
+      Array.from(
+        new Set(getMockAssessments(currentRole).map((a) => a.subject)),
+      ).map((name) => ({ value: name, label: name })),
+    [currentRole],
+  );
+
+  // Live: fetch subject options (async setState is fine — not synchronous)
+  React.useEffect(() => {
+    if (isDemoMode) return;
+    let cancelled = false;
+    if (currentRole === "TEACHER" && user?.id) {
+      teachingAssignmentsApi
+        .findByTeacher(user.id)
+        .then((res) => {
+          if (cancelled) return;
+          const list: TeachingAssignment[] = Array.isArray(res.data)
+            ? res.data
+            : [];
+          const opts = Array.from(
+            new Map(
+              list
+                .filter((ta) => ta.subject)
+                .map(
+                  (ta) =>
+                    [
+                      ta.subject!.id,
+                      { value: ta.subject!.id, label: ta.subject!.name },
+                    ] as const,
+                ),
+            ).values(),
+          );
+          const classOptions = Array.from(
+            new Map(
+              list
+                .filter((ta) => ta.class)
+                .map(
+                  (ta) =>
+                    [
+                      ta.class!.id,
+                      { value: ta.class!.id, label: ta.class!.name },
+                    ] as const,
+                ),
+            ).values(),
+          );
+          setSubjectOptions(opts);
+          setClassOptions(classOptions);
+        })
+        .catch(() => {});
+    } else if (currentRole === "STUDENT") {
+      assessmentsApi
+        .findSubjectsForStudent()
+        .then((res) => {
+          if (cancelled) return;
+          const list: Subject[] = Array.isArray(res.data) ? res.data : [];
+          setSubjectOptions(list.map((s) => ({ value: s.id, label: s.name })));
+        })
+        .catch(() => {});
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [isDemoMode, currentRole, user?.id]);
+
+  const effectiveSubjectOptions = isDemoMode
+    ? demoSubjectOptions
+    : subjectOptions;
+  const effectiveClassOptions = isDemoMode ? demoClassOptions : classOptions;
 
   // Debounce search so we don't hit API on every keystroke
   const debouncedSearch = useDebouncedValue(search, 350);
@@ -121,11 +236,14 @@ export function useAssessmentsPage() {
           meta: { page: 1, limit, total: 0, totalPages: 0 },
         };
 
-      // Backend expects subjectId as foreign key, not assessment type.
-      // Keep type filter client-side to avoid breaking existing UX.
-      // If backend later exposes `type` filter, add it here as `type: filterType`.
-      const params: Record<string, string | number> = { page, limit };
+      const params: Record<string, string | number | string[]> = {
+        page,
+        limit,
+      };
       if (debouncedSearch) params.search = debouncedSearch;
+      if (filterType.length > 0) params.type = filterType;
+      if (filterSubject.length > 0) params.subjectId = filterSubject;
+      if (filterClass.length > 0) params.classId = filterClass;
 
       const req =
         currentRole === "TEACHER"
@@ -138,7 +256,16 @@ export function useAssessmentsPage() {
         meta: PaginationMeta;
       };
     },
-    [shouldFetchLive, currentRole, page, limit, debouncedSearch],
+    [
+      shouldFetchLive,
+      currentRole,
+      page,
+      limit,
+      debouncedSearch,
+      filterType,
+      filterSubject,
+      filterClass,
+    ],
     shouldFetchLive,
   );
 
@@ -159,35 +286,35 @@ export function useAssessmentsPage() {
     [isDemoMode, currentRole],
   );
 
-  const sourceItems = isDemoMode ? mockItems : liveItems;
+  // In demo mode, filter mock data by type, subject, and search (client-side)
+  // In live mode, rely on backend filtering (no client-side filter)
+  const filteredItems = React.useMemo(() => {
+    if (isDemoMode) {
+      return mockItems.filter((item) => {
+        const matchesType =
+          filterType.length === 0 ||
+          filterType.includes(item.type as DisplayItem["type"]);
+        const matchesSubject =
+          filterSubject.length === 0 || filterSubject.includes(item.subject);
+        const q = search.toLowerCase();
+        const matchesSearch =
+          !q ||
+          item.title.toLowerCase().includes(q) ||
+          item.subject.toLowerCase().includes(q);
+        return matchesType && matchesSubject && matchesSearch;
+      });
+    }
+    return liveItems;
+  }, [mockItems, filterType, filterSubject, search, liveItems, isDemoMode]);
+
   const meta = isDemoMode
     ? {
         page: 1,
-        limit: sourceItems.length,
-        total: sourceItems.length,
+        limit: filteredItems.length,
+        total: filteredItems.length,
         totalPages: 1,
       }
     : liveMeta;
-
-  // Client-side type filter (assessment.type = QUIZ | EXAM | ASSIGNMENT)
-  // Kept here because backend FindAssessmentDto currently only filters by
-  // subjectId — type filter would need backend support to move server-side.
-  const filtered = React.useMemo(
-    () =>
-      sourceItems.filter((item) => {
-        const matchesType = filterType === "ALL" || item.type === filterType;
-        if (isDemoMode) {
-          const q = search.toLowerCase();
-          const matchesSearch =
-            !q ||
-            item.title.toLowerCase().includes(q) ||
-            item.subject.toLowerCase().includes(q);
-          return matchesSearch && matchesType;
-        }
-        return matchesType;
-      }),
-    [sourceItems, filterType, isDemoMode, search],
-  );
 
   // Action label based on role and item status
   const actionLabel = (item: DisplayItem) => {
@@ -204,12 +331,18 @@ export function useAssessmentsPage() {
     currentRole,
     search,
     filterType,
+    filterSubject,
+    filterClass,
+    subjectOptions: effectiveSubjectOptions,
     handleSearchChange,
     handleFilterTypeChange,
+    handleFilterSubjectChange,
+    handleFilterClassChange,
+    classOptions: effectiveClassOptions,
     setPage,
     isLoading: isLoadingLive,
     fetchError: isErrorLive,
-    filtered,
+    filtered: filteredItems,
     meta,
     actionLabel,
   };

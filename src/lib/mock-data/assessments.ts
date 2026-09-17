@@ -7,6 +7,7 @@ export interface MockAssessment {
   subject: string;
   due: string;
   questionsCount: number;
+  class: string;
   points: number;
   /** Student-specific status. DRAFT = started but not yet submitted. */
   status: "AVAILABLE" | "DRAFT" | "SUBMITTED" | "GRADED";
@@ -34,6 +35,7 @@ export function getMockAssessments(role: UserRole): MockAssessment[] {
         questionsCount: 10,
         points: 100,
         status: "AVAILABLE",
+        class: "8A",
         submissionsCount: 28,
         avgScore: 86,
       },
@@ -46,6 +48,7 @@ export function getMockAssessments(role: UserRole): MockAssessment[] {
         questionsCount: 15,
         points: 150,
         status: "AVAILABLE",
+        class: "8A",
         submissionsCount: 12,
         avgScore: 79,
       },
@@ -58,6 +61,7 @@ export function getMockAssessments(role: UserRole): MockAssessment[] {
         questionsCount: 5,
         points: 50,
         status: "AVAILABLE",
+        class: "8A",
         submissionsCount: 32,
         avgScore: 91,
       },
@@ -70,6 +74,7 @@ export function getMockAssessments(role: UserRole): MockAssessment[] {
         questionsCount: 8,
         points: 80,
         status: "AVAILABLE",
+        class: "8B",
         submissionsCount: 4,
         avgScore: 73,
       },
@@ -82,6 +87,7 @@ export function getMockAssessments(role: UserRole): MockAssessment[] {
         questionsCount: 12,
         points: 120,
         status: "AVAILABLE",
+        class: "8B",
         submissionsCount: 0,
       },
     ];
@@ -97,6 +103,7 @@ export function getMockAssessments(role: UserRole): MockAssessment[] {
         due: "2026-08-30",
         questionsCount: 10,
         points: 100,
+        class: "8A",
         status: "AVAILABLE",
       },
       {
@@ -107,6 +114,7 @@ export function getMockAssessments(role: UserRole): MockAssessment[] {
         due: "2026-09-05",
         questionsCount: 15,
         points: 150,
+        class: "8A",
         status: "AVAILABLE",
       },
       {
@@ -117,6 +125,7 @@ export function getMockAssessments(role: UserRole): MockAssessment[] {
         due: "2026-08-20",
         questionsCount: 5,
         points: 50,
+        class: "8A",
         status: "SUBMITTED",
       },
       {
@@ -127,6 +136,7 @@ export function getMockAssessments(role: UserRole): MockAssessment[] {
         due: "2026-09-01",
         questionsCount: 8,
         points: 80,
+        class: "8B",
         status: "GRADED",
       },
     ];
@@ -137,6 +147,7 @@ export function getMockAssessments(role: UserRole): MockAssessment[] {
     {
       id: "3",
       title: "Science Homework 1 - 8A",
+      class: "8A",
       type: "ASSIGNMENT",
       subject: "Science",
       due: "2026-08-20",
@@ -147,6 +158,7 @@ export function getMockAssessments(role: UserRole): MockAssessment[] {
     {
       id: "4",
       title: "Mathematics Quiz 1 - 8B",
+      class: "8B",
       type: "QUIZ",
       subject: "Mathematics",
       due: "2026-09-01",
@@ -157,6 +169,7 @@ export function getMockAssessments(role: UserRole): MockAssessment[] {
     {
       id: "1",
       title: "Mathematics Quiz 1 - 8A",
+      class: "8A",
       type: "QUIZ",
       subject: "Mathematics",
       due: "2026-08-30",
