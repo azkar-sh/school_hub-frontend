@@ -3,6 +3,10 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { assessmentSchema } from "@/lib/schemas";
+import {
+  buildAssessmentTemplate,
+  parseAssessmentWorkbook,
+} from "@/lib/assessment-xlsx";
 import { useAssessmentStore } from "@/stores/use-assessment-store";
 import { useAuthStore } from "@/stores/use-auth-store";
 import {
@@ -10,7 +14,6 @@ import {
   teachingAssignmentsApi,
   subjectsApi,
 } from "@/lib/api-client";
-import { useSchoolContextStore } from "@/stores/use-school-context-store";
 import { getErrorMessage } from "@/lib/errors";
 import { CreateAssessmentDto, TeachingAssignment, SubTopic, Topic } from "@/types";
 
@@ -59,12 +62,16 @@ export function useNewAssessmentForm() {
     draft,
     updateDraft,
     addQuestionToDraft,
+    setQuestions,
     removeQuestionFromDraft,
     resetDraft,
   } = useAssessmentStore();
 
   const [activeStep, setActiveStep] = React.useState<1 | 2>(1);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [isDownloading, setIsDownloading] = React.useState(false);
+  const [isImporting, setIsImporting] = React.useState(false);
+  const [importInfo, setImportInfo] = React.useState<string | null>(null);
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
 
   const [assignments, setAssignments] = React.useState<TeachingAssignment[]>(
@@ -190,6 +197,7 @@ export function useNewAssessmentForm() {
 
   const methods = useForm<AssessmentFormData>({
     resolver: yupResolver(assessmentSchema),
+    mode: "onChange",
     defaultValues: {
       teachingAssignmentId:
         draft.teachingAssignmentId ||
@@ -202,6 +210,24 @@ export function useNewAssessmentForm() {
       topicId: draft.topicId ?? undefined,
     },
   });
+
+  const watchedTitle = methods.watch("title");
+  const canDownloadTemplate = React.useMemo(() => {
+    const titleOk = (watchedTitle?.trim().length ?? 0) >= 3;
+    if (!titleOk) return false;
+    if (isDemoMode) return true;
+    if (!selectedAssignmentId) return false;
+    if (subTopics.length === 0) return false;
+    return true;
+  }, [watchedTitle, isDemoMode, selectedAssignmentId, subTopics.length]);
+
+  const downloadDisabledReason = React.useMemo(() => {
+    if (canDownloadTemplate) return null;
+    if ((watchedTitle?.trim().length ?? 0) < 3) return "Enter title (≥3 chars) to enable download";
+    if (!isDemoMode && !selectedAssignmentId) return "Select teaching assignment / class first";
+    if (!isDemoMode && subTopics.length === 0) return "No sub-topics for this subject — create sub-topics first";
+    return null;
+  }, [canDownloadTemplate, watchedTitle, isDemoMode, selectedAssignmentId, subTopics.length]);
 
   const handleStep1Submit = (data: AssessmentFormData) => {
     const assignmentId =
@@ -250,6 +276,79 @@ export function useNewAssessmentForm() {
     resetQuestionCreator();
   };
 
+  const handleDownloadTemplate = async () => {
+    try {
+      setErrorMsg(null);
+      setIsDownloading(true);
+      const vals = methods.getValues();
+      const liveDraft = {
+        teachingAssignmentId: selectedAssignmentId || vals.teachingAssignmentId || draft.teachingAssignmentId || "",
+        title: vals.title || draft.title || "",
+        description: vals.description ?? draft.description ?? "",
+        type: (vals.type as "QUIZ" | "EXAM" | "ASSIGNMENT") || draft.type || "QUIZ",
+        dueAt: vals.dueAt || draft.dueAt || "",
+        topicId: selectedTopicId ?? (vals.topicId ? String(vals.topicId) : undefined) ?? draft.topicId,
+      };
+      if (!liveDraft.teachingAssignmentId && !isDemoMode) {
+        setErrorMsg("Select a teaching assignment before downloading template.");
+        return;
+      }
+      if (subTopics.length === 0 && !isDemoMode) {
+        setErrorMsg("No sub-topics found for this assignment/subject. Create sub-topics first.");
+        return;
+      }
+      const blob = await buildAssessmentTemplate({ draft: liveDraft, subTopics });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `assessment-template-${(liveDraft.title || "untitled").replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      setErrorMsg(getErrorMessage(e, "Failed to generate template"));
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  const handleImportFile = async (file: File) => {
+    try {
+      setErrorMsg(null);
+      setIsImporting(true);
+      const res = await parseAssessmentWorkbook(file);
+      if (res.draft.teachingAssignmentId) setSelectedAssignmentId(res.draft.teachingAssignmentId);
+      if (res.draft.topicId !== undefined) setSelectedTopicId(res.draft.topicId || null);
+      updateDraft({
+        teachingAssignmentId: res.draft.teachingAssignmentId || draft.teachingAssignmentId,
+        title: res.draft.title || draft.title,
+        description: res.draft.description ?? draft.description,
+        type: res.draft.type || draft.type,
+        dueAt: res.draft.dueAt ?? draft.dueAt,
+        topicId: res.draft.topicId ?? draft.topicId,
+      });
+      if (res.draft.title) methods.setValue("title", res.draft.title);
+      if (res.draft.type) methods.setValue("type", res.draft.type);
+      if (res.draft.dueAt !== undefined) methods.setValue("dueAt", res.draft.dueAt);
+      if (res.draft.description !== undefined) methods.setValue("description", res.draft.description);
+      if (res.questions.length > 0) {
+        const merged = [...draft.questions, ...res.questions.map((q, i) => ({ ...q, order: draft.questions.length + i }))];
+        setQuestions(merged);
+      }
+      if (res.errors.length > 0) {
+        setErrorMsg(res.errors.slice(0, 4).join(" | ") + (res.errors.length > 4 ? ` (+${res.errors.length - 4} more)` : ""));
+      }
+      const msg = `Imported ${res.questions.length} question(s)${res.draft.title ? ` — "${res.draft.title}"` : ""}. Review below before publish.`;
+      setImportInfo(msg);
+      setActiveStep(2);
+    } catch (e) {
+      setErrorMsg(getErrorMessage(e, "Failed to parse xlsx"));
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
   const handleFinalPublish = async () => {
     try {
       setErrorMsg(null);
@@ -294,8 +393,14 @@ return {
      methods,
      isDemoMode,
      activeStep,
+     setActiveStep,
      isSubmitting,
+     isDownloading,
+     isImporting,
+     importInfo,
      errorMsg,
+     canDownloadTemplate,
+     downloadDisabledReason,
      assignments,
      selectedAssignmentId,
      setSelectedAssignmentId,
@@ -316,6 +421,8 @@ return {
      draft,
      handleStep1Submit,
      handleAddQuestion,
+     handleDownloadTemplate,
+     handleImportFile,
      handleFinalPublish,
      removeQuestionFromDraft,
    };

@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import { Assessment, Question, Submission } from "@/types";
 
 interface AssessmentDraft {
@@ -24,6 +25,7 @@ interface AssessmentState {
   selectedAnswers: Record<string, string>; // questionId -> answerText
   updateDraft: (data: Partial<AssessmentDraft>) => void;
   addQuestionToDraft: (question: AssessmentDraft["questions"][number]) => void;
+  setQuestions: (questions: AssessmentDraft["questions"]) => void;
   removeQuestionFromDraft: (index: number) => void;
   resetDraft: () => void;
   setAnswer: (questionId: string, answer: string) => void;
@@ -40,36 +42,52 @@ const initialDraft: AssessmentDraft = {
   questions: [],
 };
 
-export const useAssessmentStore = create<AssessmentState>((set) => ({
-  draft: initialDraft,
-  activeSubmission: null,
-  selectedAnswers: {},
+export const useAssessmentStore = create<AssessmentState>()(
+  persist(
+    (set) => ({
+      draft: initialDraft,
+      activeSubmission: null,
+      selectedAnswers: {},
 
-  updateDraft: (data) =>
-    set((state) => ({ draft: { ...state.draft, ...data } })),
+      updateDraft: (data) =>
+        set((state) => ({ draft: { ...state.draft, ...data } })),
 
-  addQuestionToDraft: (question) =>
-    set((state) => ({
-      draft: {
-        ...state.draft,
-        questions: [...state.draft.questions, question],
-      },
-    })),
+      addQuestionToDraft: (question) =>
+        set((state) => ({
+          draft: {
+            ...state.draft,
+            questions: [...state.draft.questions, question],
+          },
+        })),
 
-  removeQuestionFromDraft: (index) =>
-    set((state) => ({
-      draft: {
-        ...state.draft,
-        questions: state.draft.questions.filter((_, i) => i !== index),
-      },
-    })),
+      setQuestions: (questions) =>
+        set((state) => ({
+          draft: {
+            ...state.draft,
+            questions,
+          },
+        })),
 
-  resetDraft: () => set({ draft: initialDraft }),
+      removeQuestionFromDraft: (index) =>
+        set((state) => ({
+          draft: {
+            ...state.draft,
+            questions: state.draft.questions.filter((_, i) => i !== index),
+          },
+        })),
 
-  setAnswer: (questionId, answer) =>
-    set((state) => ({
-      selectedAnswers: { ...state.selectedAnswers, [questionId]: answer },
-    })),
+      resetDraft: () => set({ draft: initialDraft }),
 
-  clearAnswers: () => set({ selectedAnswers: {} }),
-}));
+      setAnswer: (questionId, answer) =>
+        set((state) => ({
+          selectedAnswers: { ...state.selectedAnswers, [questionId]: answer },
+        })),
+
+      clearAnswers: () => set({ selectedAnswers: {} }),
+    }),
+    {
+      name: "assessment-draft-storage",
+      partialize: (state) => ({ draft: state.draft }),
+    }
+  )
+);
