@@ -27,6 +27,10 @@ interface AssessmentState {
   addQuestionToDraft: (question: AssessmentDraft["questions"][number]) => void;
   setQuestions: (questions: AssessmentDraft["questions"]) => void;
   removeQuestionFromDraft: (index: number) => void;
+  editQuestionInDraft: (
+    index: number,
+    question: Partial<AssessmentDraft["questions"][number]>,
+  ) => void;
   resetDraft: () => void;
   setAnswer: (questionId: string, answer: string) => void;
   clearAnswers: () => void;
@@ -76,6 +80,16 @@ export const useAssessmentStore = create<AssessmentState>()(
           },
         })),
 
+      editQuestionInDraft: (index, question) =>
+        set((state) => ({
+          draft: {
+            ...state.draft,
+            questions: state.draft.questions.map((q, i) =>
+              i === index ? { ...q, ...question } : q,
+            ),
+          },
+        })),
+
       resetDraft: () => set({ draft: initialDraft }),
 
       setAnswer: (questionId, answer) =>
@@ -88,6 +102,6 @@ export const useAssessmentStore = create<AssessmentState>()(
     {
       name: "assessment-draft-storage",
       partialize: (state) => ({ draft: state.draft }),
-    }
-  )
+    },
+  ),
 );

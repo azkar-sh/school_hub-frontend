@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { HelpCircle, Save, Trash2 } from "lucide-react";
+import { Edit2, HelpCircle, Save, Trash2 } from "lucide-react";
 
 interface DraftQuestion {
   subTopicId: string;
@@ -20,15 +20,19 @@ interface DraftQuestion {
 interface QuestionListCardProps {
   questions: DraftQuestion[];
   onRemoveQuestion: (index: number) => void;
+  onEditQuestion: (index: number) => void;
   onPublish: () => void;
   isSubmitting: boolean;
+  editingIndex?: number | null;
 }
 
 export function QuestionListCard({
   questions,
   onRemoveQuestion,
+  onEditQuestion,
   onPublish,
   isSubmitting,
+  editingIndex,
 }: QuestionListCardProps) {
   return (
     <Card>
@@ -62,7 +66,10 @@ export function QuestionListCard({
           questions.map((q, idx) => (
             <div
               key={idx}
-              className="p-4 rounded-xl bg-muted/40 border border-border/60 flex items-start justify-between gap-4"
+              className={
+                "p-4 rounded-xl bg-muted/40 border border-border/60 flex items-start justify-between gap-4" +
+                (editingIndex === idx ? " ring-2 ring-primary" : "")
+              }
             >
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
@@ -72,6 +79,11 @@ export function QuestionListCard({
                   <Badge variant="outline" className="text-[10px]">
                     {q.type} ({q.points} pts)
                   </Badge>
+                  {editingIndex === idx && (
+                    <Badge className="text-[10px]" variant="role">
+                      Editing
+                    </Badge>
+                  )}
                 </div>
                 <p className="font-semibold text-sm">{q.question}</p>
                 {(q.type === "MCQ" || q.type === "TRUE_FALSE") && (
@@ -79,9 +91,7 @@ export function QuestionListCard({
                     {q.options.map((o, i) => (
                       <span
                         key={i}
-                        className={
-                          o.isCorrect ? "text-success font-bold" : ""
-                        }
+                        className={o.isCorrect ? "text-success font-bold" : ""}
                       >
                         {o.isCorrect ? "✓ " : ""}
                         {o.text}
@@ -90,14 +100,23 @@ export function QuestionListCard({
                   </div>
                 )}
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onRemoveQuestion(idx)}
-                className="text-destructive hover:bg-destructive/10"
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onEditQuestion(idx)}
+                >
+                  <Edit2 className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onRemoveQuestion(idx)}
+                  className="text-destructive hover:bg-destructive/10"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           ))
         )}

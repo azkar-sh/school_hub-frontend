@@ -15,7 +15,12 @@ import {
   subjectsApi,
 } from "@/lib/api-client";
 import { getErrorMessage } from "@/lib/errors";
-import { CreateAssessmentDto, TeachingAssignment, SubTopic, Topic } from "@/types";
+import {
+  CreateAssessmentDto,
+  TeachingAssignment,
+  SubTopic,
+  Topic,
+} from "@/types";
 
 /**
  * Form data for step 1 (assessment details).
@@ -23,7 +28,12 @@ import { CreateAssessmentDto, TeachingAssignment, SubTopic, Topic } from "@/type
  */
 export type AssessmentFormData = Pick<
   CreateAssessmentDto,
-  "teachingAssignmentId" | "title" | "description" | "type" | "dueAt" | "topicId"
+  | "teachingAssignmentId"
+  | "title"
+  | "description"
+  | "type"
+  | "dueAt"
+  | "topicId"
 >;
 
 export interface NewQuestionOption {
@@ -64,6 +74,7 @@ export function useNewAssessmentForm() {
     addQuestionToDraft,
     setQuestions,
     removeQuestionFromDraft,
+    editQuestionInDraft,
     resetDraft,
   } = useAssessmentStore();
 
@@ -79,17 +90,20 @@ export function useNewAssessmentForm() {
   );
   const [selectedAssignmentId, setSelectedAssignmentId] =
     React.useState<string>(draft.teachingAssignmentId || "");
-  const [selectedTopicId, setSelectedTopicId] =
-    React.useState<string | null>(draft.topicId ?? null);
+  const [selectedTopicId, setSelectedTopicId] = React.useState<string | null>(
+    draft.topicId ?? null,
+  );
   const [subTopics, setSubTopics] = React.useState<SubTopic[]>([]);
   const [topics, setTopics] = React.useState<Topic[]>([]);
-  const [selectedSubTopicId, setSelectedSubTopicId] =
-    React.useState<string>(draft.questions?.[0]?.subTopicId || "");
+  const [selectedSubTopicId, setSelectedSubTopicId] = React.useState<string>(
+    draft.questions?.[0]?.subTopicId || "",
+  );
 
   const [qText, setQText] = React.useState("");
   const [qType, setQType] = React.useState<
     "MCQ" | "TRUE_FALSE" | "SHORT_ANSWER"
   >("MCQ");
+  const [editingIndex, setEditingIndex] = React.useState<number | null>(null);
   const [qPoints, setQPoints] = React.useState(10);
   const [options, setOptions] =
     React.useState<NewQuestionOption[]>(DEFAULT_OPTIONS);
@@ -223,11 +237,20 @@ export function useNewAssessmentForm() {
 
   const downloadDisabledReason = React.useMemo(() => {
     if (canDownloadTemplate) return null;
-    if ((watchedTitle?.trim().length ?? 0) < 3) return "Enter title (≥3 chars) to enable download";
-    if (!isDemoMode && !selectedAssignmentId) return "Select teaching assignment / class first";
-    if (!isDemoMode && subTopics.length === 0) return "No sub-topics for this subject — create sub-topics first";
+    if ((watchedTitle?.trim().length ?? 0) < 3)
+      return "Enter title (≥3 chars) to enable download";
+    if (!isDemoMode && !selectedAssignmentId)
+      return "Select teaching assignment / class first";
+    if (!isDemoMode && subTopics.length === 0)
+      return "No sub-topics for this subject — create sub-topics first";
     return null;
-  }, [canDownloadTemplate, watchedTitle, isDemoMode, selectedAssignmentId, subTopics.length]);
+  }, [
+    canDownloadTemplate,
+    watchedTitle,
+    isDemoMode,
+    selectedAssignmentId,
+    subTopics.length,
+  ]);
 
   const handleStep1Submit = (data: AssessmentFormData) => {
     const assignmentId =
@@ -250,6 +273,61 @@ export function useNewAssessmentForm() {
     setOptions(DEFAULT_OPTIONS);
     setQType("MCQ");
     setQPoints(10);
+    setEditingIndex(null);
+  };
+
+  // Hydrate creator form with an existing draft question so the teacher
+  // can edit text/type/points/options and save back to the same slot.
+  const handleStartEdit = (index: number) => {
+    const q = draft.questions[index];
+    if (!q) return;
+    setEditingIndex(index);
+    setQText(q.question);
+    setQType(q.type);
+    setQPoints(q.points);
+    setOptions(
+      q.options.length > 0
+        ? q.options.map((o) => ({ text: o.text, isCorrect: o.isCorrect }))
+        : q.type === "SHORT_ANSWER"
+          ? []
+          : q.type === "TRUE_FALSE"
+            ? TRUE_FALSE_OPTIONS
+            : DEFAULT_OPTIONS,
+    );
+    setSelectedSubTopicId(q.subTopicId);
+  };
+
+  const handleSaveEdit = () => {
+    if (editingIndex === null) return;
+    if (!qText.trim()) return;
+    if (!isDemoMode && !selectedSubTopicId) {
+      setErrorMsg("Select a sub-topic before saving the question.");
+      return;
+    }
+    const subTopicId = selectedSubTopicId || "demo-subtopic-id";
+    editQuestionInDraft(editingIndex, {
+      subTopicId,
+      question: qText,
+      type: qType,
+      points: Number(qPoints) || 10,
+      options: qType === "SHORT_ANSWER" ? [] : options,
+    });
+    resetQuestionCreator();
+  };
+
+  const handleCancelEdit = () => {
+    resetQuestionCreator();
+  };
+
+  const handleRemoveQuestion = (index: number) => {
+    if (editingIndex !== null) {
+      if (index === editingIndex) {
+        resetQuestionCreator();
+      } else if (index < editingIndex) {
+        setEditingIndex((prev) => (prev !== null ? prev - 1 : null));
+      }
+    }
+    removeQuestionFromDraft(index);
   };
 
   const handleAddQuestion = () => {
@@ -282,22 +360,37 @@ export function useNewAssessmentForm() {
       setIsDownloading(true);
       const vals = methods.getValues();
       const liveDraft = {
-        teachingAssignmentId: selectedAssignmentId || vals.teachingAssignmentId || draft.teachingAssignmentId || "",
+        teachingAssignmentId:
+          selectedAssignmentId ||
+          vals.teachingAssignmentId ||
+          draft.teachingAssignmentId ||
+          "",
         title: vals.title || draft.title || "",
         description: vals.description ?? draft.description ?? "",
-        type: (vals.type as "QUIZ" | "EXAM" | "ASSIGNMENT") || draft.type || "QUIZ",
+        type:
+          (vals.type as "QUIZ" | "EXAM" | "ASSIGNMENT") || draft.type || "QUIZ",
         dueAt: vals.dueAt || draft.dueAt || "",
-        topicId: selectedTopicId ?? (vals.topicId ? String(vals.topicId) : undefined) ?? draft.topicId,
+        topicId:
+          selectedTopicId ??
+          (vals.topicId ? String(vals.topicId) : undefined) ??
+          draft.topicId,
       };
       if (!liveDraft.teachingAssignmentId && !isDemoMode) {
-        setErrorMsg("Select a teaching assignment before downloading template.");
+        setErrorMsg(
+          "Select a teaching assignment before downloading template.",
+        );
         return;
       }
       if (subTopics.length === 0 && !isDemoMode) {
-        setErrorMsg("No sub-topics found for this assignment/subject. Create sub-topics first.");
+        setErrorMsg(
+          "No sub-topics found for this assignment/subject. Create sub-topics first.",
+        );
         return;
       }
-      const blob = await buildAssessmentTemplate({ draft: liveDraft, subTopics });
+      const blob = await buildAssessmentTemplate({
+        draft: liveDraft,
+        subTopics,
+      });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -318,10 +411,13 @@ export function useNewAssessmentForm() {
       setErrorMsg(null);
       setIsImporting(true);
       const res = await parseAssessmentWorkbook(file);
-      if (res.draft.teachingAssignmentId) setSelectedAssignmentId(res.draft.teachingAssignmentId);
-      if (res.draft.topicId !== undefined) setSelectedTopicId(res.draft.topicId || null);
+      if (res.draft.teachingAssignmentId)
+        setSelectedAssignmentId(res.draft.teachingAssignmentId);
+      if (res.draft.topicId !== undefined)
+        setSelectedTopicId(res.draft.topicId || null);
       updateDraft({
-        teachingAssignmentId: res.draft.teachingAssignmentId || draft.teachingAssignmentId,
+        teachingAssignmentId:
+          res.draft.teachingAssignmentId || draft.teachingAssignmentId,
         title: res.draft.title || draft.title,
         description: res.draft.description ?? draft.description,
         type: res.draft.type || draft.type,
@@ -330,14 +426,25 @@ export function useNewAssessmentForm() {
       });
       if (res.draft.title) methods.setValue("title", res.draft.title);
       if (res.draft.type) methods.setValue("type", res.draft.type);
-      if (res.draft.dueAt !== undefined) methods.setValue("dueAt", res.draft.dueAt);
-      if (res.draft.description !== undefined) methods.setValue("description", res.draft.description);
+      if (res.draft.dueAt !== undefined)
+        methods.setValue("dueAt", res.draft.dueAt);
+      if (res.draft.description !== undefined)
+        methods.setValue("description", res.draft.description);
       if (res.questions.length > 0) {
-        const merged = [...draft.questions, ...res.questions.map((q, i) => ({ ...q, order: draft.questions.length + i }))];
+        const merged = [
+          ...draft.questions,
+          ...res.questions.map((q, i) => ({
+            ...q,
+            order: draft.questions.length + i,
+          })),
+        ];
         setQuestions(merged);
       }
       if (res.errors.length > 0) {
-        setErrorMsg(res.errors.slice(0, 4).join(" | ") + (res.errors.length > 4 ? ` (+${res.errors.length - 4} more)` : ""));
+        setErrorMsg(
+          res.errors.slice(0, 4).join(" | ") +
+            (res.errors.length > 4 ? ` (+${res.errors.length - 4} more)` : ""),
+        );
       }
       const msg = `Imported ${res.questions.length} question(s)${res.draft.title ? ` — "${res.draft.title}"` : ""}. Review below before publish.`;
       setImportInfo(msg);
@@ -389,41 +496,47 @@ export function useNewAssessmentForm() {
     }
   };
 
-return {
-     methods,
-     isDemoMode,
-     activeStep,
-     setActiveStep,
-     isSubmitting,
-     isDownloading,
-     isImporting,
-     importInfo,
-     errorMsg,
-     canDownloadTemplate,
-     downloadDisabledReason,
-     assignments,
-     selectedAssignmentId,
-     setSelectedAssignmentId,
-     subTopics,
-     selectedSubTopicId,
-     setSelectedSubTopicId,
-     selectedTopicId,
-     setSelectedTopicId,
-     topics,
-     qText,
-     setQText,
-     qType,
-     handleChangeQType,
-     qPoints,
-     setQPoints,
-     options,
-     setOptions,
-     draft,
-     handleStep1Submit,
-     handleAddQuestion,
-     handleDownloadTemplate,
-     handleImportFile,
-     handleFinalPublish,
-     removeQuestionFromDraft,
-   };
+  return {
+    methods,
+    isDemoMode,
+    activeStep,
+    setActiveStep,
+    isSubmitting,
+    isDownloading,
+    isImporting,
+    importInfo,
+    errorMsg,
+    canDownloadTemplate,
+    downloadDisabledReason,
+    assignments,
+    selectedAssignmentId,
+    setSelectedAssignmentId,
+    subTopics,
+    selectedSubTopicId,
+    setSelectedSubTopicId,
+    selectedTopicId,
+    setSelectedTopicId,
+    topics,
+    qText,
+    setQText,
+    qType,
+    handleChangeQType,
+    qPoints,
+    setQPoints,
+    options,
+    setOptions,
+    draft,
+    handleStep1Submit,
+    handleAddQuestion,
+    handleDownloadTemplate,
+    handleImportFile,
+    handleFinalPublish,
+    removeQuestionFromDraft,
+    handleRemoveQuestion,
+    editQuestionInDraft,
+    editingIndex,
+    handleStartEdit,
+    handleSaveEdit,
+    handleCancelEdit,
+  };
 }

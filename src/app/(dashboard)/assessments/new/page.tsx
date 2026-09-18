@@ -54,7 +54,11 @@ export default function NewAssessmentPage() {
     handleDownloadTemplate,
     handleImportFile,
     handleFinalPublish,
-    removeQuestionFromDraft,
+    handleRemoveQuestion,
+    editingIndex,
+    handleStartEdit,
+    handleSaveEdit,
+    handleCancelEdit,
   } = useNewAssessmentForm();
 
   const onFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -164,11 +168,7 @@ export default function NewAssessmentPage() {
       {activeStep === 2 && (
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setActiveStep(1)}
-            >
+            <Button variant="ghost" size="sm" onClick={() => setActiveStep(1)}>
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Details
             </Button>
@@ -211,13 +211,18 @@ export default function NewAssessmentPage() {
             options={options}
             onChangeOptions={setOptions}
             onAddQuestion={handleAddQuestion}
+            editMode={editingIndex !== null}
+            onSaveQuestion={handleSaveEdit}
+            onCancelEdit={handleCancelEdit}
           />
 
           <QuestionListCard
             questions={draft.questions}
-            onRemoveQuestion={removeQuestionFromDraft}
+            onRemoveQuestion={handleRemoveQuestion}
+            onEditQuestion={handleStartEdit}
             onPublish={handleFinalPublish}
             isSubmitting={isSubmitting}
+            editingIndex={editingIndex}
           />
         </div>
       )}
