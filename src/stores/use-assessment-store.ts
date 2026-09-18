@@ -7,6 +7,7 @@ interface AssessmentDraft {
   description: string;
   type: "QUIZ" | "EXAM" | "ASSIGNMENT";
   dueAt: string;
+  topicId?: string;
   questions: Array<{
     subTopicId: string;
     question: string;
@@ -35,6 +36,7 @@ const initialDraft: AssessmentDraft = {
   description: "",
   type: "QUIZ",
   dueAt: "",
+  topicId: undefined,
   questions: [],
 };
 

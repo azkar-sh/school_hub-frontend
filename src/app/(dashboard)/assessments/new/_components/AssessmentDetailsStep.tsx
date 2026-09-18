@@ -10,7 +10,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { TeachingAssignment } from "@/types";
+import { TeachingAssignment, Topic } from "@/types";
 import { AssessmentFormData } from "../hooks";
 
 interface AssessmentDetailsStepProps {
@@ -20,6 +20,9 @@ interface AssessmentDetailsStepProps {
   selectedAssignmentId: string;
   onSelectAssignment: (id: string) => void;
   onSubmit: (data: AssessmentFormData) => void;
+  topics?: Topic[];
+  selectedTopicId?: string | null;
+  onSelectTopic?: (id: string | null) => void;
 }
 
 export function AssessmentDetailsStep({
@@ -29,6 +32,9 @@ export function AssessmentDetailsStep({
   selectedAssignmentId,
   onSelectAssignment,
   onSubmit,
+  topics = [],
+  selectedTopicId,
+  onSelectTopic,
 }: AssessmentDetailsStepProps) {
   return (
     <Card>
@@ -60,6 +66,26 @@ export function AssessmentDetailsStep({
                     <option key={ta.id} value={ta.id}>
                       {ta.subject?.name || "Subject"} -{" "}
                       {ta.class?.name || "Class"} ({ta.academicYear?.name})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {!isDemoMode && selectedAssignmentId && onSelectTopic && (
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                  Topic (Optional — leave empty for midterm / multi-topic)
+                </label>
+                <select
+                  value={selectedTopicId || ""}
+                  onChange={(e) => onSelectTopic(e.target.value || null)}
+                  className="flex h-11 w-full rounded-xl border border-input bg-background px-4 text-sm font-medium"
+                >
+                  <option value="">-- All Topics (Multi-topic Assessment) --</option>
+                  {topics.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.name}
                     </option>
                   ))}
                 </select>

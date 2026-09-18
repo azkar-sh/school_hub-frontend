@@ -204,6 +204,7 @@ export interface Question {
 export interface Assessment {
   id: string;
   teachingAssignmentId?: string;
+  topicId?: string | null;
   title: string;
   description?: string;
   type: AssessmentType;
@@ -211,6 +212,7 @@ export interface Assessment {
   createdAt?: string;
   updatedAt?: string;
   teachingAssignment?: TeachingAssignment;
+  topic?: Topic;
   questions?: Question[];
   submissions?: Submission[];
   submissionsCount?: number;
@@ -326,6 +328,7 @@ export interface CreateAssessmentDto {
   description?: string;
   type: AssessmentType;
   dueAt?: string;
+  topicId?: string;
   questions?: CreateQuestionDto[];
 }
 

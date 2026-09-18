@@ -12,7 +12,7 @@ import {
 } from "@/lib/api-client";
 import { useSchoolContextStore } from "@/stores/use-school-context-store";
 import { getErrorMessage } from "@/lib/errors";
-import { CreateAssessmentDto, TeachingAssignment, SubTopic } from "@/types";
+import { CreateAssessmentDto, TeachingAssignment, SubTopic, Topic } from "@/types";
 
 /**
  * Form data for step 1 (assessment details).
@@ -20,7 +20,7 @@ import { CreateAssessmentDto, TeachingAssignment, SubTopic } from "@/types";
  */
 export type AssessmentFormData = Pick<
   CreateAssessmentDto,
-  "teachingAssignmentId" | "title" | "description" | "type" | "dueAt"
+  "teachingAssignmentId" | "title" | "description" | "type" | "dueAt" | "topicId"
 >;
 
 export interface NewQuestionOption {
@@ -72,9 +72,12 @@ export function useNewAssessmentForm() {
   );
   const [selectedAssignmentId, setSelectedAssignmentId] =
     React.useState<string>(draft.teachingAssignmentId || "");
+  const [selectedTopicId, setSelectedTopicId] =
+    React.useState<string | null>(draft.topicId ?? null);
   const [subTopics, setSubTopics] = React.useState<SubTopic[]>([]);
+  const [topics, setTopics] = React.useState<Topic[]>([]);
   const [selectedSubTopicId, setSelectedSubTopicId] =
-    React.useState<string>("");
+    React.useState<string>(draft.questions?.[0]?.subTopicId || "");
 
   const [qText, setQText] = React.useState("");
   const [qType, setQType] = React.useState<
@@ -118,34 +121,72 @@ export function useNewAssessmentForm() {
     };
   }, [isDemoMode, user?.id]);
 
-  // Load subtopics once per active school for the question form.
+  // Load topics for the selected assignment's subject (for optional topic selection)
   React.useEffect(() => {
-    if (isDemoMode) return;
-    const activeSchoolId = useSchoolContextStore.getState().activeSchoolId;
-    if (!activeSchoolId) return;
+    if (isDemoMode || !selectedAssignmentId) return;
+    const assignment = assignments.find((a) => a.id === selectedAssignmentId);
+    if (!assignment?.subjectId) return;
     let cancelled = false;
     subjectsApi
-      .findSubjectsBySchool(activeSchoolId)
+      .findTopicsBySubject(assignment.subjectId)
       .then((res) => {
         if (cancelled) return;
-        const subs = Array.isArray(res.data) ? res.data : [];
-        // Flatten subject -> topic -> subTopic into one select list
-        const allSubTopics: SubTopic[] = [];
-        subs.forEach((sub) => {
-          sub.topics?.forEach((top) => {
-            top.subTopics?.forEach((st) => {
-              allSubTopics.push(st);
-            });
-          });
-        });
-        setSubTopics(allSubTopics);
-        if (allSubTopics.length > 0) setSelectedSubTopicId(allSubTopics[0].id);
+        setTopics(Array.isArray(res.data) ? res.data : []);
       })
       .catch(() => {});
     return () => {
       cancelled = true;
     };
-  }, [isDemoMode]);
+  }, [isDemoMode, selectedAssignmentId, assignments]);
+
+  // Load subtopics: if topic selected -> subtopics of that topic;
+  // else -> all subtopics under assignment's subject
+  React.useEffect(() => {
+    if (isDemoMode) return;
+    let cancelled = false;
+
+    if (selectedTopicId) {
+      // Topic scoped: fetch subtopics for this topic
+      subjectsApi
+        .findSubTopicsByTopic(selectedTopicId)
+        .then((res) => {
+          if (cancelled) return;
+          setSubTopics(Array.isArray(res.data) ? res.data : []);
+        })
+        .catch(() => {});
+    } else if (selectedAssignmentId) {
+      // Multi-topic: fetch all subtopics for assignment's subject
+      const assignment = assignments.find((a) => a.id === selectedAssignmentId);
+      if (assignment?.subjectId) {
+        subjectsApi
+          .findTopicsBySubject(assignment.subjectId)
+          .then((res) => {
+            if (cancelled) return;
+            const allTopics = Array.isArray(res.data) ? res.data : [];
+            const allSubTopics: SubTopic[] = [];
+            allTopics.forEach((t) => {
+              t.subTopics?.forEach((st) => allSubTopics.push(st));
+            });
+            setSubTopics(allSubTopics);
+          })
+          .catch(() => {});
+      }
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [isDemoMode, selectedAssignmentId, selectedTopicId, assignments]);
+
+  // Sync selectedSubTopicId when subTopics list changes
+  React.useEffect(() => {
+    if (subTopics.length > 0) {
+      setSelectedSubTopicId((prev) =>
+        prev && subTopics.some((st) => st.id === prev) ? prev : subTopics[0].id,
+      );
+    } else {
+      setSelectedSubTopicId("");
+    }
+  }, [subTopics]);
 
   const methods = useForm<AssessmentFormData>({
     resolver: yupResolver(assessmentSchema),
@@ -158,18 +199,22 @@ export function useNewAssessmentForm() {
       description: draft.description || "",
       type: draft.type || "QUIZ",
       dueAt: draft.dueAt || "",
+      topicId: draft.topicId ?? undefined,
     },
   });
 
   const handleStep1Submit = (data: AssessmentFormData) => {
     const assignmentId =
       selectedAssignmentId || data.teachingAssignmentId || "demo-assignment-id";
+    const topicId =
+      selectedTopicId || (data.topicId ? String(data.topicId) : undefined);
     updateDraft({
       teachingAssignmentId: assignmentId,
       title: data.title,
       description: data.description ?? "",
       type: data.type,
       dueAt: data.dueAt ?? "",
+      topicId: topicId || undefined,
     });
     setActiveStep(2);
   };
@@ -224,6 +269,7 @@ export function useNewAssessmentForm() {
           description: draft.description,
           type: draft.type,
           dueAt: draft.dueAt || undefined,
+          topicId: draft.topicId ?? undefined,
           questions: draft.questions.map((q, idx) => ({
             subTopicId: q.subTopicId || selectedSubTopicId,
             type: q.type,
@@ -244,30 +290,33 @@ export function useNewAssessmentForm() {
     }
   };
 
-  return {
-    methods,
-    isDemoMode,
-    activeStep,
-    isSubmitting,
-    errorMsg,
-    assignments,
-    selectedAssignmentId,
-    setSelectedAssignmentId,
-    subTopics,
-    selectedSubTopicId,
-    setSelectedSubTopicId,
-    qText,
-    setQText,
-    qType,
-    handleChangeQType,
-    qPoints,
-    setQPoints,
-    options,
-    setOptions,
-    draft,
-    handleStep1Submit,
-    handleAddQuestion,
-    handleFinalPublish,
-    removeQuestionFromDraft,
-  };
+return {
+     methods,
+     isDemoMode,
+     activeStep,
+     isSubmitting,
+     errorMsg,
+     assignments,
+     selectedAssignmentId,
+     setSelectedAssignmentId,
+     subTopics,
+     selectedSubTopicId,
+     setSelectedSubTopicId,
+     selectedTopicId,
+     setSelectedTopicId,
+     topics,
+     qText,
+     setQText,
+     qType,
+     handleChangeQType,
+     qPoints,
+     setQPoints,
+     options,
+     setOptions,
+     draft,
+     handleStep1Submit,
+     handleAddQuestion,
+     handleFinalPublish,
+     removeQuestionFromDraft,
+   };
 }

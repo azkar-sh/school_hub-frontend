@@ -115,6 +115,10 @@ export const assessmentSchema = yup.object().shape({
     .oneOf(["QUIZ", "EXAM", "ASSIGNMENT"])
     .required("Assessment type is required"),
   dueAt: yup.string().optional(),
+  topicId: yup
+    .string()
+    .transform((value) => (value === "" || value === null ? undefined : value))
+    .optional(),
 });
 
 export const questionSchema = yup.object().shape({

@@ -338,33 +338,42 @@ export function useManageQuestions({
     fetchAssessment();
   }, [fetchAssessment]);
 
-  // Subtopics for question form (flatten subject -> topic -> subTopic)
+  // Subtopics for question form: scoped to assessment's topic if present
   React.useEffect(() => {
-    if (isDemoMode) return;
-    const activeSchoolId = useSchoolContextStore.getState().activeSchoolId;
-    if (!activeSchoolId) return;
+    if (isDemoMode || !assessmentId || !assessment) return;
     let cancelled = false;
-    subjectsApi
-      .findSubjectsBySchool(activeSchoolId)
+    assessmentsApi
+      .getSubTopics(assessmentId)
       .then((res) => {
         if (cancelled) return;
-        const subs = Array.isArray(res.data) ? res.data : [];
-        const allSubTopics: SubTopic[] = [];
-        subs.forEach((sub) => {
-          sub.topics?.forEach((top) => {
-            top.subTopics?.forEach((st) => {
-              allSubTopics.push(st);
-            });
-          });
-        });
-        setSubTopics(allSubTopics);
-        if (allSubTopics.length > 0) setSelectedSubTopicId(allSubTopics[0].id);
+        const list = Array.isArray(res.data) ? res.data : [];
+        setSubTopics(list);
+        setSelectedSubTopicId((prev) =>
+          prev && list.some((st) => st.id === prev) ? prev : list[0]?.id || "",
+        );
       })
-      .catch(() => {});
+      .catch(() => {
+        // Fallback to legacy school-wide load
+        if (cancelled) return;
+        const activeSchoolId = useSchoolContextStore.getState().activeSchoolId;
+        if (!activeSchoolId) return;
+        subjectsApi.findSubjectsBySchool(activeSchoolId).then((r) => {
+          if (cancelled) return;
+          const subs = Array.isArray(r.data) ? r.data : [];
+          const allSubTopics: SubTopic[] = [];
+          subs.forEach((sub) =>
+            sub.topics?.forEach((top) =>
+              top.subTopics?.forEach((st) => allSubTopics.push(st)),
+            ),
+          );
+          setSubTopics(allSubTopics);
+          if (allSubTopics.length > 0) setSelectedSubTopicId(allSubTopics[0].id);
+        });
+      });
     return () => {
       cancelled = true;
     };
-  }, [isDemoMode]);
+  }, [isDemoMode, assessmentId, assessment?.topicId]);
 
   const handleChangeQType = (
     value: "MCQ" | "TRUE_FALSE" | "SHORT_ANSWER",

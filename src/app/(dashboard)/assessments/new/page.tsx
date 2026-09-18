@@ -23,6 +23,9 @@ export default function NewAssessmentPage() {
     subTopics,
     selectedSubTopicId,
     setSelectedSubTopicId,
+    selectedTopicId,
+    setSelectedTopicId,
+    topics,
     qText,
     setQText,
     qType,
@@ -87,6 +90,9 @@ export default function NewAssessmentPage() {
           selectedAssignmentId={selectedAssignmentId}
           onSelectAssignment={setSelectedAssignmentId}
           onSubmit={handleStep1Submit}
+          topics={topics}
+          selectedTopicId={selectedTopicId}
+          onSelectTopic={setSelectedTopicId}
         />
       )}
 

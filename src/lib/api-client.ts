@@ -207,6 +207,10 @@ export const assessmentsApi = {
     apiClient.get<{ assessments: Assessment[]; meta: { page: number; limit: number; total: number; totalPages: number } }>("/assessments/student", { params, paramsSerializer: { indexes: null } }),
   findOne: (id: string) => apiClient.get<Assessment>(`/assessments/${id}`),
   findSubjectsForStudent: () => apiClient.get<Subject[]>("/assessments/student/subjects"),
+  // Filtered sub-topics: topic-scoped if assessment has topicId,
+  // otherwise all sub-topics under teaching assignment's subject
+  getSubTopics: (id: string) =>
+    apiClient.get<SubTopic[]>(`/assessments/${id}/sub-topics`),
 };
 
 // Submissions API
