@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Award } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface CompletionCardProps {
   calculatedScore: number | null;
@@ -13,33 +14,34 @@ export function CompletionCard({
   onTryAgain,
   onReturnToDashboard,
 }: CompletionCardProps) {
+  const t = useTranslations("Assessments");
   return (
     <Card className="text-center py-10 px-6 space-y-4 border-success/30 bg-success/5">
       <div className="h-20 w-20 mx-auto rounded-full bg-success/20 text-success flex items-center justify-center">
         <Award className="w-10 h-10" />
       </div>
-      <h2 className="text-3xl font-black">Assessment Complete! 🎉</h2>
+      <h2 className="text-3xl font-black">{t("completionTitle")}</h2>
       <p className="text-sm text-muted-foreground max-w-md mx-auto">
-        Your answers have been processed by the backend auto-grading engine.
+        {t("completionDesc")}
       </p>
 
       <div className="p-4 rounded-2xl bg-card border border-border inline-block min-w-50">
         <span className="text-xs uppercase font-semibold text-muted-foreground block">
-          Final Score
+          {t("completionFinalScore")}
         </span>
         <span className="text-4xl font-extrabold text-success">
           {calculatedScore !== null
             ? `${calculatedScore.toFixed(1)}%`
-            : "Graded"}
+            : t("completionGraded")}
         </span>
       </div>
 
       <div className="pt-4 flex justify-center gap-3">
         <Button variant="outline" onClick={onTryAgain}>
-          Try Again
+          {t("completionTryAgain")}
         </Button>
         <Button variant="role" onClick={onReturnToDashboard}>
-          Return to Dashboard
+          {t("completionReturnDashboard")}
         </Button>
       </div>
     </Card>

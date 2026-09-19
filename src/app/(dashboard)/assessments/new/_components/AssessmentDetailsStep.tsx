@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { TeachingAssignment, Topic } from "@/types";
 import { AssessmentFormData } from "../hooks";
+import { useTranslations } from "next-intl";
 
 interface AssessmentDetailsStepProps {
   methods: UseFormReturn<AssessmentFormData>;
@@ -36,13 +37,13 @@ export function AssessmentDetailsStep({
   selectedTopicId,
   onSelectTopic,
 }: AssessmentDetailsStepProps) {
+  const t = useTranslations("Assessments");
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Assessment Details</CardTitle>
+        <CardTitle>{t("assessmentDetailsTitle")}</CardTitle>
         <CardDescription>
-          Select target teaching assignment class, title, assessment type,
-          description and due date
+          {t("assessmentDetailsDesc")}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -51,7 +52,7 @@ export function AssessmentDetailsStep({
             {!isDemoMode && assignments.length > 0 && (
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
-                  Target Teaching Assignment / Class Section
+                  {t("targetAssignment")}
                 </label>
                 <select
                   value={selectedAssignmentId}
@@ -60,12 +61,12 @@ export function AssessmentDetailsStep({
                   required
                 >
                   <option value="">
-                    -- Select Class & Subject Assignment --
+                    {t("selectAssignmentPlaceholder")}
                   </option>
                   {assignments.map((ta) => (
                     <option key={ta.id} value={ta.id}>
-                      {ta.subject?.name || "Subject"} -{" "}
-                      {ta.class?.name || "Class"} ({ta.academicYear?.name})
+                      {ta.subject?.name || t("subject")} -{" "}
+                      {ta.class?.name || t("class")} ({ta.academicYear?.name})
                     </option>
                   ))}
                 </select>
@@ -75,17 +76,17 @@ export function AssessmentDetailsStep({
             {!isDemoMode && selectedAssignmentId && onSelectTopic && (
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
-                  Topic (Optional — leave empty for midterm / multi-topic)
+                  {t("topicOptional")}
                 </label>
                 <select
                   value={selectedTopicId || ""}
                   onChange={(e) => onSelectTopic(e.target.value || null)}
                   className="flex h-11 w-full rounded-xl border border-input bg-background px-4 text-sm font-medium"
                 >
-                  <option value="">-- All Topics (Multi-topic Assessment) --</option>
-                  {topics.map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.name}
+                  <option value="">{t("allTopics")}</option>
+                  {topics.map((topic) => (
+                    <option key={topic.id} value={topic.id}>
+                      {topic.name}
                     </option>
                   ))}
                 </select>
@@ -94,33 +95,33 @@ export function AssessmentDetailsStep({
 
             <FormInput
               name="title"
-              label="Assessment Title"
-              placeholder="e.g. Mathematics Midterm Algebra Quiz"
+              label={t("assessmentTitleLabel")}
+              placeholder={t("assessmentTitlePlaceholder")}
             />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormSelect
                 name="type"
-                label="Assessment Type"
+                label={t("assessmentTypeLabel")}
                 options={[
-                  { label: "Quiz (Short Practice Test)", value: "QUIZ" },
-                  { label: "Exam (Formal Assessment)", value: "EXAM" },
-                  { label: "Assignment (Homework)", value: "ASSIGNMENT" },
+                  { label: t("optionQuiz"), value: "QUIZ" },
+                  { label: t("optionExam"), value: "EXAM" },
+                  { label: t("optionAssignment"), value: "ASSIGNMENT" },
                 ]}
               />
 
-              <FormInput name="dueAt" label="Due Date (Optional)" type="date" />
+              <FormInput name="dueAt" label={t("dueDateLabel")} type="date" />
             </div>
 
             <FormTextarea
               name="description"
-              label="Description & Instructions"
-              placeholder="Instructions for students regarding time limits, topics covered..."
+              label={t("descriptionLabel")}
+              placeholder={t("descriptionPlaceholder")}
             />
 
             <div className="flex justify-end pt-2">
               <Button type="submit" variant="role">
-                Next: Add Questions
+                {t("nextAddQuestions")}
               </Button>
             </div>
           </form>

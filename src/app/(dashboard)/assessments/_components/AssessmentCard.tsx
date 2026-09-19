@@ -16,6 +16,7 @@ import {
   PencilLine,
 } from "lucide-react";
 import { MockAssessment } from "@/lib/mock-data";
+import { useTranslations } from "next-intl";
 
 function StatusBadge({
   currentRole,
@@ -24,12 +25,13 @@ function StatusBadge({
   currentRole: string;
   item: MockAssessment;
 }) {
+  const t = useTranslations("Assessments");
   if (currentRole === "TEACHER") {
     return (
       item.submissionsCount !== undefined && (
         <Badge variant="secondary" className="bg-success/10 text-success gap-1">
           <BarChart3 className="w-3 h-3" />
-          <span>{item.submissionsCount} submissions</span>
+          <span>{t("cardSubmissions", { count: item.submissionsCount })}</span>
         </Badge>
       )
     );
@@ -39,7 +41,7 @@ function StatusBadge({
     return (
       <Badge variant="secondary" className="bg-success/15 text-success gap-1">
         <CheckCircle2 className="w-3 h-3" />
-        <span>{item.status === "GRADED" ? "Graded" : "Submitted"}</span>
+        <span>{item.status === "GRADED" ? t("statusGraded") : t("statusSubmitted")}</span>
       </Badge>
     );
   }
@@ -48,7 +50,7 @@ function StatusBadge({
     return (
       <Badge variant="outline" className="text-primary border-primary/30 gap-1">
         <PencilLine className="w-3 h-3" />
-        <span>In Progress</span>
+        <span>{t("statusInProgress")}</span>
       </Badge>
     );
   }
@@ -56,7 +58,7 @@ function StatusBadge({
   return (
     <Badge variant="outline" className="text-warning border-warning/30 gap-1">
       <Clock className="w-3 h-3" />
-      <span>Active</span>
+      <span>{t("statusActive")}</span>
     </Badge>
   );
 }
@@ -72,6 +74,7 @@ export function AssessmentCard({
   item,
   actionLabel,
 }: AssessmentCardProps) {
+  const t = useTranslations("Assessments");
   return (
     <Card className="relative flex flex-col justify-between hover:border-primary/50 transition-all">
       <CardHeader className="pb-3">
@@ -90,13 +93,13 @@ export function AssessmentCard({
 
         <CardTitle className="text-lg leading-snug">{item.title}</CardTitle>
         <CardDescription className="text-xs mt-1">
-          Due: {item.dueAt}
-          {item.questionsCount > 0 && ` • ${item.questionsCount} Questions`}
-          {item.points > 0 && ` • ${item.points} Points`}
+          {t("cardDue", { date: item.dueAt })}
+          {item.questionsCount > 0 && ` • ${t("cardQuestions", { count: item.questionsCount })}`}
+          {item.points > 0 && ` • ${t("cardPoints", { count: item.points })}`}
           {currentRole === "TEACHER" && item.avgScore !== undefined && (
             <span className="text-success font-semibold">
               {" "}
-              • Avg: {item.avgScore}%
+              • {t("cardAvg", { score: item.avgScore })}
             </span>
           )}
           {currentRole !== "TEACHER" &&
@@ -104,7 +107,7 @@ export function AssessmentCard({
             item.status !== "DRAFT" && (
               <span className="text-success font-semibold">
                 {" "}
-                • Score: {item.score} pts
+                • {t("cardScore", { score: item.score })}
               </span>
             )}
         </CardDescription>
@@ -113,7 +116,7 @@ export function AssessmentCard({
       <CardContent className="pt-0 flex items-center justify-between border-t border-border/40 pt-4 mt-2">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <BookOpen className="w-4 h-4 text-primary" />
-          <span>Auto-Graded MCQ</span>
+          <span>{t("cardAutoGraded")}</span>
         </div>
         <Link href={`/assessments/${item.id}`}>
           <Button variant="role" size="sm">

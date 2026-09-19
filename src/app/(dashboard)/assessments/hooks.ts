@@ -26,7 +26,7 @@ function toDisplayItem(a: Assessment, role: string): DisplayItem {
   const questionsCount = a._count?.questions ?? a.questions?.length ?? 0;
   const dueAt = a.dueAt
     ? new Date(a.dueAt).toLocaleDateString("id-ID")
-    : "No due date";
+    : "No due date"; // i18n: TODO
 
   if (role === "TEACHER") {
     return {
@@ -320,12 +320,12 @@ export function useAssessmentsPage() {
 
   // Action label based on role and item status
   const actionLabel = (item: DisplayItem) => {
-    if (currentRole === "TEACHER") return "Manage Questions";
-    if (currentRole === "PARENT") return "View Results";
-    if (item.status === "GRADED") return "Review Score";
-    if (item.status === "SUBMITTED") return "Review";
-    if (item.status === "DRAFT") return "Continue Assessment";
-    return "Start Assessment";
+    if (currentRole === "TEACHER") return "Manage Questions"; // i18n: TODO
+    if (currentRole === "PARENT") return "View Results"; // i18n: TODO
+    if (item.status === "GRADED") return "Review Score"; // i18n: TODO
+    if (item.status === "SUBMITTED") return "Review"; // i18n: TODO
+    if (item.status === "DRAFT") return "Continue Assessment"; // i18n: TODO
+    return "Start Assessment"; // i18n: TODO
   };
 
   return {

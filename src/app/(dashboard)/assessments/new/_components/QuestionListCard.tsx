@@ -8,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Edit2, HelpCircle, Save, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface DraftQuestion {
   subTopicId: string;
@@ -34,15 +35,16 @@ export function QuestionListCard({
   isSubmitting,
   editingIndex,
 }: QuestionListCardProps) {
+  const t = useTranslations("Assessments");
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
           <CardTitle className="text-lg">
-            Question List ({questions.length})
+            {t("questionListTitle", { count: questions.length })}
           </CardTitle>
           <CardDescription>
-            Review questions added to this assessment
+            {t("questionListDesc")}
           </CardDescription>
         </div>
         <Button
@@ -52,15 +54,14 @@ export function QuestionListCard({
           isLoading={isSubmitting}
         >
           <Save className="w-4 h-4 mr-2" />
-          Publish Assessment
+          {t("publishAssessment")}
         </Button>
       </CardHeader>
       <CardContent className="space-y-3">
         {questions.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground text-xs">
             <HelpCircle className="w-8 h-8 mx-auto mb-2 opacity-50" />
-            No questions added yet. Use the form above to add your first
-            question.
+            {t("noQuestionsAdded")}
           </div>
         ) : (
           questions.map((q, idx) => (
@@ -81,7 +82,7 @@ export function QuestionListCard({
                   </Badge>
                   {editingIndex === idx && (
                     <Badge className="text-[10px]" variant="role">
-                      Editing
+                      {t("editingBadge")}
                     </Badge>
                   )}
                 </div>

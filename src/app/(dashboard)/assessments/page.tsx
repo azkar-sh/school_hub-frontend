@@ -9,6 +9,7 @@ import { PlusCircle, BookOpen } from "lucide-react";
 import { useAssessmentsPage } from "./hooks";
 import { AssessmentCard } from "./_components/AssessmentCard";
 import type { MockAssessment } from "@/lib/mock-data";
+import { useTranslations } from "next-intl";
 
 const TYPE_FILTERS = [
   { value: "ALL", label: "all" },
@@ -20,11 +21,11 @@ const TYPE_FILTERS = [
 function getAssessmentTypeLabel(type: string) {
   switch (type) {
     case "QUIZ":
-      return "Quiz";
+      return "Quiz"; // i18n: TODO
     case "EXAM":
-      return "Exam";
+      return "Exam"; // i18n: TODO
     case "ASSIGNMENT":
-      return "Assignment";
+      return "Assignment"; // i18n: TODO
     default:
       return type.charAt(0).toUpperCase() + type.slice(1).toLowerCase();
   }
@@ -39,6 +40,7 @@ function TypeBadge({ type }: { type: string }) {
 }
 
 export default function AssessmentsPage() {
+  const t = useTranslations("Assessments");
   const {
     isDemoMode,
     currentRole,
@@ -63,17 +65,17 @@ export default function AssessmentsPage() {
   const [viewMode, setViewMode] = React.useState<"cards" | "table">("cards");
 
   const title =
-    currentRole === "TEACHER" ? "My Assessments" : "Assessments & Quizzes";
+    currentRole === "TEACHER" ? t("pageTitleTeacher") : t("pageTitleDefault");
   const description =
     currentRole === "TEACHER"
-      ? "Manage and publish your assessments, quizzes, and exams"
+      ? t("pageDescTeacher")
       : currentRole === "PARENT"
-        ? "Browse your child's assessment results and upcoming tests"
-        : "Browse, practice, or start your class assessments";
+        ? t("pageDescParent")
+        : t("pageDescStudent");
 
   const searchPlaceholder = isDemoMode
-    ? "Search by title or subject…"
-    : "Search by title (server)…";
+    ? t("searchPlaceholderDemo")
+    : t("searchPlaceholderServer");
 
   const renderCard = React.useCallback(
     (item: MockAssessment) => (
@@ -88,15 +90,15 @@ export default function AssessmentsPage() {
 
   const renderTableHeaders = React.useCallback(
     () => [
-      { key: "title", label: "Title" },
-      { key: "type", label: "Type" },
-      { key: "subject", label: "Subject" },
-      { key: "questions", label: "Questions", className: "text-center" },
-      { key: "due", label: "Due" },
-      { key: "status", label: "Status" },
+      { key: "title", label: t("tableTitle") },
+      { key: "type", label: t("tableType") },
+      { key: "subject", label: t("tableSubject") },
+      { key: "questions", label: t("tableQuestions"), className: "text-center" },
+      { key: "due", label: t("tableDue") },
+      { key: "status", label: t("tableStatus") },
       { key: "action", label: "", className: "w-10" },
     ],
-    [],
+    [t],
   );
 
   const renderStatus = React.useCallback(
@@ -104,9 +106,9 @@ export default function AssessmentsPage() {
       currentRole === "STUDENT"
         ? getAssessmentTypeLabel(item.status).toUpperCase()
         : item.dueAt > new Date().toLocaleDateString("id-ID")
-          ? "Available"
-          : "Expired",
-    [currentRole],
+          ? t("statusAvailable")
+          : t("statusExpired"),
+    [currentRole, t],
   );
 
   const renderTableRow = React.useCallback(
@@ -144,12 +146,16 @@ export default function AssessmentsPage() {
         </Link>
       </td>,
     ],
-    [actionLabel],
+    [actionLabel, renderStatus],
   );
 
   const paginationSummary =
     !isDemoMode && meta.total > 0
-      ? `Showing ${(meta.page - 1) * meta.limit + 1}–${Math.min(meta.page * meta.limit, meta.total)} of ${meta.total}`
+      ? t("showing", {
+          start: (meta.page - 1) * meta.limit + 1,
+          end: Math.min(meta.page * meta.limit, meta.total),
+          total: meta.total,
+        })
       : undefined;
 
   const filterGroups = React.useMemo<FilterGroup[]>(
@@ -160,11 +166,11 @@ export default function AssessmentsPage() {
         variant: "dropdown",
         options: TYPE_FILTERS.filter((f) => f.value !== "ALL").map((f) => ({
           value: f.value,
-          label: f.label,
+          label: t(f.label),
         })),
         value: filterType,
         onChange: (v) => handleFilterTypeChange(v),
-        placeholder: "All types",
+        placeholder: t("filterAllTypes"),
       },
       ...(currentRole === "STUDENT"
         ? [
@@ -178,7 +184,7 @@ export default function AssessmentsPage() {
               options: subjectOptions,
               value: filterSubject,
               onChange: (v: string | string[]) => handleFilterSubjectChange(v),
-              placeholder: "All subjects",
+              placeholder: t("filterAllSubjects"),
               searchable: subjectOptions.length > 6,
             },
           ]
@@ -195,7 +201,7 @@ export default function AssessmentsPage() {
               options: classOptions,
               value: filterClass,
               onChange: (v: string | string[]) => handleFilterClassChange(v),
-              placeholder: "All classes",
+              placeholder: t("filterAllClasses"),
               searchable: classOptions.length > 6,
             },
           ]
@@ -211,6 +217,7 @@ export default function AssessmentsPage() {
       handleFilterTypeChange,
       handleFilterSubjectChange,
       handleFilterClassChange,
+      t,
     ],
   );
 
@@ -246,7 +253,7 @@ export default function AssessmentsPage() {
         isLoading={isLoading}
         error={
           fetchError
-            ? "Failed to load assessments. Please refresh the page."
+            ? t("errorFailedLoad")
             : undefined
         }
         showSearch
@@ -262,7 +269,7 @@ export default function AssessmentsPage() {
             <Link href="/assessments/new">
               <Button variant="role" className="shadow-md">
                 <PlusCircle className="w-4 h-4 mr-2" />
-                Create Assessment
+                {t("createAssessment")}
               </Button>
             </Link>
           ) : undefined

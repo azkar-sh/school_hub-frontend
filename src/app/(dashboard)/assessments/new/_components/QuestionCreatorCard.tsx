@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Plus, Save, X } from "lucide-react";
 import { SubTopic } from "@/types";
 import { NewQuestionOption } from "../hooks";
+import { useTranslations } from "next-intl";
 
 interface QuestionCreatorCardProps {
   isDemoMode: boolean;
@@ -45,19 +46,20 @@ export function QuestionCreatorCard({
   onCancelEdit,
   isSaving,
 }: QuestionCreatorCardProps) {
+  const t = useTranslations("Assessments");
   return (
     <Card>
       <CardHeader>
         <CardTitle className="text-lg flex items-center gap-2">
           {editMode ? <Save className="w-5 h-5 text-primary" /> : <Plus className="w-5 h-5 text-primary" />}
-          <span>{editMode ? "Edit Question" : "Add Question to Assessment"}</span>
+          <span>{editMode ? t("editQuestionTitle") : t("addQuestionTitle")}</span>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {!isDemoMode && subTopics.length > 0 && (
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
-              Curriculum Sub-Topic Target
+              {t("subTopicTarget")}
             </label>
             <select
               value={selectedSubTopicId}
@@ -75,10 +77,10 @@ export function QuestionCreatorCard({
 
         <div className="space-y-1.5">
           <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Question Prompt
+            {t("questionPrompt")}
           </label>
           <Input
-            placeholder="e.g. What is the solution to 2x + 5 = 15?"
+            placeholder={t("questionPromptPlaceholder")}
             value={qText}
             onChange={(e) => onChangeQText(e.target.value)}
           />
@@ -87,7 +89,7 @@ export function QuestionCreatorCard({
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
-              Question Type
+              {t("questionType")}
             </label>
             <select
               value={qType}
@@ -103,15 +105,15 @@ export function QuestionCreatorCard({
               }}
               className="flex h-11 w-full rounded-xl border border-input bg-background px-4 text-sm"
             >
-              <option value="MCQ">Multiple Choice (MCQ)</option>
-              <option value="TRUE_FALSE">True / False</option>
-              <option value="SHORT_ANSWER">Short Answer</option>
+              <option value="MCQ">{t("optionMCQ")}</option>
+              <option value="TRUE_FALSE">{t("optionTrueFalse")}</option>
+              <option value="SHORT_ANSWER">{t("optionShortAnswer")}</option>
             </select>
           </div>
 
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
-              Points Weight
+              {t("pointsWeight")}
             </label>
             <Input
               type="number"
@@ -125,7 +127,7 @@ export function QuestionCreatorCard({
         {qType === "MCQ" && (
           <div className="space-y-2 pt-2">
             <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Multiple Choice Options (Select Correct Answer)
+              {t("mcqOptionsLabel")}
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {options.map((opt, idx) => (
@@ -165,7 +167,7 @@ export function QuestionCreatorCard({
         {qType === "TRUE_FALSE" && (
           <div className="space-y-2 pt-2">
             <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Correct Answer
+              {t("correctAnswer")}
             </label>
             <div className="flex items-center gap-6">
               {options.map((opt, idx) => (
@@ -203,7 +205,7 @@ export function QuestionCreatorCard({
               className="flex-1"
             >
               <X className="w-4 h-4 mr-2" />
-              Cancel
+              {t("cancel")}
             </Button>
             <Button
               type="button"
@@ -213,7 +215,7 @@ export function QuestionCreatorCard({
               isLoading={isSaving}
             >
               <Save className="w-4 h-4 mr-2" />
-              Save Changes
+              {t("saveChanges")}
             </Button>
           </div>
         ) : (
@@ -224,7 +226,7 @@ export function QuestionCreatorCard({
             className="w-full"
           >
             <Plus className="w-4 h-4 mr-2" />
-            Add Question
+            {t("addQuestion")}
           </Button>
         )}
       </CardContent>

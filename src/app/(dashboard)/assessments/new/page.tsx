@@ -15,9 +15,11 @@ import { useNewAssessmentForm } from "./hooks";
 import { AssessmentDetailsStep } from "./_components/AssessmentDetailsStep";
 import { QuestionCreatorCard } from "./_components/QuestionCreatorCard";
 import { QuestionListCard } from "./_components/QuestionListCard";
+import { useTranslations } from "next-intl";
 
 export default function NewAssessmentPage() {
   const router = useRouter();
+  const t = useTranslations("Assessments");
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const {
     methods,
@@ -89,21 +91,20 @@ export default function NewAssessmentPage() {
           </Button>
           <div>
             <h1 className="text-2xl font-extrabold tracking-tight">
-              Create Assessment
+              {t("createTitle")}
             </h1>
             <p className="text-xs text-muted-foreground">
-              Step {activeStep} of 2:{" "}
-              {activeStep === 1 ? "General Details" : "Question Bank"}
+              {t("stepOf", { active: activeStep, label: activeStep === 1 ? t("generalDetails") : t("stepQuestionBank") })}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           <Badge variant={activeStep === 1 ? "role" : "outline"}>
-            1. Details
+            {t("badgeDetails")}
           </Badge>
           <Badge variant={activeStep === 2 ? "role" : "outline"}>
-            2. Questions ({draft.questions.length})
+            {t("badgeQuestions", { count: draft.questions.length })}
           </Badge>
         </div>
       </div>
@@ -118,7 +119,7 @@ export default function NewAssessmentPage() {
           title={downloadDisabledReason ?? ""}
         >
           <Download className="w-4 h-4 mr-2" />
-          Download Template
+          {t("downloadTemplate")}
         </Button>
         <Button
           variant="outline"
@@ -128,12 +129,12 @@ export default function NewAssessmentPage() {
           isLoading={isImporting}
         >
           <Upload className="w-4 h-4 mr-2" />
-          Import Questions (.xlsx)
+          {t("importQuestions")}
         </Button>
         <span className="text-[11px] text-muted-foreground">
           {downloadDisabledReason
             ? downloadDisabledReason
-            : "Download fills template with current assignment & sub-topics. Import is self-contained — assignment/topic/title auto-loaded from xlsx."}
+            : t("downloadHintDefault")}
         </span>
       </div>
 
@@ -170,7 +171,7 @@ export default function NewAssessmentPage() {
           <div className="flex items-center justify-between">
             <Button variant="ghost" size="sm" onClick={() => setActiveStep(1)}>
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Details
+              {t("backToDetails")}
             </Button>
             <div className="flex items-center gap-2">
               <Button
@@ -182,7 +183,7 @@ export default function NewAssessmentPage() {
                 title={downloadDisabledReason ?? ""}
               >
                 <Download className="w-4 h-4 mr-2" />
-                Download Template
+                {t("downloadTemplate")}
               </Button>
               <Button
                 variant="outline"
@@ -192,7 +193,7 @@ export default function NewAssessmentPage() {
                 isLoading={isImporting}
               >
                 <Upload className="w-4 h-4 mr-2" />
-                Import xlsx
+                {t("importXlsx")}
               </Button>
             </div>
           </div>

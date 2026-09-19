@@ -99,7 +99,7 @@ export function useAssessmentPlayer({
       .catch((error: unknown) => {
         if (cancelled) return;
         setErrorMsg(
-          getErrorMessage(error, "Failed to load assessment questions."),
+          getErrorMessage(error, "Failed to load assessment questions."), // i18n: TODO
         );
       })
       .finally(() => {
@@ -208,7 +208,7 @@ export function useAssessmentPlayer({
       setCalculatedScore(pct);
       setIsSubmitted(true);
     } catch (error) {
-      setErrorMsg(getErrorMessage(error, "Failed to submit quiz attempt."));
+      setErrorMsg(getErrorMessage(error, "Failed to submit quiz attempt.")); // i18n: TODO
     } finally {
       setIsSubmittingApi(false);
     }
@@ -281,7 +281,7 @@ export function useManageQuestions({
     if (!isDemoMode || !assessmentId) return null;
     return {
       id: assessmentId,
-      title: "Demo Assessment — Math Practice",
+      title: "Demo Assessment — Math Practice", // i18n: TODO
       type: "QUIZ",
       dueAt: undefined,
       questions: mockQuestions.map((q) => ({
@@ -328,7 +328,7 @@ export function useManageQuestions({
       })
       .catch((error: unknown) => {
         setErrorMsg(
-          getErrorMessage(error, "Failed to load assessment details."),
+          getErrorMessage(error, "Failed to load assessment details."), // i18n: TODO
         );
       })
       .finally(() => setIsLoading(false));
@@ -398,7 +398,7 @@ export function useManageQuestions({
   const handleAddQuestion = async () => {
     if (!qText.trim() || isDemoMode) return;
     if (!selectedSubTopicId) {
-      setErrorMsg("Select a sub-topic before adding a question.");
+      setErrorMsg("Select a sub-topic before adding a question."); // i18n: TODO
       return;
     }
 
@@ -418,7 +418,7 @@ export function useManageQuestions({
       resetQuestionCreator();
       fetchAssessment();
     } catch (error) {
-      setErrorMsg(getErrorMessage(error, "Failed to add question."));
+      setErrorMsg(getErrorMessage(error, "Failed to add question.")); // i18n: TODO
     } finally {
       setIsAddingQuestion(false);
     }
@@ -461,7 +461,7 @@ export function useManageQuestions({
   const handleSaveQuestion = async () => {
     if (!editingQuestionId || !qText.trim() || isDemoMode) return;
     if (!selectedSubTopicId) {
-      setErrorMsg("Select a sub-topic before saving.");
+      setErrorMsg("Select a sub-topic before saving."); // i18n: TODO
       return;
     }
 
@@ -481,7 +481,7 @@ export function useManageQuestions({
       fetchAssessment();
     } catch (error) {
       // 400 "Cannot modify questions after students have started" surfaces here
-      setErrorMsg(getErrorMessage(error, "Failed to save question."));
+      setErrorMsg(getErrorMessage(error, "Failed to save question.")); // i18n: TODO
     } finally {
       setIsSavingQuestion(false);
     }
@@ -496,7 +496,7 @@ export function useManageQuestions({
       if (editingQuestionId === questionId) cancelEdit();
       fetchAssessment();
     } catch (error) {
-      setErrorMsg(getErrorMessage(error, "Failed to delete question."));
+      setErrorMsg(getErrorMessage(error, "Failed to delete question.")); // i18n: TODO
     } finally {
       setIsDeletingQuestion(false);
     }

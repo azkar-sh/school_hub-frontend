@@ -238,11 +238,11 @@ export function useNewAssessmentForm() {
   const downloadDisabledReason = React.useMemo(() => {
     if (canDownloadTemplate) return null;
     if ((watchedTitle?.trim().length ?? 0) < 3)
-      return "Enter title (≥3 chars) to enable download";
+      return "Enter title (≥3 chars) to enable download"; // i18n: TODO
     if (!isDemoMode && !selectedAssignmentId)
-      return "Select teaching assignment / class first";
+      return "Select teaching assignment / class first"; // i18n: TODO
     if (!isDemoMode && subTopics.length === 0)
-      return "No sub-topics for this subject — create sub-topics first";
+      return "No sub-topics for this subject — create sub-topics first"; // i18n: TODO
     return null;
   }, [
     canDownloadTemplate,
@@ -301,7 +301,7 @@ export function useNewAssessmentForm() {
     if (editingIndex === null) return;
     if (!qText.trim()) return;
     if (!isDemoMode && !selectedSubTopicId) {
-      setErrorMsg("Select a sub-topic before saving the question.");
+      setErrorMsg("Select a sub-topic before saving the question."); // i18n: TODO
       return;
     }
     const subTopicId = selectedSubTopicId || "demo-subtopic-id";
@@ -335,7 +335,7 @@ export function useNewAssessmentForm() {
 
     // Live mode requires a real subTopicId (backend FK, no demo fallback).
     if (!isDemoMode && !selectedSubTopicId) {
-      setErrorMsg("Select a sub-topic before adding a question.");
+      setErrorMsg("Select a sub-topic before adding a question."); // i18n: TODO
       return;
     }
     const subTopicId = selectedSubTopicId || "demo-subtopic-id";
@@ -377,13 +377,13 @@ export function useNewAssessmentForm() {
       };
       if (!liveDraft.teachingAssignmentId && !isDemoMode) {
         setErrorMsg(
-          "Select a teaching assignment before downloading template.",
+          "Select a teaching assignment before downloading template.", // i18n: TODO
         );
         return;
       }
       if (subTopics.length === 0 && !isDemoMode) {
         setErrorMsg(
-          "No sub-topics found for this assignment/subject. Create sub-topics first.",
+          "No sub-topics found for this assignment/subject. Create sub-topics first.", // i18n: TODO
         );
         return;
       }
@@ -400,7 +400,7 @@ export function useNewAssessmentForm() {
       a.remove();
       URL.revokeObjectURL(url);
     } catch (e) {
-      setErrorMsg(getErrorMessage(e, "Failed to generate template"));
+      setErrorMsg(getErrorMessage(e, "Failed to generate template")); // i18n: TODO
     } finally {
       setIsDownloading(false);
     }
@@ -446,11 +446,11 @@ export function useNewAssessmentForm() {
             (res.errors.length > 4 ? ` (+${res.errors.length - 4} more)` : ""),
         );
       }
-      const msg = `Imported ${res.questions.length} question(s)${res.draft.title ? ` — "${res.draft.title}"` : ""}. Review below before publish.`;
+      const msg = `Imported ${res.questions.length} question(s)${res.draft.title ? ` — "${res.draft.title}"` : ""}. Review below before publish.`; // i18n: TODO
       setImportInfo(msg);
       setActiveStep(2);
     } catch (e) {
-      setErrorMsg(getErrorMessage(e, "Failed to parse xlsx"));
+      setErrorMsg(getErrorMessage(e, "Failed to parse xlsx")); // i18n: TODO
     } finally {
       setIsImporting(false);
     }
@@ -467,7 +467,7 @@ export function useNewAssessmentForm() {
 
       if (!isDemoMode) {
         if (!assignmentId || assignmentId === "demo-assignment-id") {
-          throw new Error("Select a teaching assignment first.");
+          throw new Error("Select a teaching assignment first."); // i18n: TODO
         }
         await assessmentsApi.create({
           teachingAssignmentId: assignmentId,
@@ -490,7 +490,7 @@ export function useNewAssessmentForm() {
       resetDraft();
       router.push("/assessments");
     } catch (error) {
-      setErrorMsg(getErrorMessage(error, "Failed to publish assessment"));
+      setErrorMsg(getErrorMessage(error, "Failed to publish assessment")); // i18n: TODO
     } finally {
       setIsSubmitting(false);
     }

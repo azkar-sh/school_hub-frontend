@@ -11,6 +11,7 @@ import { CompletionCard } from "./_components/CompletionCard";
 import { QuestionCard } from "./_components/QuestionCard";
 import { ReviewResults } from "./_components/ReviewResults";
 import { ManageQuestionsView } from "./_components/ManageQuestionsView";
+import { useTranslations } from "next-intl";
 
 export default function AssessmentDetailPage() {
   const params = useParams();
@@ -37,6 +38,7 @@ function AssessmentPlayer({
   userRole?: string;
 }) {
   const router = useRouter();
+  const t = useTranslations("Assessments");
   const {
     assessment,
     isLoading,
@@ -63,7 +65,7 @@ function AssessmentPlayer({
     return (
       <div className="flex items-center justify-center py-24 text-muted-foreground gap-2">
         <Loader2 className="w-6 h-6 animate-spin text-primary" />
-        <span>Loading assessment details...</span>
+        <span>{t("loadingDetails")}</span>
       </div>
     );
   }

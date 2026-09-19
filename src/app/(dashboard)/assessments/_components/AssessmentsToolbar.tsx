@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface PaginationMeta {
   page: number;
@@ -27,6 +28,7 @@ export function AssessmentsToolbar({
   isDemoMode,
   meta,
 }: AssessmentsToolbarProps) {
+  const t = useTranslations("Assessments");
   return (
     <Card className="p-4">
       <div className="flex flex-col sm:flex-row items-center gap-4">
@@ -35,8 +37,8 @@ export function AssessmentsToolbar({
           <Input
             placeholder={
               isDemoMode
-                ? "Search by title or subject…"
-                : "Search by title (server)…"
+                ? t("searchPlaceholderDemo")
+                : t("searchPlaceholderServer")
             }
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
@@ -53,7 +55,7 @@ export function AssessmentsToolbar({
               onClick={() => onFilterTypeChange(type)}
               className="capitalize text-xs"
             >
-              {type.toLowerCase()}
+              {t(type.toLowerCase())}
             </Button>
           ))}
         </div>
@@ -63,11 +65,14 @@ export function AssessmentsToolbar({
       {!isDemoMode && meta.total > 0 && (
         <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs text-muted-foreground">
           <span>
-            Showing {(meta.page - 1) * meta.limit + 1}–
-            {Math.min(meta.page * meta.limit, meta.total)} of {meta.total}
+            {t("showing", {
+              start: (meta.page - 1) * meta.limit + 1,
+              end: Math.min(meta.page * meta.limit, meta.total),
+              total: meta.total,
+            })}
           </span>
           <span>
-            Page {meta.page} of {meta.totalPages}
+            {t("pageOf", { page: meta.page, totalPages: meta.totalPages })}
           </span>
         </div>
       )}

@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CheckCircle2, ArrowLeft, ArrowRight, Send } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 // Shared shape covering both backend `Question` and demo `PlayerQuestion`.
 interface QuestionCardQuestion {
@@ -38,6 +39,7 @@ export function QuestionCard({
   onSubmit,
   isSubmittingApi,
 }: QuestionCardProps) {
+  const t = useTranslations("Assessments");
   const isLastQuestion = currentIdx === totalQuestions - 1;
 
   return (
@@ -45,9 +47,9 @@ export function QuestionCard({
       <CardHeader className="space-y-2">
         <div className="flex items-center justify-between text-xs text-muted-foreground font-semibold">
           <span className="uppercase tracking-wider">
-            {assessmentTitle || "Assessment Quiz"}
+            {assessmentTitle || t("questionDefaultTitle")}
           </span>
-          <Badge variant="outline">{question.points || 1} Points</Badge>
+          <Badge variant="outline">{t("pointsLabel", { count: question.points || 1 })}</Badge>
         </div>
         <CardTitle className="text-xl leading-relaxed">
           {question.question}
@@ -58,10 +60,10 @@ export function QuestionCard({
           {question.type === "SHORT_ANSWER" ? (
             <div className="space-y-2">
               <label className="text-xs font-semibold text-muted-foreground block uppercase">
-                Your Written Response
+                {t("yourResponse")}
               </label>
               <Input
-                placeholder="Type your answer here..."
+                placeholder={t("typeAnswerHere")}
                 value={selectedAnswer || ""}
                 onChange={(e) => onSelectOption(question.id, e.target.value)}
               />
@@ -99,12 +101,12 @@ export function QuestionCard({
             disabled={currentIdx === 0}
           >
             <ArrowLeft className="w-4 h-4 mr-1" />
-            Previous
+            {t("previous")}
           </Button>
 
           {!isLastQuestion ? (
             <Button variant="role" onClick={onNext}>
-              Next Question
+              {t("nextQuestion")}
               <ArrowRight className="w-4 h-4 ml-1" />
             </Button>
           ) : (
@@ -115,7 +117,7 @@ export function QuestionCard({
               isLoading={isSubmittingApi}
             >
               <Send className="w-4 h-4 mr-2" />
-              Submit Quiz
+              {t("submitQuiz")}
             </Button>
           )}
         </div>

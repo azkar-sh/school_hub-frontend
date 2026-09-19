@@ -1,10 +1,14 @@
+"use client";
+
 import { GuideResourcePage } from "@/components/ui/guide-resource-page";
+import { useTranslations } from "next-intl";
 
 export default function AssessmentResultsPage() {
+  const t = useTranslations("Assessments");
   return (
     <GuideResourcePage
-      title="Assessment Results"
-      description="Review submission status and scores for this assessment."
+      title={t("resultsTitle")}
+      description={t("resultsDescription")}
       rows={[
         {
           label: "Budi Santoso",
@@ -14,7 +18,7 @@ export default function AssessmentResultsPage() {
         },
         {
           label: "Siti Rahma",
-          value: "Pending",
+          value: t("pending"),
           detail: "SUBMITTED · Awaiting grading",
           href: "/submissions",
         },

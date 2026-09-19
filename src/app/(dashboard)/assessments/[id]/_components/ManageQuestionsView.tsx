@@ -24,6 +24,7 @@ import { useManageQuestions } from "../hooks";
 import { QuestionCreatorCard } from "../../new/_components/QuestionCreatorCard";
 import { DemoModeBanner } from "@/components/ui/DemoModeBanner";
 import { Question } from "@/types";
+import { useTranslations } from "next-intl";
 
 interface ManageQuestionsViewProps {
   assessmentId: string;
@@ -60,12 +61,13 @@ export function ManageQuestionsView({
     handleSaveQuestion,
     handleDeleteQuestion,
   } = useManageQuestions({ assessmentId, isDemoMode });
+  const t = useTranslations("Assessments");
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-24 text-muted-foreground gap-2">
         <Loader2 className="w-6 h-6 animate-spin text-primary" />
-        <span>Loading assessment details...</span>
+        <span>{t("loadingDetails")}</span>
       </div>
     );
   }
@@ -76,7 +78,7 @@ export function ManageQuestionsView({
   const teacher = assessment?.teachingAssignment?.teacher;
   const due = assessment?.dueAt
     ? new Date(assessment.dueAt).toLocaleDateString()
-    : "No due date";
+    : t("noDueDate");
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -94,10 +96,10 @@ export function ManageQuestionsView({
         </Button>
         <div className="flex-1 min-w-0">
           <h1 className="text-2xl font-extrabold tracking-tight truncate">
-            {assessment?.title ?? "Manage Questions"}
+            {assessment?.title ?? t("manageTitleFallback")}
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Review and add questions to this assessment
+            {t("manageSubtitle")}
           </p>
         </div>
         <Badge variant="outline" className="text-[10px] uppercase">
@@ -110,27 +112,27 @@ export function ManageQuestionsView({
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
           {subject && (
             <span>
-              <span className="font-semibold uppercase">Subject:</span>{" "}
+              <span className="font-semibold uppercase">{t("metaSubject")}</span>{" "}
               {subject.name}
             </span>
           )}
           {klass && (
             <span>
-              <span className="font-semibold uppercase">Class:</span>{" "}
+              <span className="font-semibold uppercase">{t("metaClass")}</span>{" "}
               {klass.name}
             </span>
           )}
           {teacher && (
             <span>
-              <span className="font-semibold uppercase">Teacher:</span>{" "}
+              <span className="font-semibold uppercase">{t("metaTeacher")}</span>{" "}
               {teacher.name}
             </span>
           )}
           <span>
-            <span className="font-semibold uppercase">Due:</span> {due}
+            <span className="font-semibold uppercase">{t("metaDue")}</span> {due}
           </span>
           <span>
-            <span className="font-semibold uppercase">Questions:</span>{" "}
+            <span className="font-semibold uppercase">{t("metaQuestions")}</span>{" "}
             {questions.length}
           </span>
         </div>
@@ -148,17 +150,17 @@ export function ManageQuestionsView({
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <ListChecks className="w-5 h-5 text-primary" />
-            <span>Question Bank ({questions.length})</span>
+            <span>{t("questionBank", { count: questions.length })}</span>
           </CardTitle>
           <CardDescription>
-            Questions currently attached to this assessment
+            {t("questionBankDesc")}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           {questions.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground text-xs">
               <HelpCircle className="w-8 h-8 mx-auto mb-2 opacity-50" />
-              No questions yet. Use the form below to add your first question.
+              {t("noQuestionsYet")}
             </div>
           ) : (
             questions.map((q, idx) => (
@@ -185,13 +187,13 @@ export function ManageQuestionsView({
                         className="h-7 px-2 text-xs"
                       >
                         <Pencil className="w-3.5 h-3.5 mr-1" />
-                        Edit
+                        {t("edit")}
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => {
-                          if (confirm("Delete this question? This cannot be undone.")) {
+                          if (confirm(t("confirmDeleteQuestion"))) {
                             handleDeleteQuestion(q.id);
                           }
                         }}
@@ -199,7 +201,7 @@ export function ManageQuestionsView({
                         className="h-7 px-2 text-xs text-destructive hover:bg-destructive/10"
                       >
                         <Trash2 className="w-3.5 h-3.5 mr-1" />
-                        Delete
+                        {t("delete")}
                       </Button>
                     </div>
                   )}
@@ -227,7 +229,7 @@ export function ManageQuestionsView({
                 {q.type === "SHORT_ANSWER" && (
                   <div className="text-xs text-muted-foreground italic flex items-center gap-1">
                     <CheckCircle2 className="w-3 h-3" />
-                    Requires manual grading
+                    {t("requiresManualGrading")}
                   </div>
                 )}
               </div>
@@ -260,13 +262,13 @@ export function ManageQuestionsView({
       {isAddingQuestion && (
         <div className="flex items-center justify-center py-4 text-muted-foreground gap-2 text-xs">
           <Loader2 className="w-4 h-4 animate-spin" />
-          <span>Adding question...</span>
+          <span>{t("addingQuestion")}</span>
         </div>
       )}
       {isDeletingQuestion && (
         <div className="flex items-center justify-center py-4 text-muted-foreground gap-2 text-xs">
           <Loader2 className="w-4 h-4 animate-spin" />
-          <span>Deleting question...</span>
+          <span>{t("deletingQuestion")}</span>
         </div>
       )}
     </div>

@@ -10,6 +10,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { Assessment, Question, Submission } from "@/types";
+import { useTranslations } from "next-intl";
 
 interface ReviewResultsProps {
   submission: Submission;
@@ -31,6 +32,7 @@ export function ReviewResults({
   assessment,
   onBack,
 }: ReviewResultsProps) {
+  const t = useTranslations("Assessments");
   const questions: Question[] =
     submission.assessment?.questions ?? assessment?.questions ?? [];
   const answers = submission.answers ?? [];
@@ -57,7 +59,7 @@ export function ReviewResults({
       <div className="flex items-center justify-between">
         <Button variant="ghost" size="sm" onClick={onBack}>
           <ArrowLeft className="w-4 h-4 mr-1" />
-          Back to Assessments
+          {t("backToAssessments")}
         </Button>
       </div>
 
@@ -72,11 +74,11 @@ export function ReviewResults({
               <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight truncate">
                 {submission.assessment?.title ??
                   assessment?.title ??
-                  "Assessment"}
+                  t("title")}
               </h1>
               <p className="text-xs text-muted-foreground mt-1">
                 {subjectName ? `${subjectName} • ` : ""}
-                Submitted {submittedDate}
+                {t("statusSubmitted")} {submittedDate}
               </p>
             </div>
             <Badge
@@ -84,14 +86,14 @@ export function ReviewResults({
               className="bg-success/15 text-success gap-1 self-start"
             >
               <CheckCircle2 className="w-3.5 h-3.5" />
-              {submission.status === "GRADED" ? "Graded" : "Submitted"}
+              {submission.status === "GRADED" ? t("statusGraded") : t("statusSubmitted")}
             </Badge>
           </div>
 
           <div className="grid grid-cols-3 gap-3 pt-2">
             <div className="p-3 rounded-xl bg-card border border-border">
               <span className="text-[10px] uppercase font-semibold text-muted-foreground block">
-                Score
+                {t("scoreLabel")}
               </span>
               <span className="text-2xl font-black text-success">
                 {pct.toFixed(1)}%
@@ -99,7 +101,7 @@ export function ReviewResults({
             </div>
             <div className="p-3 rounded-xl bg-card border border-border">
               <span className="text-[10px] uppercase font-semibold text-muted-foreground block">
-                Points
+                {t("pointsFull")}
               </span>
               <span className="text-2xl font-black">
                 {earnedPoints}
@@ -111,7 +113,7 @@ export function ReviewResults({
             </div>
             <div className="p-3 rounded-xl bg-card border border-border">
               <span className="text-[10px] uppercase font-semibold text-muted-foreground block">
-                Questions
+                {t("questionsLabel")}
               </span>
               <span className="text-2xl font-black">{questions.length}</span>
             </div>
@@ -120,8 +122,7 @@ export function ReviewResults({
           {hasPendingManual && (
             <div className="flex items-center gap-2 p-3 rounded-xl bg-warning/10 border border-warning/30 text-xs text-warning font-medium">
               <AlertCircle className="w-4 h-4 shrink-0" />
-              Some answers are awaiting manual grading by your teacher, so the
-              final score may change once grading is complete.
+              {t("awaitingGradingWarning")}
             </div>
           )}
         </CardContent>
@@ -131,7 +132,7 @@ export function ReviewResults({
       <div className="space-y-4">
         {questions.length === 0 && (
           <div className="py-10 text-center text-sm text-muted-foreground">
-            No questions are available to review.
+            {t("noQuestionsToReview")}
           </div>
         )}
 
@@ -149,9 +150,9 @@ export function ReviewResults({
               <CardHeader className="pb-3 space-y-2">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    Question {idx + 1} of {questions.length}
+                    {t("questionOf", { current: idx + 1, total: questions.length })}
                   </span>
-                  <Badge variant="outline">{q.points ?? 1} Points</Badge>
+                  <Badge variant="outline">{t("pointsLabel", { count: q.points ?? 1 })}</Badge>
                 </div>
                 <CardTitle className="text-lg leading-relaxed">
                   {q.question}
@@ -163,17 +164,17 @@ export function ReviewResults({
                   <div className="space-y-2">
                     <div className="p-3 rounded-xl border border-border bg-muted/40">
                       <span className="text-[10px] uppercase font-semibold text-muted-foreground block mb-1">
-                        Your Answer
+                        {t("yourAnswer")}
                       </span>
                       <span className="text-sm">
-                        {ans?.answer?.trim() ? ans.answer : "No response"}
+                        {ans?.answer?.trim() ? ans.answer : t("noResponse")}
                       </span>
                     </div>
                     <div className="flex items-center gap-2 text-xs">
                       {isPending ? (
                         <span className="flex items-center gap-1 text-warning font-medium">
                           <Clock className="w-3.5 h-3.5" />
-                          Awaiting manual grading
+                          {t("awaitingManualGrading")}
                         </span>
                       ) : (
                         <span className="flex items-center gap-1 font-medium">
@@ -218,7 +219,7 @@ export function ReviewResults({
                           <span className="flex items-center gap-2">
                             {selected && (
                               <span className="text-[10px] uppercase font-bold opacity-80">
-                                Your pick
+                                {t("yourPick")}
                               </span>
                             )}
                             {icon}
@@ -236,7 +237,7 @@ export function ReviewResults({
                   {isPending ? (
                     <span className="flex items-center gap-1 text-warning font-semibold">
                       <Clock className="w-3.5 h-3.5" />
-                      Pending
+                      {t("pending")}
                     </span>
                   ) : isCorrect ? (
                     <span className="flex items-center gap-1 text-success font-semibold">
