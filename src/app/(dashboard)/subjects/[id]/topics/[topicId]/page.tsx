@@ -1,12 +1,15 @@
+"use client";
+
+import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { getMockSubjects } from "@/lib/mock-data";
 import { GuideResourcePage } from "@/components/ui/guide-resource-page";
 
-export default async function TopicDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string; topicId: string }>;
-}) {
-  const { id, topicId } = await params;
+export default function TopicDetailPage() {
+  const params = useParams();
+  const id = params?.id as string;
+  const topicId = params?.topicId as string;
+  const t = useTranslations("Subjects");
   const subject =
     getMockSubjects("TEACHER").find((item) => item.id === id) ??
     getMockSubjects("TEACHER")[0];
@@ -15,13 +18,13 @@ export default async function TopicDetailPage({
   return (
     <GuideResourcePage
       title={topic.name}
-      description={`Sub-topics in ${subject.name}. Add questions to these curriculum units from an assessment.`}
+      description={t("subTopicsInSubjectDesc", { subjectName: subject.name })}
       rows={topic.subTopics.map((name) => ({
         label: name,
-        value: "Sub-topic",
+        value: t("subTopicShort"),
         detail: `${subject.name} · ${topic.name}`,
       }))}
-      action={{ label: "Add SubTopic" }}
+      action={{ label: t("addSubtopic") }}
     />
   );
 }

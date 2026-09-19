@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ModalShell } from "./ModalShell";
+import { useTranslations } from "next-intl";
 
 interface AddSubjectModalProps {
   name: string;
@@ -19,15 +20,17 @@ export function AddSubjectModal({
   onClose,
   onSubmit,
 }: AddSubjectModalProps) {
+  const t = useTranslations("Subjects");
+  const tCommon = useTranslations("Common.info");
   return (
-    <ModalShell title="Add New Subject" onClose={onClose}>
+    <ModalShell title={tCommon("addSubject")} onClose={onClose}>
       <form onSubmit={onSubmit} className="space-y-4">
         <div>
           <label className="text-xs font-semibold mb-1 block">
-            Subject Name
+            {t("subjectName")}
           </label>
           <Input
-            placeholder="e.g. Mathematics"
+            placeholder={tCommon("subjectNamePlaceholder")}
             value={name}
             onChange={(e) => onChangeName(e.target.value)}
             required
@@ -35,17 +38,17 @@ export function AddSubjectModal({
         </div>
         <div>
           <label className="text-xs font-semibold mb-1 block">
-            Subject Code
+            {t("code")}
           </label>
           <Input
-            placeholder="e.g. MATH-101"
+            placeholder={tCommon("subjectCodePlaceholder")}
             value={code}
             onChange={(e) => onChangeCode(e.target.value)}
             required
           />
         </div>
         <Button type="submit" variant="role" className="w-full">
-          Create Subject
+          {t("createSubject")}
         </Button>
       </form>
     </ModalShell>

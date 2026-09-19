@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ModalShell } from "./ModalShell";
+import { useTranslations } from "next-intl";
 
 interface AddTopicModalProps {
   name: string;
@@ -19,15 +20,17 @@ export function AddTopicModal({
   onClose,
   onSubmit,
 }: AddTopicModalProps) {
+  const t = useTranslations("Subjects");
+  const tCommon = useTranslations("Common.info");
   return (
-    <ModalShell title="Add Topic" onClose={onClose}>
+    <ModalShell title={t("addTopic")} onClose={onClose}>
       <form onSubmit={onSubmit} className="space-y-4">
         <div>
           <label className="text-xs font-semibold mb-1 block">
-            Topic Title
+            {t("topicTitle")}
           </label>
           <Input
-            placeholder="e.g. Quadratic Equations"
+            placeholder={tCommon("topicNamePlaceholder")}
             value={name}
             onChange={(e) => onChangeName(e.target.value)}
             required
@@ -35,16 +38,16 @@ export function AddTopicModal({
         </div>
         <div>
           <label className="text-xs font-semibold mb-1 block">
-            Description (Optional)
+            {t("descriptionOptional")}
           </label>
           <Input
-            placeholder="Brief overview of topic"
+            placeholder={tCommon("topicOverview")}
             value={description}
             onChange={(e) => onChangeDescription(e.target.value)}
           />
         </div>
         <Button type="submit" variant="role" className="w-full">
-          Save Topic
+          {t("saveTopic")}
         </Button>
       </form>
     </ModalShell>

@@ -9,12 +9,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Layers, BookmarkCheck, PlusCircle, UserCircle } from "lucide-react";
 import { MockSubject } from "@/lib/mock-data";
+import { useTranslations } from "next-intl";
 
 interface MockSubjectsListProps {
   subjects: MockSubject[];
 }
 
 export function MockSubjectsList({ subjects }: MockSubjectsListProps) {
+  const t = useTranslations("Subjects");
   return (
     <div className="space-y-6">
       {subjects.map((sub) => (
@@ -30,7 +32,7 @@ export function MockSubjectsList({ subjects }: MockSubjectsListProps) {
                   <Badge variant="outline">{sub.code}</Badge>
                 </div>
                 <CardDescription className="text-xs mt-0.5">
-                  {sub.topics.length} Major Topics
+                  {t("majorTopicsCount", { count: sub.topics.length })}
                 </CardDescription>
                 {sub.teachers && sub.teachers.length > 0 && (
                   <div className="flex flex-wrap items-center gap-1.5 mt-1">
@@ -46,14 +48,14 @@ export function MockSubjectsList({ subjects }: MockSubjectsListProps) {
             {sub.canEdit && (
               <Button variant="outline" size="sm" className="text-xs">
                 <PlusCircle className="w-3.5 h-3.5 mr-1.5" />
-                Add Topic
+                {t("addTopic")}
               </Button>
             )}
           </CardHeader>
 
           <CardContent className="pt-6 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {sub.topics.map((t, idx) => (
+              {sub.topics.map((topic, idx) => (
                 <div
                   key={idx}
                   className="p-4 rounded-2xl bg-muted/40 border border-border/50 space-y-2"
@@ -61,7 +63,7 @@ export function MockSubjectsList({ subjects }: MockSubjectsListProps) {
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 font-semibold text-sm">
                       <Layers className="w-4 h-4 text-primary" />
-                      <span>{t.name}</span>
+                      <span>{topic.name}</span>
                     </div>
                     {sub.canEdit && (
                       <Button
@@ -70,12 +72,12 @@ export function MockSubjectsList({ subjects }: MockSubjectsListProps) {
                         className="h-7 text-[11px]"
                       >
                         <PlusCircle className="w-3 h-3 mr-1" />
-                        Sub-topic
+                        {t("subTopicShort")}
                       </Button>
                     )}
                   </div>
                   <div className="pl-6 space-y-1 text-xs text-muted-foreground">
-                    {t.subTopics.map((st, i) => (
+                    {topic.subTopics.map((st, i) => (
                       <div key={i} className="flex items-center gap-1.5">
                         <BookmarkCheck className="w-3.5 h-3.5 text-success" />
                         <span>{st}</span>

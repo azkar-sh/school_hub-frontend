@@ -123,12 +123,12 @@ export function useSubjectsPage() {
     if (!newSubjectName.trim() || !newSubjectCode.trim()) return;
     try {
       if (isDemoMode) {
-        setFeedbackMsg("Subject created in demo mode");
+        setFeedbackMsg("Subject created in demo mode"); // i18n: TODO
         setShowAddSubjectModal(false);
         return;
       }
       if (!selectedSchoolId) {
-        setFeedbackMsg("Please select a school first");
+        setFeedbackMsg("Please select a school first"); // i18n: TODO
         return;
       }
       await subjectsApi.createSubject({
@@ -139,10 +139,10 @@ export function useSubjectsPage() {
       setNewSubjectName("");
       setNewSubjectCode("");
       setShowAddSubjectModal(false);
-      setFeedbackMsg("Subject created successfully!");
+      setFeedbackMsg("Subject created successfully!"); // i18n: TODO
       refetchSubjects();
     } catch (error) {
-      setFeedbackMsg(getErrorMessage(error, "Failed to create subject"));
+      setFeedbackMsg(getErrorMessage(error, "Failed to create subject")); // i18n: TODO
     }
   };
 
@@ -151,7 +151,7 @@ export function useSubjectsPage() {
     if (!activeTopicSubjectId || !newTopicName.trim()) return;
     try {
       if (isDemoMode) {
-        setFeedbackMsg("Topic created in demo mode");
+        setFeedbackMsg("Topic created in demo mode"); // i18n: TODO
         setActiveTopicSubjectId(null);
         return;
       }
@@ -163,10 +163,10 @@ export function useSubjectsPage() {
       setNewTopicName("");
       setNewTopicDesc("");
       setActiveTopicSubjectId(null);
-      setFeedbackMsg("Topic added successfully!");
+      setFeedbackMsg("Topic added successfully!"); // i18n: TODO
       if (selectedSchoolId) refetchSubjects();
     } catch (error) {
-      setFeedbackMsg(getErrorMessage(error, "Failed to add topic"));
+      setFeedbackMsg(getErrorMessage(error, "Failed to add topic")); // i18n: TODO
     }
   };
 
@@ -175,7 +175,7 @@ export function useSubjectsPage() {
     if (!activeSubTopicTopicId || !newSubTopicName.trim()) return;
     try {
       if (isDemoMode) {
-        setFeedbackMsg("Sub-topic created in demo mode");
+        setFeedbackMsg("Sub-topic created in demo mode"); // i18n: TODO
         setActiveSubTopicTopicId(null);
         return;
       }
@@ -187,10 +187,10 @@ export function useSubjectsPage() {
       setNewSubTopicName("");
       setNewSubTopicDesc("");
       setActiveSubTopicTopicId(null);
-      setFeedbackMsg("Sub-topic added successfully!");
+      setFeedbackMsg("Sub-topic added successfully!"); // i18n: TODO
       if (selectedSchoolId) refetchSubjects();
     } catch (error) {
-      setFeedbackMsg(getErrorMessage(error, "Failed to add sub-topic"));
+      setFeedbackMsg(getErrorMessage(error, "Failed to add sub-topic")); // i18n: TODO
     }
   };
 

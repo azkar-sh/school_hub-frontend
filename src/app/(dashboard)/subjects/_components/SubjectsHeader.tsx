@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import { School } from "@/types";
+import { useTranslations } from "next-intl";
 
 interface SubjectsHeaderProps {
   currentRole?: string;
@@ -22,16 +23,18 @@ export function SubjectsHeader({
   onSelectSchool,
   onAddSubject,
 }: SubjectsHeaderProps) {
+  const t = useTranslations("Common.info");
+
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-          Subjects & Topic Hierarchy
+          {t("subjectsTopicHierarchy")}
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
           {canEditCurriculum
-            ? "Manage curriculum breakdown, add topics, and organize subtopics"
-            : "Explore curriculum breakdown, topics, and subtopics"}
+            ? t("manageCurriculum")
+            : t("exploreCurriculum")}
         </p>
       </div>
 
@@ -53,7 +56,7 @@ export function SubjectsHeader({
         {canAddSubject && (
           <Button variant="role" className="shadow-md" onClick={onAddSubject}>
             <PlusCircle className="w-4 h-4 mr-2" />
-            Add Subject
+            {t("addSubjectButton")}
           </Button>
         )}
       </div>

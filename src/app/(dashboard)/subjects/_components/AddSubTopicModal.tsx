@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ModalShell } from "./ModalShell";
+import { useTranslations } from "next-intl";
 
 interface AddSubTopicModalProps {
   name: string;
@@ -19,15 +20,17 @@ export function AddSubTopicModal({
   onClose,
   onSubmit,
 }: AddSubTopicModalProps) {
+  const t = useTranslations("Subjects");
+  const tCommon = useTranslations("Common.info");
   return (
-    <ModalShell title="Add Sub-Topic" onClose={onClose}>
+    <ModalShell title={t("addSubtopic")} onClose={onClose}>
       <form onSubmit={onSubmit} className="space-y-4">
         <div>
           <label className="text-xs font-semibold mb-1 block">
-            Sub-Topic Title
+            {t("subTopicTitle")}
           </label>
           <Input
-            placeholder="e.g. Factoring Quadratics"
+            placeholder={tCommon("subtopicNamePlaceholder")}
             value={name}
             onChange={(e) => onChangeName(e.target.value)}
             required
@@ -35,16 +38,16 @@ export function AddSubTopicModal({
         </div>
         <div>
           <label className="text-xs font-semibold mb-1 block">
-            Description (Optional)
+            {t("descriptionOptional")}
           </label>
           <Input
-            placeholder="Sub-topic breakdown"
+            placeholder={tCommon("subtopicOverview")}
             value={description}
             onChange={(e) => onChangeDescription(e.target.value)}
           />
         </div>
         <Button type="submit" variant="role" className="w-full">
-          Save Sub-Topic
+          {t("saveSubTopic")}
         </Button>
       </form>
     </ModalShell>
