@@ -20,6 +20,7 @@ import {
   MockSchoolAdminAcademicYear,
   MockRecentActivity,
 } from "@/lib/mock-data";
+import { useTranslations } from "next-intl";
 
 interface AdminDashboardContentProps {
   academicYear: MockSchoolAdminAcademicYear | null;
@@ -32,6 +33,8 @@ export function AdminDashboardContent({
   recentActivity,
   isLoading,
 }: AdminDashboardContentProps) {
+  const t = useTranslations("Dashboard.adminContent");
+  const tCommon = useTranslations("Common");
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Current Academic Year */}
@@ -39,15 +42,15 @@ export function AdminDashboardContent({
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <CalendarDays className="w-5 h-5 text-primary" />
-            Current Academic Year
+            {t("currentAcademicYear")}
           </CardTitle>
-          <CardDescription>Active term overview</CardDescription>
+          <CardDescription>{t("activeTermOverview")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {isLoading ? (
             <div className="flex items-center justify-center py-10 text-muted-foreground gap-2">
               <Loader2 className="w-5 h-5 animate-spin" />
-              <span className="text-sm">Loading academic year…</span>
+              <span className="text-sm">{t("loadingAcademicYear")}</span>
             </div>
           ) : academicYear ? (
             <>
@@ -60,7 +63,7 @@ export function AdminDashboardContent({
                     variant={academicYear.status === "Active" ? "role" : "outline"}
                     className="ml-2"
                   >
-                    {academicYear.status}
+                    {tCommon(academicYear.status === "Active" ? "active" : "closed")}
                   </Badge>
                 </div>
                 <Link href="/academic-years">
@@ -69,7 +72,7 @@ export function AdminDashboardContent({
                     size="sm"
                     className="gap-1 text-primary"
                   >
-                    <span>View All</span>
+                    <span>{t("viewAll")}</span>
                     <ArrowRight className="w-4 h-4" />
                   </Button>
                 </Link>
@@ -78,7 +81,7 @@ export function AdminDashboardContent({
                 <div className="p-4 rounded-2xl bg-muted/40 border border-border/50">
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <SchoolIcon className="w-4 h-4" />
-                    <span>Classes</span>
+                    <span>{t("classes")}</span>
                   </div>
                   <div className="text-2xl font-extrabold text-foreground mt-1">
                     {academicYear.classesCount}
@@ -87,7 +90,7 @@ export function AdminDashboardContent({
                 <div className="p-4 rounded-2xl bg-muted/40 border border-border/50">
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <GraduationCap className="w-4 h-4" />
-                    <span>Students</span>
+                    <span>{t("students")}</span>
                   </div>
                   <div className="text-2xl font-extrabold text-foreground mt-1">
                     {academicYear.studentsCount}
@@ -97,7 +100,7 @@ export function AdminDashboardContent({
             </>
           ) : (
             <div className="py-10 text-center text-sm text-muted-foreground">
-              No academic year found for your school yet.
+              {t("noAcademicYear")}
             </div>
           )}
         </CardContent>
@@ -108,19 +111,19 @@ export function AdminDashboardContent({
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <Activity className="w-5 h-5 text-primary" />
-            Recent Activity
+            {t("recentActivity")}
           </CardTitle>
-          <CardDescription>Latest school events</CardDescription>
+          <CardDescription>{t("latestSchoolEvents")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           {isLoading ? (
             <div className="flex items-center justify-center py-10 text-muted-foreground gap-2">
               <Loader2 className="w-5 h-5 animate-spin" />
-              <span className="text-sm">Loading activity…</span>
+              <span className="text-sm">{t("loadingActivity")}</span>
             </div>
           ) : recentActivity.length === 0 ? (
             <div className="py-6 text-center text-xs text-muted-foreground">
-              No recent activity yet.
+              {t("noRecentActivity")}
             </div>
           ) : (
             recentActivity.map((act) => (

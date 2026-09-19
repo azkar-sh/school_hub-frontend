@@ -7,6 +7,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { MockTeacherDashboardClass } from "@/lib/mock-data";
+import { useTranslations } from "next-intl";
 
 interface TeacherStatsGridProps {
   isDemoMode: boolean;
@@ -25,6 +26,7 @@ export function TeacherStatsGrid({
   classAverage,
   isLoading,
 }: TeacherStatsGridProps) {
+  const t = useTranslations("Dashboard.teacherStats");
   const num = (v: number, fallback = 0) =>
     isLoading ? (
       <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
@@ -42,7 +44,7 @@ export function TeacherStatsGrid({
       <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
-            My Classes
+            {t("myClasses")}
           </CardTitle>
           <SchoolIcon className="w-4 h-4 text-primary" />
         </CardHeader>
@@ -51,7 +53,7 @@ export function TeacherStatsGrid({
             {num(myClassesCount)}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            Teaching assignments
+            {t("teachingAssignments")}
           </p>
         </CardContent>
       </Card>
@@ -59,7 +61,7 @@ export function TeacherStatsGrid({
       <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
-            Assessments
+            {t("assessments")}
           </CardTitle>
           <FileCheck2 className="w-4 h-4 text-primary" />
         </CardHeader>
@@ -68,7 +70,7 @@ export function TeacherStatsGrid({
             {num(assessmentsCount)}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            Quizzes &amp; exams published
+            {t("quizzesExamsPublished")}
           </p>
         </CardContent>
       </Card>
@@ -76,7 +78,7 @@ export function TeacherStatsGrid({
       <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
-            Pending Results
+            {t("pendingResults")}
           </CardTitle>
           <Clock className="w-4 h-4 text-warning" />
         </CardHeader>
@@ -85,7 +87,7 @@ export function TeacherStatsGrid({
             {num(pendingCount)}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            Submissions waiting review
+            {t("submissionsWaitingReview")}
           </p>
         </CardContent>
       </Card>
@@ -93,7 +95,7 @@ export function TeacherStatsGrid({
       <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
-            Class Average
+            {t("classAverage")}
           </CardTitle>
           <BarChart3 className="w-4 h-4 text-primary" />
         </CardHeader>
@@ -102,13 +104,13 @@ export function TeacherStatsGrid({
             {isLoading ? (
               <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
             ) : avg === null ? (
-              "—"
+              t("noData")
             ) : (
               `${avg}%`
             )}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            Across graded submissions
+            {t("acrossGradedSubmissions")}
           </p>
         </CardContent>
       </Card>

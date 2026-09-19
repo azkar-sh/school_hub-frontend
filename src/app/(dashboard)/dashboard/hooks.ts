@@ -24,6 +24,7 @@ import {
 } from "@/lib/api-client";
 import { useFetchData } from "@/lib/use-fetch-data";
 import { useSchoolSelection } from "@/lib/use-school-selection";
+import { useTranslations } from "next-intl";
 
 export interface DisplayAssessment {
   id: string;
@@ -127,18 +128,18 @@ interface LiveParentChild {
   };
 }
 
-function timeAgo(dateStr?: string | null): string {
-  if (!dateStr) return "recently";
-  const t = new Date(dateStr).getTime();
-  if (Number.isNaN(t)) return "recently";
-  const diff = Math.max(0, Date.now() - t);
+function timeAgo(dateStr: string | null | undefined, t: (key: string, values?: Record<string, string | number | Date>) => string): string {
+  if (!dateStr) return t("recently");
+  const ms = new Date(dateStr).getTime();
+  if (Number.isNaN(ms)) return t("recently");
+  const diff = Math.max(0, Date.now() - ms);
   const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
+  if (mins < 1) return t("justNow");
+  if (mins < 60) return t("minutesAgo", { mins });
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
+  if (hrs < 24) return t("hoursAgo", { hrs });
   const days = Math.floor(hrs / 24);
-  if (days < 7) return `${days}d ago`;
+  if (days < 7) return t("daysAgo", { days });
   return new Date(dateStr).toLocaleDateString();
 }
 
@@ -146,6 +147,7 @@ export function useDashboardPage() {
   const { user, isDemoMode } = useAuthStore();
   const { activeRole } = useRoleThemeStore();
   const currentRole = user?.role || activeRole;
+  const tHooks = useTranslations("Dashboard.hooks");
   const { selectedSchoolId } = useSchoolSelection();
 
   const isAdmin = currentRole === "SCHOOL_ADMIN";
@@ -330,7 +332,7 @@ export function useDashboardPage() {
         title: a.title,
         type: a.type,
         subject: a.teachingAssignment?.subject?.name,
-        due: a.dueAt ? new Date(a.dueAt).toLocaleDateString() : "No due date",
+        due: a.dueAt ? new Date(a.dueAt).toLocaleDateString() : tHooks("noDueDate"),
         questionsCount: a._count?.questions ?? a.questions?.length ?? 0,
         points: 0,
       }));
@@ -347,11 +349,11 @@ export function useDashboardPage() {
           id: a.id,
           title: a.title,
           type: a.type,
-          subject: a.teachingAssignment?.subject?.name,
-          due: a.dueAt ? new Date(a.dueAt).toLocaleDateString() : "No due date",
-          questionsCount: a._count?.questions ?? a.questions?.length ?? 0,
-          points: 0,
-        }));
+        subject: a.teachingAssignment?.subject?.name,
+        due: a.dueAt ? new Date(a.dueAt).toLocaleDateString() : tHooks("noDueDate"),
+        questionsCount: a._count?.questions ?? a.questions?.length ?? 0,
+        points: 0,
+      }));
     }
     return [];
   }, [
@@ -361,6 +363,7 @@ export function useDashboardPage() {
     isStudent,
     teacherAssessments,
     studentAssessments,
+    tHooks,
   ]);
 
   // ---- School admin overview ----
@@ -396,11 +399,11 @@ export function useDashboardPage() {
       .slice(0, 5)
       .map((s) => ({
         id: s.id,
-        action: `Submitted "${s.assessment?.title ?? "Assessment"}"`,
-        user: s.student?.name ?? "Unknown",
-        time: timeAgo(s.submittedAt ?? s.startedAt),
+        action: tHooks("submittedAssessment", { title: s.assessment?.title ?? tHooks("assessment") }),
+        user: s.student?.name ?? tHooks("unknown"),
+        time: timeAgo(s.submittedAt ?? s.startedAt, tHooks),
       }));
-  }, [isDemoMode, submissions]);
+  }, [isDemoMode, submissions, tHooks]);
 
   const adminIsLoading =
     isLoadingSchoolMembers ||
@@ -420,8 +423,8 @@ export function useDashboardPage() {
       .filter((a) => a.academicYearId === activeAyId)
       .map((a) => ({
         id: a.classId,
-        name: a.class?.name ?? "—",
-        subject: a.subject?.name ?? "—",
+        name: a.class?.name ?? tHooks("dash"),
+        subject: a.subject?.name ?? tHooks("dash"),
         studentCount: enrollmentByClass.get(a.classId) ?? 0,
         assessmentCount: a._count?.assessments ?? 0,
       }));
@@ -431,6 +434,7 @@ export function useDashboardPage() {
     roleClassesData,
     teachingAssignmentsData,
     activeAyId,
+    tHooks,
   ]);
 
   const teacherPendingResults = React.useMemo(() => {
@@ -485,13 +489,13 @@ export function useDashboardPage() {
     const cls = studentClassRaw;
     if (!cls) return null;
     const homeroom =
-      studentClassDetail?.homeroomAssignments?.[0]?.teacher?.name ?? "—";
+      studentClassDetail?.homeroomAssignments?.[0]?.teacher?.name ?? tHooks("dash");
     return {
       id: cls.id,
       name: cls.name,
       grade: cls.grade,
       homeroomTeacher: homeroom,
-      academicYear: cls.academicYear?.name ?? activeAcademicYear?.name ?? "—",
+      academicYear: cls.academicYear?.name ?? activeAcademicYear?.name ?? tHooks("dash"),
     };
   }, [
     isDemoMode,
@@ -499,6 +503,7 @@ export function useDashboardPage() {
     studentClassRaw,
     studentClassDetail,
     activeAcademicYear,
+    tHooks,
   ]);
 
   const studentRecentResults = React.useMemo(() => {
@@ -512,15 +517,15 @@ export function useDashboardPage() {
       .slice(0, 3)
       .map((s) => ({
         id: s.id,
-        assessment: s.assessment?.title ?? "Assessment",
-        subject: s.assessment?.teachingAssignment?.subject?.name ?? "—",
+        assessment: s.assessment?.title ?? tHooks("assessment"),
+        subject: s.assessment?.teachingAssignment?.subject?.name ?? tHooks("dash"),
         score:
           s.scorePercentage !== null && s.scorePercentage !== undefined
             ? Number(s.scorePercentage)
             : 0,
-        date: s.submittedAt ? new Date(s.submittedAt).toLocaleDateString() : "—",
+        date: s.submittedAt ? new Date(s.submittedAt).toLocaleDateString() : tHooks("dash"),
       }));
-  }, [isDemoMode, submissions]);
+  }, [isDemoMode, submissions, tHooks]);
 
   const studentIsLoading =
     isLoadingStudentAssessments ||
@@ -551,14 +556,14 @@ export function useDashboardPage() {
       const latest = latestByStudent.get(sid);
       return {
         id: sid,
-        name: link.student?.name ?? "Unknown",
-        className: enrollment?.class?.name ?? "—",
+        name: link.student?.name ?? tHooks("unknown"),
+        className: enrollment?.class?.name ?? tHooks("dash"),
         latestResult: latest
-          ? `${latest.assessment?.title ?? "Assessment"}: ${latest.scorePercentage ?? 0}%`
-          : "No results yet",
+          ? `${latest.assessment?.title ?? tHooks("assessment")}: ${latest.scorePercentage ?? 0}%`
+          : tHooks("noResultsYet"),
       };
     });
-  }, [isDemoMode, isParent, parentChildrenData, submissions]);
+  }, [isDemoMode, isParent, parentChildrenData, submissions, tHooks]);
 
   const parentAvgScore = React.useMemo(() => {
     if (isDemoMode) return 92.5;
@@ -587,15 +592,15 @@ export function useDashboardPage() {
       .slice(0, 3)
       .map((s) => ({
         id: s.id,
-        assessment: s.assessment?.title ?? "Assessment",
-        subject: s.assessment?.teachingAssignment?.subject?.name ?? "—",
+        assessment: s.assessment?.title ?? tHooks("assessment"),
+        subject: s.assessment?.teachingAssignment?.subject?.name ?? tHooks("dash"),
         score:
           s.scorePercentage !== null && s.scorePercentage !== undefined
             ? Number(s.scorePercentage)
             : 0,
-        date: s.submittedAt ? new Date(s.submittedAt).toLocaleDateString() : "—",
+        date: s.submittedAt ? new Date(s.submittedAt).toLocaleDateString() : tHooks("dash"),
       }));
-  }, [isDemoMode, submissions]);
+  }, [isDemoMode, submissions, tHooks]);
 
   const parentFirstChildGrade = React.useMemo(() => {
     if (isDemoMode) return getMockStudentClassInfo().grade;

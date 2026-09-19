@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface RecentResultItem {
   id: string;
@@ -29,16 +30,17 @@ export function RecentResultsCard({
   results,
   isLoading,
 }: RecentResultsCardProps) {
+  const t = useTranslations("Dashboard.recentResults");
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle>Recent Results</CardTitle>
+          <CardTitle>{t("title")}</CardTitle>
           <CardDescription>{description}</CardDescription>
         </div>
         <Link href="/results">
           <Button variant="ghost" size="sm" className="gap-1 text-primary">
-            <span>View All</span>
+            <span>{t("viewAll")}</span>
             <ArrowRight className="w-4 h-4" />
           </Button>
         </Link>
@@ -47,7 +49,7 @@ export function RecentResultsCard({
         {isLoading ? (
           <div className="flex items-center justify-center py-10 text-muted-foreground gap-2">
             <Loader2 className="w-5 h-5 animate-spin" />
-            <span className="text-sm">Loading results…</span>
+            <span className="text-sm">{t("loadingResults")}</span>
           </div>
         ) : results.length > 0 ? (
           results.map((result) => (
@@ -77,7 +79,7 @@ export function RecentResultsCard({
           ))
         ) : (
           <div className="py-6 text-center text-xs text-muted-foreground">
-            No results yet.
+            {t("noResults")}
           </div>
         )}
       </CardContent>

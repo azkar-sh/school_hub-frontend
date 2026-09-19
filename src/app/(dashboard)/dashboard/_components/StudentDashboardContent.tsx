@@ -16,6 +16,7 @@ import { MockStudentClassInfo, MockRecentResult } from "@/lib/mock-data";
 import { DisplayAssessment } from "../hooks";
 import { UpcomingAssessmentsCard } from "./UpcomingAssessmentsCard";
 import { RecentResultsCard } from "./RecentResultsCard";
+import { useTranslations } from "next-intl";
 
 interface StudentDashboardContentProps {
   isDemoMode: boolean;
@@ -36,6 +37,7 @@ export function StudentDashboardContent({
   displayAssessments,
   studentRecentResults,
 }: StudentDashboardContentProps) {
+  const t = useTranslations("Dashboard.studentContent");
   return (
     <div className="space-y-6">
       {/* My Class — Tree: class info card */}
@@ -43,14 +45,14 @@ export function StudentDashboardContent({
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <SchoolIcon className="w-5 h-5 text-primary" />
-            My Class
+            {t("myClass")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading && !isDemoMode ? (
             <div className="flex items-center justify-center py-8 text-muted-foreground gap-2">
               <Loader2 className="w-5 h-5 animate-spin" />
-              <span className="text-sm">Loading your class…</span>
+              <span className="text-sm">{t("loadingClass")}</span>
             </div>
           ) : studentClass ? (
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -60,34 +62,34 @@ export function StudentDashboardContent({
                 </div>
                 <div>
                   <h3 className="text-xl font-extrabold text-foreground">
-                    Class {studentClass.name}
+                    {t("classPrefix", { name: studentClass.name })}
                   </h3>
                   <p className="text-xs text-muted-foreground">
-                    Grade {studentClass.grade} • {studentClass.academicYear}
+                    {t("gradeYear", { grade: studentClass.grade, academicYear: studentClass.academicYear })}
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Homeroom: {studentClass.homeroomTeacher}
+                    {t("homeroom", { name: studentClass.homeroomTeacher })}
                   </p>
                 </div>
               </div>
               <Link href="/assessments">
                 <Button variant="role" size="sm">
                   <FileCheck2 className="w-4 h-4 mr-1.5" />
-                  View Assessments
+                  {t("viewAssessments")}
                 </Button>
               </Link>
             </div>
           ) : (
             <div className="py-8 text-center text-sm text-muted-foreground">
-              You are not enrolled in a class for the current academic year.
+              {t("notEnrolled")}
             </div>
           )}
         </CardContent>
       </Card>
 
       <UpcomingAssessmentsCard
-        title="Upcoming Assessments"
-        description="Practice tests and graded class examinations"
+        title={t("upcomingAssessments")}
+        description={t("upcomingDesc")}
         isLoadingLive={isLoadingLive}
         liveFetchError={liveFetchError}
         isDemoMode={isDemoMode}
@@ -96,7 +98,7 @@ export function StudentDashboardContent({
       />
 
       <RecentResultsCard
-        description="Your latest graded assessments"
+        description={t("recentResultsDesc")}
         results={studentRecentResults}
         isLoading={!isDemoMode && isLoading}
       />

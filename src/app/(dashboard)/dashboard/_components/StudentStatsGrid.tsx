@@ -7,6 +7,7 @@ import {
   TrendingUp,
   Loader2,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface StudentStatsGridProps {
   isDemoMode: boolean;
@@ -23,6 +24,7 @@ export function StudentStatsGrid({
   pendingDue,
   isLoading,
 }: StudentStatsGridProps) {
+  const t = useTranslations("Dashboard.studentStats");
   const taken = isDemoMode ? 12 : quizzesTaken;
   const avg = isDemoMode ? 92.5 : averageScore;
   const pending = isDemoMode ? 2 : pendingDue;
@@ -39,7 +41,7 @@ export function StudentStatsGrid({
       <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
-            Quizzes Taken
+            {t("quizzesTaken")}
           </CardTitle>
           <FileCheck2 className="w-4 h-4 text-primary" />
         </CardHeader>
@@ -50,7 +52,7 @@ export function StudentStatsGrid({
           <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
             <TrendingUp className="w-3 h-3 text-success" />
             <span>
-              {isDemoMode ? "+3 this week" : "Submitted assessments"}
+              {isDemoMode ? t("plusThisWeek") : t("submittedAssessments")}
             </span>
           </p>
         </CardContent>
@@ -59,7 +61,7 @@ export function StudentStatsGrid({
       <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
-            Average Score
+            {t("averageScore")}
           </CardTitle>
           <Award className="w-4 h-4 text-primary" />
         </CardHeader>
@@ -68,15 +70,15 @@ export function StudentStatsGrid({
             {isLoading ? (
               <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
             ) : avg === null ? (
-              "—"
+              t("noData")
             ) : (
               `${avg}%`
             )}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
             {isDemoMode
-              ? "Grade A (Honor Roll)"
-              : "Across graded assessments"}
+              ? t("honorRoll")
+              : t("acrossGradedAssessments")}
           </p>
         </CardContent>
       </Card>
@@ -84,7 +86,7 @@ export function StudentStatsGrid({
       <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
-            Pending Due
+            {t("pendingDue")}
           </CardTitle>
           <Clock className="w-4 h-4 text-primary" />
         </CardHeader>
@@ -93,7 +95,7 @@ export function StudentStatsGrid({
             {num(pending)}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            {isDemoMode ? "Math & Science Exams" : "Awaiting submission"}
+            {isDemoMode ? t("mathScienceExams") : t("awaitingSubmission")}
           </p>
         </CardContent>
       </Card>
@@ -101,13 +103,13 @@ export function StudentStatsGrid({
       <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
-            Study Streak
+            {t("studyStreak")}
           </CardTitle>
           <CheckCircle2 className="w-4 h-4 text-primary" />
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-extrabold text-success">5 Days</div>
-          <p className="text-xs text-muted-foreground mt-1">Keep it up!</p>
+          <div className="text-3xl font-extrabold text-success">{t("daysValue")}</div>
+          <p className="text-xs text-muted-foreground mt-1">{t("keepItUp")}</p>
         </CardContent>
       </Card>
     </>

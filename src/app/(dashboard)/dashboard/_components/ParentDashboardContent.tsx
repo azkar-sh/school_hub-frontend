@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { MockParentChild, MockRecentResult } from "@/lib/mock-data";
 import { RecentResultsCard } from "./RecentResultsCard";
+import { useTranslations } from "next-intl";
 
 interface ParentDashboardContentProps {
   isDemoMode: boolean;
@@ -29,18 +30,19 @@ export function ParentDashboardContent({
   parentRecentResults,
   isLoading,
 }: ParentDashboardContentProps) {
+  const t = useTranslations("Dashboard.parentContent");
   return (
     <div className="space-y-6">
       {/* Children — Tree: Child Name, Class, Latest Result */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle>Children</CardTitle>
-            <CardDescription>Monitor your linked students</CardDescription>
+            <CardTitle>{t("children")}</CardTitle>
+            <CardDescription>{t("monitorLinked")}</CardDescription>
           </div>
           <Link href="/children">
             <Button variant="ghost" size="sm" className="gap-1 text-primary">
-              <span>View All</span>
+              <span>{t("viewAll")}</span>
               <ArrowRight className="w-4 h-4" />
             </Button>
           </Link>
@@ -49,11 +51,11 @@ export function ParentDashboardContent({
           {isLoading && !isDemoMode ? (
             <div className="flex items-center justify-center py-10 text-muted-foreground gap-2">
               <Loader2 className="w-5 h-5 animate-spin" />
-              <span className="text-sm">Loading children…</span>
+              <span className="text-sm">{t("loadingChildren")}</span>
             </div>
           ) : parentChildren.length === 0 ? (
             <div className="py-6 text-center text-xs text-muted-foreground">
-              No children linked yet.
+              {t("noChildren")}
             </div>
           ) : (
             parentChildren.map((child) => (
@@ -68,7 +70,7 @@ export function ParentDashboardContent({
                         {child.name}
                       </h4>
                       <p className="text-xs text-muted-foreground">
-                        Class {child.className}
+                        {t("classPrefix", { name: child.className })}
                       </p>
                     </div>
                   </div>
@@ -83,7 +85,7 @@ export function ParentDashboardContent({
       </Card>
 
       <RecentResultsCard
-        description="Your child's latest graded assessments"
+        description={t("recentResultsDesc")}
         results={parentRecentResults}
         isLoading={!isDemoMode && isLoading}
       />

@@ -7,6 +7,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { MockParentChild } from "@/lib/mock-data";
+import { useTranslations } from "next-intl";
 
 interface ParentStatsGridProps {
   parentChildren: MockParentChild[];
@@ -23,6 +24,7 @@ export function ParentStatsGrid({
   completedCount,
   isLoading,
 }: ParentStatsGridProps) {
+  const t = useTranslations("Dashboard.parentStats");
   const num = (v: number) =>
     isLoading ? (
       <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
@@ -35,7 +37,7 @@ export function ParentStatsGrid({
       <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
-            Children Linked
+            {t("childrenLinked")}
           </CardTitle>
           <Users className="w-4 h-4 text-primary" />
         </CardHeader>
@@ -44,8 +46,8 @@ export function ParentStatsGrid({
             {num(parentChildren.length)}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            {parentChildren[0]?.name ?? "No children"}
-            {studentClassGrade ? ` (Grade ${studentClassGrade})` : ""}
+            {parentChildren[0]?.name ?? t("noChildren")}
+            {studentClassGrade ? t("gradeSuffix", { grade: studentClassGrade }) : ""}
           </p>
         </CardContent>
       </Card>
@@ -53,7 +55,7 @@ export function ParentStatsGrid({
       <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
-            Child GPA / Avg
+            {t("childGpaAvg")}
           </CardTitle>
           <Award className="w-4 h-4 text-primary" />
         </CardHeader>
@@ -62,13 +64,13 @@ export function ParentStatsGrid({
             {isLoading ? (
               <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
             ) : avgScore === null ? (
-              "—"
+              t("noData")
             ) : (
               `${avgScore}%`
             )}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            Across graded assessments
+            {t("acrossGradedAssessments")}
           </p>
         </CardContent>
       </Card>
@@ -76,7 +78,7 @@ export function ParentStatsGrid({
       <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
-            Completed Tests
+            {t("completedTests")}
           </CardTitle>
           <CheckCircle2 className="w-4 h-4 text-success" />
         </CardHeader>
@@ -85,7 +87,7 @@ export function ParentStatsGrid({
             {num(completedCount)}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            Submitted assessments
+            {t("submittedAssessments")}
           </p>
         </CardContent>
       </Card>
@@ -93,14 +95,14 @@ export function ParentStatsGrid({
       <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
-            Attendance
+            {t("attendance")}
           </CardTitle>
           <GraduationCap className="w-4 h-4 text-primary" />
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-extrabold text-foreground">98%</div>
+          <div className="text-3xl font-extrabold text-foreground">{t("attendanceValue")}</div>
           <p className="text-xs text-muted-foreground mt-1">
-            Perfect attendance badge
+            {t("perfectAttendance")}
           </p>
         </CardContent>
       </Card>

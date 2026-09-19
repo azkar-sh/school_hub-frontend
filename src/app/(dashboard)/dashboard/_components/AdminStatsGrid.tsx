@@ -7,6 +7,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { MockSchoolAdminOverview } from "@/lib/mock-data";
+import { useTranslations } from "next-intl";
 
 interface AdminStatsGridProps {
   overview: MockSchoolAdminOverview;
@@ -14,6 +15,7 @@ interface AdminStatsGridProps {
 }
 
 export function AdminStatsGrid({ overview, isLoading }: AdminStatsGridProps) {
+  const t = useTranslations("Dashboard.adminStats");
   const value = (v: number) =>
     isLoading ? (
       <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
@@ -26,7 +28,7 @@ export function AdminStatsGrid({ overview, isLoading }: AdminStatsGridProps) {
       <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
-            Teachers
+            {t("teachers")}
           </CardTitle>
           <UserRound className="w-4 h-4 text-primary" />
         </CardHeader>
@@ -35,7 +37,7 @@ export function AdminStatsGrid({ overview, isLoading }: AdminStatsGridProps) {
             {value(overview.teachersCount)}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            Active teaching staff
+            {t("activeTeachingStaff")}
           </p>
         </CardContent>
       </Card>
@@ -43,7 +45,7 @@ export function AdminStatsGrid({ overview, isLoading }: AdminStatsGridProps) {
       <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
-            Students
+            {t("students")}
           </CardTitle>
           <GraduationCap className="w-4 h-4 text-primary" />
         </CardHeader>
@@ -52,7 +54,7 @@ export function AdminStatsGrid({ overview, isLoading }: AdminStatsGridProps) {
             {value(overview.studentsCount)}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            Enrolled students
+            {t("enrolledStudents")}
           </p>
         </CardContent>
       </Card>
@@ -60,7 +62,7 @@ export function AdminStatsGrid({ overview, isLoading }: AdminStatsGridProps) {
       <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
-            Classes
+            {t("classes")}
           </CardTitle>
           <SchoolIcon className="w-4 h-4 text-primary" />
         </CardHeader>
@@ -69,7 +71,7 @@ export function AdminStatsGrid({ overview, isLoading }: AdminStatsGridProps) {
             {value(overview.classesCount)}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            Active class sections
+            {t("activeClassSections")}
           </p>
         </CardContent>
       </Card>
@@ -77,7 +79,7 @@ export function AdminStatsGrid({ overview, isLoading }: AdminStatsGridProps) {
       <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
-            Subjects
+            {t("subjects")}
           </CardTitle>
           <BookOpen className="w-4 h-4 text-primary" />
         </CardHeader>
@@ -86,7 +88,7 @@ export function AdminStatsGrid({ overview, isLoading }: AdminStatsGridProps) {
             {value(overview.subjectsCount)}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            Registered subjects
+            {t("registeredSubjects")}
           </p>
         </CardContent>
       </Card>
