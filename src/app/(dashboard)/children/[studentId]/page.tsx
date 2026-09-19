@@ -27,6 +27,7 @@ import {
   CalendarDays,
   Loader2,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface ResultRow {
   id: string;
@@ -80,6 +81,7 @@ export default function ChildDetailPage() {
   const params = useParams();
   const studentId = params.studentId as string;
   const { isDemoMode, isLoading, children } = useParentChildren();
+  const t = useTranslations("Children");
 
   const child: ChildDetail | null = React.useMemo(() => {
     if (isDemoMode) {
@@ -126,21 +128,21 @@ export default function ChildDetailPage() {
         className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
-        Back to Children
+        {t("backToChildren")}
       </Link>
 
       {/* Loading state */}
       {!isDemoMode && isLoading && (
         <div className="flex items-center justify-center py-16 text-muted-foreground gap-2">
           <Loader2 className="w-5 h-5 animate-spin" />
-          <span className="text-sm">Loading child details…</span>
+          <span className="text-sm">{t("loadingChildDetails")}</span>
         </div>
       )}
 
       {/* Not found (live mode, finished loading, no matching child) */}
       {(!isDemoMode && !isLoading && !child) && (
         <Card className="py-14 text-center text-sm text-muted-foreground">
-          Child not found or not linked to your account.
+          {t("childNotFound")}
         </Card>
       )}
 
@@ -159,8 +161,8 @@ export default function ChildDetailPage() {
                       {child.name}
                     </h1>
                     <p className="text-sm text-muted-foreground mt-0.5">
-                      Class {child.className}
-                      {child.grade !== null ? ` • Grade ${child.grade}` : ""}
+                      {t("classLabel")} {child.className}
+                      {child.grade !== null ? ` • ${t("gradeLabel")} ${child.grade}` : ""}
                     </p>
                   </div>
                 </div>
@@ -168,7 +170,7 @@ export default function ChildDetailPage() {
                   <div className="text-center">
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       <FileCheck2 className="w-3.5 h-3.5" />
-                      <span>Assessments</span>
+                      <span>{t("assessmentsLabel")}</span>
                     </div>
                     <div className="text-2xl font-extrabold text-foreground">
                       {child.assessmentCount}
@@ -177,7 +179,7 @@ export default function ChildDetailPage() {
                   <div className="text-center">
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       <Award className="w-3.5 h-3.5" />
-                      <span>Average</span>
+                      <span>{t("averageLabel")}</span>
                     </div>
                     <div className="text-2xl font-extrabold text-primary">
                       {avgScore}%
@@ -193,16 +195,16 @@ export default function ChildDetailPage() {
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <FileCheck2 className="w-5 h-5 text-primary" />
-                Assessment Results
+                {t("assessmentResults")}
               </CardTitle>
               <CardDescription>
-                All completed and graded assessments for this child
+                {t("assessmentResultsDesc")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               {child.results.length === 0 ? (
                 <div className="py-14 text-center text-sm text-muted-foreground">
-                  No assessment results found.
+                  {t("noResultsFound")}
                 </div>
               ) : (
                 child.results.map((result) => {
@@ -249,7 +251,7 @@ export default function ChildDetailPage() {
                       >
                         {result.scorePercentage !== null
                           ? `${result.scorePercentage}%`
-                          : "Pending"}
+                          : t("pending")}
                       </Badge>
                     </div>
                   );

@@ -23,6 +23,7 @@ import {
   ArrowRight,
   Loader2,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface ChildCard {
   id: string;
@@ -35,6 +36,7 @@ interface ChildCard {
 
 export default function ChildrenPage() {
   const { isDemoMode, isLoading, children } = useParentChildren();
+  const t = useTranslations("Children");
 
   const mockChildren = getMockParentChildrenDetail();
 
@@ -64,10 +66,10 @@ export default function ChildrenPage() {
       {/* Page Header */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-          Children
+          {t("title")}
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Monitor linked students and open their assessment history
+          {t("subtitle")}
         </p>
       </div>
 
@@ -75,7 +77,7 @@ export default function ChildrenPage() {
       {!isDemoMode && isLoading && (
         <div className="flex items-center justify-center py-16 text-muted-foreground gap-2">
           <Loader2 className="w-5 h-5 animate-spin" />
-          <span className="text-sm">Loading children…</span>
+          <span className="text-sm">{t("loadingChildren")}</span>
         </div>
       )}
 
@@ -84,7 +86,7 @@ export default function ChildrenPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {displayChildren.length === 0 ? (
             <Card className="col-span-2 py-14 text-center text-sm text-muted-foreground">
-              No children linked to your account yet.
+              {t("noChildrenLinked")}
             </Card>
           ) : (
             displayChildren.map((child) => (
@@ -103,13 +105,13 @@ export default function ChildrenPage() {
                           {child.name}
                         </CardTitle>
                         <CardDescription className="text-xs mt-0.5">
-                          Class {child.className}
+                          {t("classLabel")} {child.className}
                         </CardDescription>
                       </div>
                     </div>
                     {child.grade !== null && (
                       <Badge variant="role" className="text-xs">
-                        Grade {child.grade}
+                        {t("gradeLabel")} {child.grade}
                       </Badge>
                     )}
                   </div>
@@ -120,7 +122,7 @@ export default function ChildrenPage() {
                       <FileCheck2 className="w-4 h-4 text-primary" />
                       <div>
                         <p className="text-xs text-muted-foreground">
-                          Assessments
+                          {t("assessmentsLabel")}
                         </p>
                         <p className="font-bold text-foreground">
                           {child.assessmentCount}
@@ -131,7 +133,7 @@ export default function ChildrenPage() {
                       <Award className="w-4 h-4 text-primary" />
                       <div>
                         <p className="text-xs text-muted-foreground">
-                          Average
+                          {t("averageLabel")}
                         </p>
                         <p className="font-bold text-primary">
                           {child.average}%
@@ -141,7 +143,7 @@ export default function ChildrenPage() {
                   </div>
                   <Link href={`/children/${child.id}`}>
                     <Button variant="role" size="sm" className="w-full">
-                      View Assessment Results
+                      {t("viewResults")}
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                   </Link>
