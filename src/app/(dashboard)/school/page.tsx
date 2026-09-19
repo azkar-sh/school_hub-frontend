@@ -1,28 +1,33 @@
+"use client";
+
 import { GuideResourcePage } from "@/components/ui/guide-resource-page";
+import { useTranslations } from "next-intl";
 
 export default function SchoolPage() {
+  const t = useTranslations("School");
+
   return (
     <GuideResourcePage
-      title="School Information"
-      description="Review the active school profile used by this workspace."
+      title={t("title")}
+      description={t("description")}
       rows={[
         {
           label: "SMA Garuda Hope",
-          value: "School",
-          detail: "Seeded demo school",
+          value: t("schoolValue"),
+          detail: t("seededDemoSchool"),
         },
         {
-          label: "School ID",
+          label: t("schoolID"),
           value: "garuda-hope",
-          detail: "Members, classes, and subjects belong to this school",
+          detail: t("belongsToSchool"),
         },
         {
-          label: "Created",
+          label: t("createdLabel"),
           value: "2026",
-          detail: "Academic data starts in 2026/2027",
+          detail: t("academicDataStarts"),
         },
       ]}
-      action={{ label: "Edit School" }}
+      action={{ label: t("editSchool") }}
     />
   );
 }

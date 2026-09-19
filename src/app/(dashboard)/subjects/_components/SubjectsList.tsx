@@ -17,6 +17,7 @@ import {
   UserCircle,
 } from "lucide-react";
 import { Subject, TeachingAssignment } from "@/types";
+import { useTranslations } from "next-intl";
 
 interface SubjectsListProps {
   isLoading: boolean;
@@ -46,6 +47,8 @@ function SubjectCard({
   classAssignments?: TeachingAssignment[];
   teacherNames?: string[];
 }) {
+  const t = useTranslations("Subjects");
+  const tCommon = useTranslations("Common.info");
   return (
     <Card className="border-border/60">
       <CardHeader className="flex flex-row items-center justify-between border-b border-border/40 pb-4">
@@ -59,7 +62,7 @@ function SubjectCard({
               <Badge variant="outline">{sub.code}</Badge>
             </div>
             <CardDescription className="text-xs mt-0.5">
-              {sub.topics?.length ?? 0} Major Topics
+              {t("majorTopicsCount", { count: sub.topics?.length ?? 0 })}
             </CardDescription>
             {teacherNames && teacherNames.length > 0 && (
               <div className="flex flex-wrap items-center gap-1.5 mt-1">
@@ -99,39 +102,39 @@ function SubjectCard({
             onClick={() => onAddTopic(sub.id)}
           >
             <PlusCircle className="w-3.5 h-3.5 mr-1.5" />
-            Add Topic
+            {t("addTopic")}
           </Button>
         )}
       </CardHeader>
 
       <CardContent className="pt-6 space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {sub.topics?.map((t) => (
+          {sub.topics?.map((topic) => (
             <div
-              key={t.id}
+              key={topic.id}
               className="p-4 rounded-2xl bg-muted/40 border border-border/50 space-y-2"
             >
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 font-semibold text-sm">
                   <Layers className="w-4 h-4 text-primary" />
-                  <span>{t.name}</span>
+                  <span>{topic.name}</span>
                 </div>
                 {canEdit && (
                   <Button
                     variant="ghost"
                     size="sm"
                     className="h-7 text-[11px]"
-                    onClick={() => onAddSubTopic(t.id)}
+                    onClick={() => onAddSubTopic(topic.id)}
                   >
                     <PlusCircle className="w-3 h-3 mr-1" />
-                    Sub-topic
+                    {t("subTopicShort")}
                   </Button>
                 )}
               </div>
-              <p className="text-xs text-muted-foreground">{t.description}</p>
+              <p className="text-xs text-muted-foreground">{topic.description}</p>
 
               <div className="pl-6 space-y-1 text-xs text-muted-foreground">
-                {t.subTopics?.map((st) => (
+                {topic.subTopics?.map((st) => (
                   <div key={st.id} className="flex items-center gap-1.5">
                     <BookmarkCheck className="w-3.5 h-3.5 text-success" />
                     <span className="font-medium text-foreground">
@@ -160,11 +163,13 @@ export function SubjectsList({
   subjectClassesMap = {},
   subjectTeachersMap = {},
 }: SubjectsListProps) {
+  const t = useTranslations("Subjects");
+  const tCommon = useTranslations("Common.info");
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12 text-muted-foreground gap-2">
         <Loader2 className="w-5 h-5 animate-spin" />
-        <span className="text-sm">Loading curriculum subjects…</span>
+        <span className="text-sm">{tCommon("loadingSubjects")}</span>
       </div>
     );
   }
@@ -175,14 +180,14 @@ export function SubjectsList({
         {/* Section 1: Assigned subjects */}
         <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <h2 className="text-lg font-bold">My Subjects</h2>
+            <h2 className="text-lg font-bold">{tCommon("mySubjects")}</h2>
             <Badge variant="default" className="text-[11px]">
               {assignedSubjects.length}
             </Badge>
           </div>
           {assignedSubjects.length === 0 ? (
             <Card className="py-12 text-center text-muted-foreground text-sm">
-              You have not been assigned to any subjects yet.
+              {t("noAssignedSubjects")}
             </Card>
           ) : (
             <div className="space-y-6">
@@ -206,7 +211,7 @@ export function SubjectsList({
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-bold text-muted-foreground">
-                Other Subjects
+                {t("otherSubjects")}
               </h2>
               <Badge variant="outline" className="text-[11px]">
                 {otherSubjects.length}
@@ -233,7 +238,7 @@ export function SubjectsList({
   if (subjects.length === 0) {
     return (
       <Card className="py-12 text-center text-muted-foreground text-sm">
-        No subjects registered for this school yet.
+        {t("noSubjectsForSchool")}
       </Card>
     );
   }
