@@ -14,37 +14,39 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useRoleThemeStore } from "@/stores/use-role-theme-store";
 import { UserRole } from "@/types";
-
-const roles: Array<{
-  title: string;
-  role: UserRole;
-  detail: string;
-  icon: React.ComponentType<{ className?: string }>;
-}> = [
-  {
-    title: "Teacher",
-    role: "TEACHER",
-    detail: "Curriculum, assessments, submissions, and results.",
-    icon: BookOpen,
-  },
-  {
-    title: "Student",
-    role: "STUDENT",
-    detail: "Upcoming assessments, attempts, and scores.",
-    icon: GraduationCap,
-  },
-  {
-    title: "Parent",
-    role: "PARENT",
-    detail: "Children and assessment progress.",
-    icon: Users,
-  },
-];
+import { useTranslations } from "next-intl";
 
 export default function DemoPage() {
   const router = useRouter();
   const { demoLoginAs } = useAuthStore();
   const { setRoleTheme } = useRoleThemeStore();
+  const t = useTranslations("DemoPage");
+
+  const roles: Array<{
+    title: string;
+    role: UserRole;
+    detail: string;
+    icon: React.ComponentType<{ className?: string }>;
+  }> = [
+    {
+      title: t("teacherTitle"),
+      role: "TEACHER",
+      detail: t("teacherDescription"),
+      icon: BookOpen,
+    },
+    {
+      title: t("studentTitle"),
+      role: "STUDENT",
+      detail: t("studentDescription"),
+      icon: GraduationCap,
+    },
+    {
+      title: t("parentTitle"),
+      role: "PARENT",
+      detail: t("parentDescription"),
+      icon: Users,
+    },
+  ];
 
   const handleDemoLogin = (role: UserRole) => {
     setRoleTheme(role);
@@ -57,13 +59,13 @@ export default function DemoPage() {
       <div className="mx-auto max-w-4xl space-y-8">
         <div>
           <p className="text-xs font-bold uppercase tracking-widest text-primary">
-            Learn Hub Demo
+            {t("demoTitle")}
           </p>
           <h1 className="mt-2 text-4xl font-extrabold tracking-tight">
-            Choose a role to explore
+            {t("chooseRole")}
           </h1>
           <p className="mt-2 text-muted-foreground">
-            Every preview uses the same seeded Garuda Hope school data.
+            {t("demoDataInfo")}
           </p>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -80,7 +82,7 @@ export default function DemoPage() {
                   className="w-full"
                   onClick={() => handleDemoLogin(role)}
                 >
-                  Open demo <ArrowRight className="ml-2 h-4 w-4" />
+                  {t("openDemo")} <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </CardContent>
             </Card>
@@ -90,7 +92,7 @@ export default function DemoPage() {
           className="text-sm font-semibold text-primary hover:underline"
           href="/"
         >
-          Back to homepage
+          {t("backHome")}
         </Link>
       </div>
     </main>

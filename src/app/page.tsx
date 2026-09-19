@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
+import LanguageSwitcher from '@/components/layout/LanguageSwitcher';
+import { useTranslations } from 'next-intl';
 import {
   GraduationCap,
   BookOpen,
@@ -26,6 +28,7 @@ export default function LandingPage() {
   const router = useRouter();
   const { demoLoginAs } = useAuthStore();
   const { setRoleTheme, activeRole } = useRoleThemeStore();
+  const t = useTranslations('LandingPage');
 
   const handlePortalEnter = (role: UserRole) => {
     setRoleTheme(role);
@@ -46,6 +49,7 @@ export default function LandingPage() {
           </span>
         </div>
         <div className="flex items-center gap-3">
+          <LanguageSwitcher />
           <ThemeToggle />
           <Link href="/login">
             <Button variant="ghost" size="sm">
@@ -67,25 +71,25 @@ export default function LandingPage() {
 
         <Badge variant="outline" className="mb-6 py-1.5 px-4 rounded-full border-primary/30 text-xs font-semibold backdrop-blur-md bg-background/80">
           <Sparkles className="w-3.5 h-3.5 mr-2 text-primary inline animate-spin" />
-          Modern Educational Assessment Platform
+          {t('heroSubtitle')}
         </Badge>
 
         <h1 className="text-4xl sm:text-6xl font-black tracking-tight max-w-4xl leading-tight">
-          Empowering Education with <br className="hidden sm:inline" />
+          {t('empoweringEducation')} <br className="hidden sm:inline" />
           <span className="bg-gradient-to-r from-primary via-primary to-primary bg-clip-text text-transparent">
-            Role-Adaptive Learning
+            {t('roleAdaptiveLearning')}
           </span>
         </h1>
 
         <p className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl font-normal leading-relaxed">
-          One unified portal for Teachers, Students, and Parents. Experience automated assessment grading, interactive quizzes, and real-time performance tracking.
+          {t('heroDescription')}
         </p>
 
         {/* Dynamic Role Demo Switcher & Portal Selector */}
         <div className="mt-12 w-full max-w-5xl">
           <div className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-6 flex items-center justify-center gap-2">
             <Layers className="w-4 h-4 text-primary" />
-            <span>Select a Role Portal to Preview</span>
+            <span>{t('selectRolePreview')}</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -100,14 +104,14 @@ export default function LandingPage() {
                   <GraduationCap className="w-8 h-8" />
                 </div>
                 <Badge variant="student" className="mb-2">
-                  Student Portal
+                  {t('studentPortal.title')}
                 </Badge>
-                <h3 className="text-xl font-bold text-foreground">Interactive Learning</h3>
+                <h3 className="text-xl font-bold text-foreground">{t('studentPortal.feature')}</h3>
                 <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
-                  Take online assessments, solve quizzes with instant timers, track progress badges, and view scores.
+                  {t('studentPortal.description')}
                 </p>
                 <Button variant="outline" size="sm" className="mt-6 w-full group-hover:bg-primary group-hover:text-primary-foreground border-primary/30">
-                  <span>Enter Student Portal</span>
+                  <span>{t('studentPortal.button')}</span>
                   <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
               </CardContent>
@@ -124,14 +128,14 @@ export default function LandingPage() {
                   <BookOpen className="w-8 h-8" />
                 </div>
                 <Badge variant="teacher" className="mb-2">
-                  Teacher Portal
+                  {t('teacherPortal.title')}
                 </Badge>
-                <h3 className="text-xl font-bold text-foreground">Assessment Builder</h3>
+                <h3 className="text-xl font-bold text-foreground">{t('teacherPortal.feature')}</h3>
                 <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
-                  Create customized question banks, publish exams, grade student submissions, and manage subject topics.
+                  {t('teacherPortal.description')}
                 </p>
                 <Button variant="outline" size="sm" className="mt-6 w-full group-hover:bg-primary group-hover:text-primary-foreground border-primary/30">
-                  <span>Enter Teacher Portal</span>
+                  <span>{t('teacherPortal.button')}</span>
                   <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
               </CardContent>
@@ -148,14 +152,14 @@ export default function LandingPage() {
                   <Users className="w-8 h-8" />
                 </div>
                 <Badge variant="parent" className="mb-2">
-                  Parent Portal
+                  {t('parentPortal.title')}
                 </Badge>
-                <h3 className="text-xl font-bold text-foreground">Performance Monitor</h3>
+                <h3 className="text-xl font-bold text-foreground">{t('parentPortal.feature')}</h3>
                 <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
-                  Monitor children&apos;s academic progression, review test score analytics, and track completed assignments.
+                  {t('parentPortal.description')}
                 </p>
                 <Button variant="outline" size="sm" className="mt-6 w-full group-hover:bg-primary group-hover:text-primary-foreground border-primary/30">
-                  <span>Enter Parent Portal</span>
+                  <span>{t('parentPortal.button')}</span>
                   <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
               </CardContent>
@@ -170,8 +174,8 @@ export default function LandingPage() {
               <BrainCircuit className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="font-semibold text-base">Auto-Grading Engine</h4>
-              <p className="text-xs text-muted-foreground mt-1">Instant scoring for MCQ & True/False questions with precise point metrics.</p>
+              <h4 className="font-semibold text-base">{t('features.autoGrading.title')}</h4>
+              <p className="text-xs text-muted-foreground mt-1">{t('features.autoGrading.description')}</p>
             </div>
           </div>
 
@@ -180,8 +184,8 @@ export default function LandingPage() {
               <Award className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="font-semibold text-base">Curriculum Hierarchy</h4>
-              <p className="text-xs text-muted-foreground mt-1">Structured mapping of Subjects, Topics, SubTopics, and Class academic years.</p>
+              <h4 className="font-semibold text-base">{t('features.curriculum.title')}</h4>
+              <p className="text-xs text-muted-foreground mt-1">{t('features.curriculum.description')}</p>
             </div>
           </div>
 
@@ -190,8 +194,8 @@ export default function LandingPage() {
               <CheckCircle2 className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="font-semibold text-base">Dynamic Themes</h4>
-              <p className="text-xs text-muted-foreground mt-1">Tailored visual identity for each role with crisp Dark & Light mode accessibility.</p>
+              <h4 className="font-semibold text-base">{t('features.themes.title')}</h4>
+              <p className="text-xs text-muted-foreground mt-1">{t('features.themes.description')}</p>
             </div>
           </div>
         </div>
@@ -199,7 +203,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="py-6 border-t border-border/40 text-center text-xs text-muted-foreground">
-        © 2026 School Hub Assessment System. All rights reserved.
+        {t('footer')}
       </footer>
     </div>
   );

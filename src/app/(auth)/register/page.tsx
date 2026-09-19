@@ -22,6 +22,8 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { GraduationCap, UserPlus } from "lucide-react";
+import { useTranslations } from "next-intl";
+import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -29,6 +31,7 @@ export default function RegisterPage() {
   const { setRoleTheme } = useRoleThemeStore();
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
+  const t = useTranslations("RegisterPage");
 
   const methods = useForm({
     resolver: yupResolver(registerSchema),
@@ -59,7 +62,7 @@ export default function RegisterPage() {
       setErrorMsg(
         getErrorMessage(
           error,
-          "Registration failed. Please check your information.",
+          t("registrationFailed"),
         ),
       );
     } finally {
@@ -69,6 +72,9 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative overflow-hidden">
+      <div className="absolute top-4 right-4 flex items-center gap-2">
+        <LanguageSwitcher />
+      </div>
       {/* Background glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-primary/15 blur-[100px] rounded-full pointer-events-none -z-10" />
 
@@ -80,18 +86,18 @@ export default function RegisterPage() {
             </div>
           </Link>
           <h1 className="text-2xl font-bold tracking-tight">
-            Create an Account
+            {t("title")}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Join School Hub platform today
+            {t("subtitle")}
           </p>
         </div>
 
         <Card className="shadow-xl border-border/60">
           <CardHeader className="space-y-1 pb-4">
-            <CardTitle className="text-lg">Register</CardTitle>
+            <CardTitle className="text-lg">{t("register")}</CardTitle>
             <CardDescription className="text-xs">
-              Fill out your profile details below
+              {t("profileDetails")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -108,35 +114,35 @@ export default function RegisterPage() {
               >
                 <FormInput
                   name="name"
-                  label="Full Name"
-                  placeholder="Jane Doe"
+                  label={t("fullName")}
+                  placeholder={t("fullNamePlaceholder")}
                 />
                 <FormInput
                   name="email"
-                  label="Email Address"
+                  label={t("emailAddress")}
                   type="email"
-                  placeholder="jane.doe@schoolhub.edu"
+                  placeholder={t("emailPlaceholder")}
                 />
                 <FormInput
                   name="password"
-                  label="Password"
+                  label={t("password")}
                   type="password"
-                  placeholder="••••••••"
+                  placeholder={t("passwordPlaceholder")}
                 />
                 <FormSelect
                   name="role"
-                  label="Select Role"
+                  label={t("selectRole")}
                   options={[
                     {
-                      label: "Student (Take quizzes & view scores)",
+                      label: t("studentRoleOption"),
                       value: "STUDENT",
                     },
                     {
-                      label: "Teacher (Create assessments & grade)",
+                      label: t("teacherRoleOption"),
                       value: "TEACHER",
                     },
                     {
-                      label: "Parent (Monitor child progress)",
+                      label: t("parentRoleOption"),
                       value: "PARENT",
                     },
                   ]}
@@ -149,18 +155,18 @@ export default function RegisterPage() {
                   isLoading={isLoading}
                 >
                   <UserPlus className="w-4 h-4 mr-2" />
-                  Create Account
+                  {t("createAccount")}
                 </Button>
               </form>
             </FormProvider>
 
             <p className="text-center text-xs text-muted-foreground mt-4">
-              Already have an account?{" "}
+              {t("alreadyHaveAccount")}{" "}
               <Link
                 href="/login"
                 className="text-primary font-semibold hover:underline"
               >
-                Sign in
+                {t("signIn")}
               </Link>
             </p>
           </CardContent>

@@ -26,6 +26,8 @@ import {
   Users,
   ShieldAlert,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
+import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -33,6 +35,7 @@ export default function LoginPage() {
   const { setRoleTheme } = useRoleThemeStore();
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
+  const t = useTranslations("LoginPage");
 
   const methods = useForm({
     resolver: yupResolver(loginSchema),
@@ -55,9 +58,7 @@ export default function LoginPage() {
         payload?.accessToken || payload?.token || "dummy_token";
 
       if (!user || !user.role) {
-        throw new Error(
-          "Response did not contain valid user information or role.",
-        );
+        throw new Error(t("validUserInfoRequired"));
       }
 
       setRoleTheme(user.role as UserRole);
@@ -65,7 +66,7 @@ export default function LoginPage() {
       router.push("/dashboard");
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "Invalid email or password";
+        err instanceof Error ? err.message : t("invalidCredentials");
       setErrorMsg(message);
     } finally {
       setIsLoading(false);
@@ -80,6 +81,9 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative overflow-hidden">
+      <div className="absolute top-4 right-4 flex items-center gap-2">
+        <LanguageSwitcher />
+      </div>
       {/* Background glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-75 bg-primary/15 blur-[100px] rounded-full pointer-events-none -z-10" />
 
@@ -90,17 +94,17 @@ export default function LoginPage() {
               <GraduationCap className="h-7 w-7" />
             </div>
           </Link>
-          <h1 className="text-2xl font-bold tracking-tight">Welcome Back</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Sign in to your School Hub account
+            {t("description")}
           </p>
         </div>
 
         <Card className="shadow-xl border-border/60">
           <CardHeader className="space-y-1 pb-4">
-            <CardTitle className="text-lg">Sign In</CardTitle>
+            <CardTitle className="text-lg">{t("signIn")}</CardTitle>
             <CardDescription className="text-xs">
-              Enter your email and password below
+              {t("emailAddress")} & {t("password")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -117,15 +121,15 @@ export default function LoginPage() {
               >
                 <FormInput
                   name="email"
-                  label="Email Address"
+                  label={t("emailAddress")}
                   type="email"
-                  placeholder="name@schoolhub.edu"
+                  placeholder={t("emailPlaceholder")}
                 />
                 <FormInput
                   name="password"
-                  label="Password"
+                  label={t("password")}
                   type="password"
-                  placeholder="••••••••"
+                  placeholder={t("passwordPlaceholder")}
                 />
 
                 <Button
@@ -135,7 +139,7 @@ export default function LoginPage() {
                   isLoading={isLoading}
                 >
                   <LogIn className="w-4 h-4 mr-2" />
-                  Sign In
+                  {t("signIn")}
                 </Button>
               </form>
             </FormProvider>
@@ -146,7 +150,7 @@ export default function LoginPage() {
               </div>
               <div className="relative flex justify-center text-xs uppercase">
                 <span className="bg-card px-2 text-muted-foreground font-semibold">
-                  Or Quick Demo Login
+                  {t("orQuickDemoLogin")}
                 </span>
               </div>
             </div>
@@ -161,7 +165,7 @@ export default function LoginPage() {
                 className="text-xs flex flex-col h-auto py-2.5 gap-1 border-primary/30 hover:bg-primary/10 hover:text-primary"
               >
                 <GraduationCap className="w-4 h-4 text-primary" />
-                <span>Student</span>
+                <span>{t("student")}</span>
               </Button>
 
               <Button
@@ -172,7 +176,7 @@ export default function LoginPage() {
                 className="text-xs flex flex-col h-auto py-2.5 gap-1 border-primary/30 hover:bg-primary/10 hover:text-primary"
               >
                 <BookOpen className="w-4 h-4 text-primary" />
-                <span>Teacher</span>
+                <span>{t("teacher")}</span>
               </Button>
 
               <Button
@@ -183,7 +187,7 @@ export default function LoginPage() {
                 className="text-xs flex flex-col h-auto py-2.5 gap-1 border-primary/30 hover:bg-primary/10 hover:text-primary"
               >
                 <Users className="w-4 h-4 text-primary" />
-                <span>Parent</span>
+                <span>{t("parent")}</span>
               </Button>
 
               <Button
@@ -194,17 +198,17 @@ export default function LoginPage() {
                 className="text-xs flex flex-col h-auto py-2.5 gap-1 border-primary/30 hover:bg-primary/10 hover:text-primary"
               >
                 <ShieldAlert className="w-4 h-4 text-primary" />
-                <span>Admin</span>
+                <span>{t("admin")}</span>
               </Button>
             </div>
 
             <p className="text-center text-xs text-muted-foreground mt-4">
-              Don&apos;t have an account?{" "}
+              {t("noAccount")}{" "}
               <Link
                 href="/register"
                 className="text-primary font-semibold hover:underline"
               >
-                Create one now
+                {t("createAccount")}
               </Link>
             </p>
           </CardContent>

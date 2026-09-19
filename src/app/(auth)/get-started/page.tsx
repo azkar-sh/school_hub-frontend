@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { ArrowRight, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getTranslations } from "next-intl/server";
 
-export default function GetStartedPage() {
+export default async function GetStartedPage() {
+  const t = await getTranslations("GetStartedPage");
   return (
     <main className="min-h-screen bg-background px-4 py-12">
       <div className="mx-auto max-w-lg space-y-8">
@@ -14,26 +16,26 @@ export default function GetStartedPage() {
         </Link>
         <div>
           <p className="text-xs font-bold uppercase tracking-widest text-primary">
-            School setup
+              {t("subtitle")}
           </p>
           <h1 className="mt-2 text-4xl font-extrabold tracking-tight">
-            Create your account
+            {t("createAccount")}
           </h1>
           <p className="mt-2 text-muted-foreground">
-            Start with a role, then connect your school workspace.
+            {t("description")}
           </p>
         </div>
         <div className="space-y-3">
           <Link href="/register">
             <Button variant="role" size="lg" className="w-full">
-              Continue to registration <ArrowRight className="ml-2 h-4 w-4" />
+              {t("continueRegistration")} <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>
           <Link
             href="/login"
             className="block text-center text-sm font-semibold text-primary hover:underline"
           >
-            Already have an account? Sign in
+            {t("alreadyHaveAccount")}
           </Link>
         </div>
       </div>
