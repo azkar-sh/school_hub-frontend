@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface ClassesHeaderProps {
   currentRole: string;
@@ -12,18 +13,21 @@ export function ClassesHeader({
   canManageClasses,
   onCreateClass,
 }: ClassesHeaderProps) {
+  const t = useTranslations("Classes");
+  const tCommon = useTranslations("Common");
+
   const subtitle =
     currentRole === "SCHOOL_ADMIN"
-      ? "Manage school class sections, student enrollments, and homeroom assignments"
+      ? t("subtitleAdmin")
       : currentRole === "TEACHER"
-        ? "View classes you teach, your homeroom, and other classes in the school"
-        : "View your class section details and homeroom teacher";
+        ? t("subtitleTeacher")
+        : t("subtitleStudent");
 
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-          Classes & Enrollment Hub
+          {tCommon("info.classesEnrollmentHub")}
         </h1>
         <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
       </div>
@@ -32,7 +36,7 @@ export function ClassesHeader({
         {canManageClasses && (
           <Button variant="role" className="shadow-md" onClick={onCreateClass}>
             <PlusCircle className="w-4 h-4 mr-2" />
-            Create Class
+            {t("createClass")}
           </Button>
         )}
       </div>

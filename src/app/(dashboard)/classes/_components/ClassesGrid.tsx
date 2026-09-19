@@ -15,6 +15,7 @@ import {
   UserPlus,
   Crown,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Class } from "@/types";
 
 interface ClassesGridProps {
@@ -40,11 +41,13 @@ export function ClassesGrid({
   onEnrollStudent,
   onAssignHomeroom,
 }: ClassesGridProps) {
+  const t = useTranslations("Classes");
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12 text-muted-foreground gap-2">
         <Loader2 className="w-5 h-5 animate-spin" />
-        <span className="text-sm">Loading classes…</span>
+        <span className="text-sm">{t("loadingClasses")}</span>
       </div>
     );
   }
@@ -52,7 +55,7 @@ export function ClassesGrid({
   if (classes.length === 0) {
     return (
       <Card className="py-12 text-center text-muted-foreground text-sm">
-        No classes created for this school yet.
+        {t("noClassesForSchool")}
       </Card>
     );
   }
@@ -74,8 +77,8 @@ export function ClassesGrid({
     return (
       <div className="space-y-8">
         <ClassSection
-          title="My Classes"
-          subtitle="Classes you teach or are the homeroom teacher for"
+          title={t("myClasses")}
+          subtitle={t("classesYouTeachDesc")}
           classes={myClasses}
           selectedAyId={selectedAyId}
           currentUserId={currentUserId}
@@ -87,8 +90,8 @@ export function ClassesGrid({
           clickable
         />
         <ClassSection
-          title="Other Classes"
-          subtitle="Other classes in this school"
+          title={t("otherClasses")}
+          subtitle={t("otherClassesDesc")}
           classes={otherClasses}
           selectedAyId={selectedAyId}
           currentUserId={currentUserId}
@@ -204,7 +207,8 @@ function ClassCard({
   onEnrollStudent,
   onAssignHomeroom,
 }: ClassCardProps) {
-  const homeroom = cls.homeroomAssignments?.[0]?.teacher?.name || "Unassigned";
+  const t = useTranslations("Classes");
+  const homeroom = cls.homeroomAssignments?.[0]?.teacher?.name || t("unassigned");
   const enrolledCount =
     cls._count?.enrollments ?? cls.enrollments?.length ?? 0;
 
@@ -227,15 +231,15 @@ function ClassCard({
               className="mb-2 gap-1 bg-primary/15 text-primary border-primary/40"
             >
               <Crown className="w-3 h-3" />
-              Your Homeroom
+              {t("yourHomeroom")}
             </Badge>
           )}
           <Badge variant="role" className="mb-2">
-            Grade {cls.grade}
+            {t("gradeLabel", { grade: cls.grade })}
           </Badge>
           <CardTitle className="text-xl">{cls.name}</CardTitle>
           <CardDescription className="text-xs mt-0.5">
-            Academic Year: {cls.academicYear?.name || selectedAyId}
+            {t("academicYearLabel", { name: cls.academicYear?.name || selectedAyId })}
           </CardDescription>
         </div>
         <div className="p-3 rounded-2xl bg-primary/10 text-primary">
@@ -246,11 +250,11 @@ function ClassCard({
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span className="flex items-center gap-1.5 font-medium">
             <GraduationCap className="w-4 h-4 text-success" />
-            Homeroom: {homeroom}
+            {t("homeroomLabel", { name: homeroom })}
           </span>
           <span className="flex items-center gap-1 font-bold text-foreground">
             <Users className="w-4 h-4 text-primary" />
-            {enrolledCount} Enrolled
+            {t("enrolledCount", { count: enrolledCount })}
           </span>
         </div>
 
@@ -266,7 +270,7 @@ function ClassCard({
               }}
             >
               <UserPlus className="w-3.5 h-3.5" />
-              Enroll Student
+              {t("enrollStudentButton")}
             </Button>
             <Button
               variant="outline"
@@ -278,7 +282,7 @@ function ClassCard({
               }}
             >
               <GraduationCap className="w-3.5 h-3.5" />
-              Assign Homeroom
+              {t("assignHomeroomButton")}
             </Button>
           </div>
         )}

@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AcademicYear } from "@/types";
 import { ModalShell } from "./ModalShell";
+import { useTranslations } from "next-intl";
 
 interface CreateClassModalProps {
   name: string;
@@ -26,13 +27,14 @@ export function CreateClassModal({
   onClose,
   onSubmit,
 }: CreateClassModalProps) {
+  const t = useTranslations("Classes");
   return (
-    <ModalShell title="Create New Class" onClose={onClose}>
+    <ModalShell title={t("createNewClass")} onClose={onClose}>
       <form onSubmit={onSubmit} className="space-y-4">
         <div>
-          <label className="text-xs font-semibold mb-1 block">Class Name</label>
+          <label className="text-xs font-semibold mb-1 block">{t("className")}</label>
           <Input
-            placeholder="e.g. 8A"
+            placeholder={t("classNamePlaceholder")}
             value={name}
             onChange={(e) => onChangeName(e.target.value)}
             required
@@ -40,7 +42,7 @@ export function CreateClassModal({
         </div>
         <div>
           <label className="text-xs font-semibold mb-1 block">
-            Grade Level
+            {t("gradeLevel")}
           </label>
           <Input
             type="number"
@@ -53,7 +55,7 @@ export function CreateClassModal({
         </div>
         <div>
           <label className="text-xs font-semibold mb-1 block">
-            Academic Year
+            {t("academicYear")}
           </label>
           <select
             className="w-full h-10 px-3 rounded-xl border border-input bg-background text-sm font-medium"
@@ -61,7 +63,7 @@ export function CreateClassModal({
             onChange={(e) => onChangeAyId(e.target.value)}
             required
           >
-            <option value="">-- Select Academic Year --</option>
+            <option value="">{t("selectAcademicYear")}</option>
             {academicYears.map((ay) => (
               <option key={ay.id} value={ay.id}>
                 {ay.name}
@@ -70,7 +72,7 @@ export function CreateClassModal({
           </select>
         </div>
         <Button type="submit" variant="role" className="w-full">
-          Create Class Section
+          {t("createClassSection")}
         </Button>
       </form>
     </ModalShell>

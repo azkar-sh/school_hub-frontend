@@ -13,6 +13,7 @@ import {
   BookmarkCheck,
   Crown,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { MockClass } from "@/lib/mock-data";
 
 interface MockClassesGridProps {
@@ -24,6 +25,8 @@ export function MockClassesGrid({
   classes,
   currentRole,
 }: MockClassesGridProps) {
+  const t = useTranslations("Classes");
+
   if (currentRole === "TEACHER") {
     const myClasses = classes.filter((c) => c.isMyClass);
     const otherClasses = classes.filter((c) => !c.isMyClass);
@@ -31,14 +34,14 @@ export function MockClassesGrid({
     return (
       <div className="space-y-8">
         <MockSection
-          title="My Classes"
-          subtitle="Classes you teach or are the homeroom teacher for"
+          title={t("myClasses")}
+          subtitle={t("classesYouTeachDesc")}
           classes={myClasses}
           currentRole={currentRole}
         />
         <MockSection
-          title="Other Classes"
-          subtitle="Other classes in this school"
+          title={t("otherClasses")}
+          subtitle={t("otherClassesDesc")}
           classes={otherClasses}
           currentRole={currentRole}
         />
@@ -94,6 +97,8 @@ function MockCard({
   cls: MockClass;
   currentRole?: string;
 }) {
+  const t = useTranslations("Classes");
+  const tCommon = useTranslations("Common");
   const isHomeroom = cls.isHomeroom;
   return (
     <Card
@@ -114,20 +119,20 @@ function MockCard({
                 className="gap-1 bg-primary/15 text-primary border-primary/40"
               >
                 <Crown className="w-3 h-3" />
-                Your Homeroom
+                {t("yourHomeroom")}
               </Badge>
             )}
             {cls.isCurrentStudentClass && (
               <Badge variant="role" className="gap-1">
                 <BookmarkCheck className="w-3 h-3" />
-                {currentRole === "PARENT" ? "Child's Class" : "Your Class"}
+                {currentRole === "PARENT" ? tCommon("info.childsClass") : tCommon("info.yourClass")}
               </Badge>
             )}
-            <Badge variant="role">Grade {cls.grade}</Badge>
+            <Badge variant="role">{t("gradeLabel", { grade: cls.grade })}</Badge>
           </div>
           <CardTitle className="text-xl">{cls.name}</CardTitle>
           <CardDescription className="text-xs mt-0.5">
-            Academic Year: {cls.academicYear}
+            {t("academicYearLabel", { name: cls.academicYear })}
           </CardDescription>
         </div>
         <div className="p-3 rounded-2xl bg-primary/10 text-primary">
@@ -138,11 +143,11 @@ function MockCard({
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span className="flex items-center gap-1.5 font-medium">
             <GraduationCap className="w-4 h-4 text-success" />
-            Homeroom: {cls.homeroomTeacher}
+            {t("homeroomLabel", { name: cls.homeroomTeacher })}
           </span>
           <span className="flex items-center gap-1 font-bold text-foreground">
             <Users className="w-4 h-4 text-primary" />
-            {cls.studentsCount} Students
+            {t("studentsCount", { count: cls.studentsCount })}
           </span>
         </div>
       </CardContent>

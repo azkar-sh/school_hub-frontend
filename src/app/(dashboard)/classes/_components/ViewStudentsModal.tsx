@@ -1,6 +1,7 @@
 import { Loader2, Users } from "lucide-react";
 import { User } from "@/types";
 import { ModalShell } from "./ModalShell";
+import { useTranslations } from "next-intl";
 
 interface ViewStudentsModalProps {
   className: string;
@@ -15,17 +16,18 @@ export function ViewStudentsModal({
   students,
   onClose,
 }: ViewStudentsModalProps) {
+  const t = useTranslations("Classes");
   return (
-    <ModalShell title={`Students in ${className}`} onClose={onClose}>
+    <ModalShell title={t("studentsInClass", { className })} onClose={onClose}>
       {isLoading ? (
         <div className="flex items-center justify-center py-10 text-muted-foreground gap-2">
           <Loader2 className="w-4 h-4 animate-spin" />
-          <span className="text-sm">Loading students…</span>
+          <span className="text-sm">{t("loadingStudents")}</span>
         </div>
       ) : students.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-10 text-muted-foreground gap-2">
           <Users className="w-6 h-6" />
-          <span className="text-sm">No students enrolled in this class yet.</span>
+          <span className="text-sm">{t("noStudentsEnrolled")}</span>
         </div>
       ) : (
         <ul className="space-y-2 max-h-80 overflow-auto pr-1">

@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { User } from "@/types";
 import { ModalShell } from "./ModalShell";
+import { useTranslations } from "next-intl";
 
 interface EnrollStudentModalProps {
   usersList: User[];
@@ -22,12 +23,13 @@ export function EnrollStudentModal({
   onClose,
   onSubmit,
 }: EnrollStudentModalProps) {
+  const t = useTranslations("Classes");
   return (
-    <ModalShell title="Enroll Student into Class" onClose={onClose}>
+    <ModalShell title={t("enrollStudentIntoClass")} onClose={onClose}>
       <form onSubmit={onSubmit} className="space-y-4">
         <div>
           <label className="text-xs font-semibold mb-1 block">
-            Select Student
+            {t("selectStudent")}
           </label>
           {usersList.length > 0 ? (
             <select
@@ -36,7 +38,7 @@ export function EnrollStudentModal({
               onChange={(e) => onChangeStudentId(e.target.value)}
               required
             >
-              <option value="">-- Select Student --</option>
+              <option value="">{t("selectStudentPlaceholder")}</option>
               {usersList
                 .filter((u) => u.role === "STUDENT")
                 .map((u) => (
@@ -52,7 +54,7 @@ export function EnrollStudentModal({
               onChange={(e) => onChangeStudentId(e.target.value)}
               required
             >
-              <option value="">-- Select Student --</option>
+              <option value="">{t("selectStudentPlaceholder")}</option>
               {usersList
                 .filter((u) => u.role === "STUDENT")
                 .filter(
@@ -67,7 +69,7 @@ export function EnrollStudentModal({
           )}
         </div>
         <Button type="submit" variant="role" className="w-full">
-          Confirm Enrollment
+          {t("confirmEnrollment")}
         </Button>
       </form>
     </ModalShell>

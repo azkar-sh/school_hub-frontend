@@ -115,7 +115,7 @@ export function useClassesPage() {
     if (!selectedSchoolId || !selectedAyId || !classNameInput.trim()) return;
     try {
       if (isDemoMode) {
-        setFeedbackMsg("Class created in demo mode");
+        setFeedbackMsg("Class created in demo mode"); // i18n: TODO
         setShowCreateClassModal(false);
         return;
       }
@@ -127,10 +127,10 @@ export function useClassesPage() {
       });
       setClassNameInput("");
       setShowCreateClassModal(false);
-      setFeedbackMsg("Class created successfully!");
+      setFeedbackMsg("Class created successfully!"); // i18n: TODO
       refetchClasses();
     } catch (error) {
-      setFeedbackMsg(getErrorMessage(error, "Failed to create class"));
+      setFeedbackMsg(getErrorMessage(error, "Failed to create class")); // i18n: TODO
     }
   };
 
@@ -139,7 +139,7 @@ export function useClassesPage() {
     if (!activeEnrollClassId || !selectedAyId || !enrollStudentId) return;
     try {
       if (isDemoMode) {
-        setFeedbackMsg("Student enrolled in demo mode");
+        setFeedbackMsg("Student enrolled in demo mode"); // i18n: TODO
         setActiveEnrollClassId(null);
         return;
       }
@@ -149,11 +149,11 @@ export function useClassesPage() {
       });
       setEnrollStudentId("");
       setActiveEnrollClassId(null);
-      setFeedbackMsg("Student enrolled successfully!");
+      setFeedbackMsg("Student enrolled successfully!"); // i18n: TODO
       if (selectedSchoolId) refetchClasses();
       refetchRegisteredStudents();
     } catch (error) {
-      setFeedbackMsg(getErrorMessage(error, "Failed to enroll student"));
+      setFeedbackMsg(getErrorMessage(error, "Failed to enroll student")); // i18n: TODO
     }
   };
 
@@ -162,7 +162,7 @@ export function useClassesPage() {
     if (!activeHomeroomClassId || !selectedAyId || !homeroomTeacherId) return;
     try {
       if (isDemoMode) {
-        setFeedbackMsg("Homeroom teacher assigned in demo mode");
+        setFeedbackMsg("Homeroom teacher assigned in demo mode"); // i18n: TODO
         setActiveHomeroomClassId(null);
         return;
       }
@@ -172,11 +172,11 @@ export function useClassesPage() {
       });
       setHomeroomTeacherId("");
       setActiveHomeroomClassId(null);
-      setFeedbackMsg("Homeroom teacher assigned successfully!");
+      setFeedbackMsg("Homeroom teacher assigned successfully!"); // i18n: TODO
       if (selectedSchoolId) refetchClasses();
     } catch (error) {
       setFeedbackMsg(
-        getErrorMessage(error, "Failed to assign homeroom teacher"),
+        getErrorMessage(error, "Failed to assign homeroom teacher"), // i18n: TODO
       );
     }
   };

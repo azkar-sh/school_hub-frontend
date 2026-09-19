@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { User } from "@/types";
 import { ModalShell } from "./ModalShell";
+import { useTranslations } from "next-intl";
 
 interface AssignHomeroomModalProps {
   usersList: User[];
@@ -18,12 +19,14 @@ export function AssignHomeroomModal({
   onClose,
   onSubmit,
 }: AssignHomeroomModalProps) {
+  const t = useTranslations("Classes");
+  const tCommon = useTranslations("Common");
   return (
-    <ModalShell title="Assign Homeroom Teacher" onClose={onClose}>
+    <ModalShell title={t("assignHomeroomTeacher")} onClose={onClose}>
       <form onSubmit={onSubmit} className="space-y-4">
         <div>
           <label className="text-xs font-semibold mb-1 block">
-            Select Teacher
+            {t("selectTeacher")}
           </label>
           {usersList.length > 0 ? (
             <select
@@ -32,7 +35,7 @@ export function AssignHomeroomModal({
               onChange={(e) => onChangeTeacherId(e.target.value)}
               required
             >
-              <option value="">-- Select Teacher --</option>
+              <option value="">{t("selectTeacherPlaceholder")}</option>
               {usersList
                 .filter((u) => u.role === "TEACHER")
                 .map((u) => (
@@ -43,7 +46,7 @@ export function AssignHomeroomModal({
             </select>
           ) : (
             <Input
-              placeholder="Teacher UUID"
+              placeholder={tCommon("info.userUUID")}
               value={teacherId}
               onChange={(e) => onChangeTeacherId(e.target.value)}
               required
@@ -51,7 +54,7 @@ export function AssignHomeroomModal({
           )}
         </div>
         <Button type="submit" variant="role" className="w-full">
-          Assign Homeroom Teacher
+          {t("assignHomeroomTeacherButton")}
         </Button>
       </form>
     </ModalShell>
