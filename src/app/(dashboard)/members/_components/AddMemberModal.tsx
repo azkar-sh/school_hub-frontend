@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { UserPlus, X } from "lucide-react";
 import { User } from "@/types";
+import { useTranslations } from "next-intl";
 
 interface AddMemberModalProps {
   isDemoMode: boolean;
@@ -21,11 +22,13 @@ export function AddMemberModal({
   onClose,
   onSubmit,
 }: AddMemberModalProps) {
+  const t = useTranslations("Members");
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/60 backdrop-blur-xs p-4">
       <Card className="w-full max-w-md shadow-2xl">
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg">Add School Member</CardTitle>
+          <CardTitle className="text-lg">{t("addModalTitle")}</CardTitle>
           <button onClick={onClose} className="text-muted-foreground">
             <X className="w-5 h-5" />
           </button>
@@ -34,7 +37,7 @@ export function AddMemberModal({
           <form onSubmit={onSubmit} className="space-y-4">
             <div>
               <label className="text-xs font-semibold text-foreground mb-1 block">
-                Select User or Enter User ID
+                {t("selectUserLabel")}
               </label>
               {usersList.length > 0 ? (
                 <select
@@ -43,7 +46,7 @@ export function AddMemberModal({
                   onChange={(e) => onChangeMemberUserId(e.target.value)}
                   required
                 >
-                  <option value="">-- Select User --</option>
+                  <option value="">{t("selectUserOption")}</option>
                   {usersList.map((u) => (
                     <option key={u.id} value={u.id}>
                       {u.name} ({u.role}) - {u.email}
@@ -52,7 +55,7 @@ export function AddMemberModal({
                 </select>
               ) : (
                 <Input
-                  placeholder={isDemoMode ? "User UUID" : "Paste User UUID"}
+                  placeholder={isDemoMode ? t("userUuidDemo") : t("userUuidPaste")}
                   value={memberUserId}
                   onChange={(e) => onChangeMemberUserId(e.target.value)}
                   required
@@ -61,7 +64,7 @@ export function AddMemberModal({
             </div>
             <Button type="submit" variant="role" className="w-full">
               <UserPlus className="w-4 h-4 mr-1.5" />
-              Add to School
+              {t("addToSchool")}
             </Button>
           </form>
         </CardContent>

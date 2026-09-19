@@ -8,10 +8,10 @@ import { getErrorMessage } from "@/lib/errors";
 import { SchoolMember, UserRole } from "@/types";
 
 export const ROLE_FILTERS: Array<{ label: string; value: "ALL" | UserRole }> = [
-  { label: "All", value: "ALL" },
-  { label: "Teacher", value: "TEACHER" },
-  { label: "Student", value: "STUDENT" },
-  { label: "Parent", value: "PARENT" },
+  { label: "All", value: "ALL" }, // i18n: TODO Members.all
+  { label: "Teacher", value: "TEACHER" }, // i18n: TODO Members.teacher
+  { label: "Student", value: "STUDENT" }, // i18n: TODO Members.student
+  { label: "Parent", value: "PARENT" }, // i18n: TODO Members.parent
 ];
 
 export function useMembersPage() {
@@ -60,7 +60,7 @@ export function useMembersPage() {
     try {
       setFeedbackMsg(null);
       if (isDemoMode) {
-        setFeedbackMsg("User added to school (Demo Mode)");
+        setFeedbackMsg("User added to school (Demo Mode)"); // i18n: TODO Common.info.userAddedDemo
         setShowAddModal(false);
         setMemberUserId("");
         return;
@@ -68,10 +68,10 @@ export function useMembersPage() {
       await schoolsApi.addMember(selectedSchoolId, { userId: memberUserId });
       setMemberUserId("");
       setShowAddModal(false);
-      setFeedbackMsg("School member added successfully!");
+      setFeedbackMsg("School member added successfully!"); // i18n: TODO Common.info.memberAdded
       refetchMembers();
     } catch (error) {
-      setFeedbackMsg(getErrorMessage(error, "Failed to add school member"));
+      setFeedbackMsg(getErrorMessage(error, "Failed to add school member")); // i18n: TODO Common.info.memberAddFailed
     }
   };
 
@@ -82,7 +82,7 @@ export function useMembersPage() {
     ? mockMembers
     : schoolMembers.map((m) => ({
         id: m.id,
-        name: m.user?.name || "Unknown",
+        name: m.user?.name || "Unknown", // i18n: TODO Common.info.unknownUser
         email: m.user?.email || "",
         role: (m.user?.role || "STUDENT") as UserRole,
         schoolName:

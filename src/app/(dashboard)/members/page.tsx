@@ -1,7 +1,6 @@
 "use client";
 
 import { DemoModeBanner } from "@/components/ui/DemoModeBanner";
-import { Card } from "@/components/ui/card";
 import { CheckCircle2, Loader2, X } from "lucide-react";
 import { useMembersPage } from "./hooks";
 import { MembersHeader } from "./_components/MembersHeader";
@@ -9,8 +8,10 @@ import { MembersFilterBar } from "./_components/MembersFilterBar";
 import { MembersListCard } from "./_components/MembersListCard";
 import { MemberDetailModal } from "./_components/MemberDetailModal";
 import { AddMemberModal } from "./_components/AddMemberModal";
+import { useTranslations } from "next-intl";
 
 export default function MembersPage() {
+  const t = useTranslations("Common");
   const {
     isDemoMode,
     search,
@@ -74,7 +75,7 @@ export default function MembersPage() {
       {!isDemoMode && isLoading && (
         <div className="flex items-center justify-center py-16 text-muted-foreground gap-2">
           <Loader2 className="w-5 h-5 animate-spin" />
-          <span className="text-sm">Loading members…</span>
+          <span className="text-sm">{t("loadingMembers")}</span>
         </div>
       )}
 

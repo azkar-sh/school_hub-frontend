@@ -8,6 +8,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { UserRound, Mail } from "lucide-react";
 import { MockMember } from "@/lib/mock-data";
+import { useTranslations } from "next-intl";
 
 interface MembersListCardProps {
   members: MockMember[];
@@ -18,20 +19,22 @@ export function MembersListCard({
   members,
   onSelectMember,
 }: MembersListCardProps) {
+  const t = useTranslations("Members");
+
   return (
     <Card>
       <CardHeader className="border-b border-border/50">
         <CardTitle className="text-base">
-          {members.length} member{members.length !== 1 ? "s" : ""}
+          {t("membersCount", { count: members.length })}
         </CardTitle>
         <CardDescription className="text-xs">
-          All affiliated teachers, students, and parents
+          {t("allAffiliated")}
         </CardDescription>
       </CardHeader>
       <CardContent className="divide-y divide-border/50 p-0">
         {members.length === 0 ? (
           <div className="py-14 text-center text-sm text-muted-foreground">
-            No members match your search.
+            {t("noMembersMatch")}
           </div>
         ) : (
           members.map((m) => (

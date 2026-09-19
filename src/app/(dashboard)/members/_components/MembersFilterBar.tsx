@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { UserRole } from "@/types";
 import { ROLE_FILTERS } from "../hooks";
+import { useTranslations } from "next-intl";
 
 interface MembersFilterBarProps {
   search: string;
@@ -18,13 +19,15 @@ export function MembersFilterBar({
   roleFilter,
   onChangeRoleFilter,
 }: MembersFilterBarProps) {
+  const t = useTranslations("Members");
+
   return (
     <Card className="p-4">
       <div className="flex flex-col sm:flex-row items-center gap-4">
         <div className="relative w-full sm:flex-1">
           <Search className="w-4 h-4 absolute left-3.5 top-3.5 text-muted-foreground" />
           <Input
-            placeholder="Search by name or email…"
+            placeholder={t("searchPlaceholder")}
             value={search}
             onChange={(e) => onChangeSearch(e.target.value)}
             className="pl-10"
@@ -39,7 +42,7 @@ export function MembersFilterBar({
               onClick={() => onChangeRoleFilter(rf.value)}
               className="text-xs"
             >
-              {rf.label}
+              {t(rf.value === "ALL" ? "all" : rf.value.toLowerCase())}
             </Button>
           ))}
         </div>

@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { UserPlus } from "lucide-react";
 import { School } from "@/types";
+import { useTranslations } from "next-intl";
 
 interface MembersHeaderProps {
   isDemoMode: boolean;
@@ -17,14 +18,16 @@ export function MembersHeader({
   onSelectSchool,
   onAddMember,
 }: MembersHeaderProps) {
+  const t = useTranslations("Members");
+
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-          School Members
+          {t("title")}
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Manage teachers, students, and parents in your school
+          {t("subtitle")}
         </p>
       </div>
       <div className="flex items-center gap-3">
@@ -43,7 +46,7 @@ export function MembersHeader({
         )}
         <Button variant="role" className="shadow-md" onClick={onAddMember}>
           <UserPlus className="w-4 h-4 mr-2" />
-          Add Member
+          {t("addMember")}
         </Button>
       </div>
     </div>
