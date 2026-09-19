@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Building2, Calendar, Users, UserPlus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { AdminTab } from "../hooks";
 
 interface AdminTabsProps {
@@ -15,6 +16,7 @@ export function AdminTabs({
   schoolsCount,
   academicYearsCount,
 }: AdminTabsProps) {
+  const t = useTranslations("Common.info");
   return (
     <div className="flex items-center gap-2 border-b border-border/60 overflow-x-auto pb-2">
       <Button
@@ -24,7 +26,7 @@ export function AdminTabs({
         className="gap-2 text-xs"
       >
         <Building2 className="w-4 h-4" />
-        Schools ({schoolsCount})
+        {t("schoolsCountTab", { count: schoolsCount })}
       </Button>
       <Button
         variant={activeTab === "academicYears" ? "role" : "ghost"}
@@ -33,7 +35,7 @@ export function AdminTabs({
         className="gap-2 text-xs"
       >
         <Calendar className="w-4 h-4" />
-        Academic Years ({academicYearsCount})
+        {t("academicYearsCountTab", { count: academicYearsCount })}
       </Button>
       <Button
         variant={activeTab === "members" ? "role" : "ghost"}
@@ -42,7 +44,7 @@ export function AdminTabs({
         className="gap-2 text-xs"
       >
         <Users className="w-4 h-4" />
-        School Members
+        {t("schoolMembersTab")}
       </Button>
       <Button
         variant={activeTab === "parents" ? "role" : "ghost"}
@@ -51,7 +53,7 @@ export function AdminTabs({
         className="gap-2 text-xs"
       >
         <UserPlus className="w-4 h-4" />
-        Link Parent-Student
+        {t("linkParentStudentTab")}
       </Button>
     </div>
   );

@@ -8,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { UserPlus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { User, ParentRelationship } from "@/types";
 
 interface ParentLinkTabProps {
@@ -33,22 +34,24 @@ export function ParentLinkTab({
   onSubmit,
   isLoading,
 }: ParentLinkTabProps) {
+  const tCommon = useTranslations("Common");
+  const t = useTranslations("Common.info");
   return (
     <Card className="max-w-2xl mx-auto">
       <CardHeader>
         <CardTitle className="text-lg flex items-center gap-2">
           <UserPlus className="w-5 h-5 text-primary" />
-          <span>Link Parent to Student Ward</span>
+          <span>{tCommon("info.linkParentStudent")}</span>
         </CardTitle>
         <CardDescription className="text-xs">
-          Establish relationship link between Parent account and Student account
+          {t("establishRelationshipLink")}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
             <label className="text-xs font-semibold text-foreground mb-1 block">
-              Parent User
+              {t("parentUserLabel")}
             </label>
             {usersList.length > 0 ? (
               <select
@@ -57,7 +60,7 @@ export function ParentLinkTab({
                 onChange={(e) => onChangeLinkParentId(e.target.value)}
                 required
               >
-                <option value="">-- Select Parent User --</option>
+                <option value="">{tCommon("info.selectParentUser")}</option>
                 {usersList
                   .filter((u) => u.role === "PARENT")
                   .map((u) => (
@@ -68,7 +71,7 @@ export function ParentLinkTab({
               </select>
             ) : (
               <Input
-                placeholder="Parent User UUID"
+                placeholder={tCommon("info.parentUserUUID")}
                 value={linkParentId}
                 onChange={(e) => onChangeLinkParentId(e.target.value)}
                 required
@@ -78,7 +81,7 @@ export function ParentLinkTab({
 
           <div>
             <label className="text-xs font-semibold text-foreground mb-1 block">
-              Student User
+              {t("studentUserLabel")}
             </label>
             {usersList.length > 0 ? (
               <select
@@ -87,7 +90,7 @@ export function ParentLinkTab({
                 onChange={(e) => onChangeLinkStudentId(e.target.value)}
                 required
               >
-                <option value="">-- Select Student User --</option>
+                <option value="">{tCommon("info.selectStudentUser")}</option>
                 {usersList
                   .filter((u) => u.role === "STUDENT")
                   .map((u) => (
@@ -98,7 +101,7 @@ export function ParentLinkTab({
               </select>
             ) : (
               <Input
-                placeholder="Student User UUID"
+                placeholder={tCommon("info.studentUserUUID")}
                 value={linkStudentId}
                 onChange={(e) => onChangeLinkStudentId(e.target.value)}
                 required
@@ -108,7 +111,7 @@ export function ParentLinkTab({
 
           <div>
             <label className="text-xs font-semibold text-foreground mb-1 block">
-              Relationship Type
+              {t("relationshipTypeLabel")}
             </label>
             <select
               className="w-full h-10 px-3 rounded-xl border border-input bg-background text-sm font-medium"
@@ -118,9 +121,9 @@ export function ParentLinkTab({
               }
               required
             >
-              <option value="FATHER">Father</option>
-              <option value="MOTHER">Mother</option>
-              <option value="GUARDIAN">Guardian</option>
+              <option value="FATHER">{tCommon("info.father")}</option>
+              <option value="MOTHER">{tCommon("info.mother")}</option>
+              <option value="GUARDIAN">{tCommon("info.guardian")}</option>
             </select>
           </div>
 
@@ -131,7 +134,7 @@ export function ParentLinkTab({
             isLoading={isLoading}
           >
             <UserPlus className="w-4 h-4 mr-1.5" />
-            Link Parent & Student
+            {t("linkParentStudentButton")}
           </Button>
         </form>
       </CardContent>

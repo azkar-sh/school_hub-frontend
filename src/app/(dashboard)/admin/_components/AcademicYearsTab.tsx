@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { School, AcademicYear } from "@/types";
 
 interface AcademicYearsTabProps {
@@ -40,23 +41,25 @@ export function AcademicYearsTab({
   isLoading,
   academicYears,
 }: AcademicYearsTabProps) {
+  const tCommon = useTranslations("Common");
+  const t = useTranslations("Common.info");
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       <Card className="md:col-span-1">
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <Calendar className="w-5 h-5 text-primary" />
-            <span>Create Academic Year</span>
+            <span>{tCommon("info.createAcademicYear")}</span>
           </CardTitle>
           <CardDescription className="text-xs">
-            Configure calendar term dates for school
+            {t("configureCalendarTerms")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={onCreateAcademicYear} className="space-y-4">
             <div>
               <label className="text-xs font-semibold text-foreground mb-1 block">
-                Select School
+                {t("selectSchoolLabel")}
               </label>
               <select
                 className="w-full h-10 px-3 rounded-xl border border-input bg-background text-sm font-medium"
@@ -64,7 +67,7 @@ export function AcademicYearsTab({
                 onChange={(e) => onSelectSchool(e.target.value)}
                 required
               >
-                <option value="">-- Choose School --</option>
+                <option value="">{tCommon("info.chooseSchool")}</option>
                 {schools.map((s) => (
                   <option key={s.id} value={s.id}>
                     {s.name}
@@ -75,10 +78,10 @@ export function AcademicYearsTab({
 
             <div>
               <label className="text-xs font-semibold text-foreground mb-1 block">
-                Academic Year Name
+                {t("academicYearNameLabel")}
               </label>
               <Input
-                placeholder="e.g. 2026/2027"
+                placeholder={t("academicYearNamePlaceholder")}
                 value={ayName}
                 onChange={(e) => onChangeAyName(e.target.value)}
                 required
@@ -87,7 +90,7 @@ export function AcademicYearsTab({
 
             <div>
               <label className="text-xs font-semibold text-foreground mb-1 block">
-                Start Date
+                {t("startDateLabel")}
               </label>
               <Input
                 type="date"
@@ -99,7 +102,7 @@ export function AcademicYearsTab({
 
             <div>
               <label className="text-xs font-semibold text-foreground mb-1 block">
-                End Date
+                {t("endDateLabel")}
               </label>
               <Input
                 type="date"
@@ -116,7 +119,7 @@ export function AcademicYearsTab({
               isLoading={isLoading}
             >
               <Plus className="w-4 h-4 mr-1.5" />
-              Save Academic Year
+              {t("saveAcademicYearButton")}
             </Button>
           </form>
         </CardContent>
@@ -124,15 +127,15 @@ export function AcademicYearsTab({
 
       <Card className="md:col-span-2">
         <CardHeader>
-          <CardTitle className="text-lg">Academic Terms History</CardTitle>
+          <CardTitle className="text-lg">{tCommon("info.academicTermsHistory")}</CardTitle>
           <CardDescription className="text-xs">
-            Terms configured for target school
+            {t("termsConfiguredForSchool")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {academicYears.length === 0 ? (
             <div className="text-center py-8 text-xs text-muted-foreground">
-              No academic years found for selected school.
+              {t("noAcademicYearsForSchool")}
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -146,12 +149,12 @@ export function AcademicYearsTab({
                       {ay.name}
                     </h4>
                     <Badge variant={ay.isActive ? "role" : "outline"}>
-                      {ay.isActive ? "Active" : "Closed"}
+                      {ay.isActive ? tCommon("active") : tCommon("closed")}
                     </Badge>
                   </div>
                   <div className="text-xs text-muted-foreground space-y-1">
-                    <p>Starts: {new Date(ay.startsAt).toLocaleDateString()}</p>
-                    <p>Ends: {new Date(ay.endsAt).toLocaleDateString()}</p>
+                    <p>{tCommon("info.starts")} {new Date(ay.startsAt).toLocaleDateString()}</p>
+                    <p>{tCommon("info.ends")} {new Date(ay.endsAt).toLocaleDateString()}</p>
                   </div>
                 </div>
               ))}

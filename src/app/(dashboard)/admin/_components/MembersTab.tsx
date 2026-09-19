@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { UserPlus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { School, User, SchoolMember } from "@/types";
 
 interface MembersTabProps {
@@ -34,23 +35,25 @@ export function MembersTab({
   isLoading,
   schoolMembers,
 }: MembersTabProps) {
+  const tCommon = useTranslations("Common");
+  const t = useTranslations("Common.info");
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       <Card className="md:col-span-1">
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <UserPlus className="w-5 h-5 text-primary" />
-            <span>Add School Member</span>
+            <span>{t("addSchoolMember")}</span>
           </CardTitle>
           <CardDescription className="text-xs">
-            Associate a registered user with a school
+            {t("associateUserWithSchool")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={onAddMember} className="space-y-4">
             <div>
               <label className="text-xs font-semibold text-foreground mb-1 block">
-                Select School
+                {t("selectSchoolLabel")}
               </label>
               <select
                 className="w-full h-10 px-3 rounded-xl border border-input bg-background text-sm font-medium"
@@ -58,7 +61,7 @@ export function MembersTab({
                 onChange={(e) => onSelectSchool(e.target.value)}
                 required
               >
-                <option value="">-- Choose School --</option>
+                <option value="">{tCommon("info.chooseSchool")}</option>
                 {schools.map((s) => (
                   <option key={s.id} value={s.id}>
                     {s.name}
@@ -69,7 +72,7 @@ export function MembersTab({
 
             <div>
               <label className="text-xs font-semibold text-foreground mb-1 block">
-                Select User or Enter User ID
+                {t("selectUserOrEnterId")}
               </label>
               {usersList.length > 0 ? (
                 <select
@@ -78,7 +81,7 @@ export function MembersTab({
                   onChange={(e) => onChangeMemberUserId(e.target.value)}
                   required
                 >
-                  <option value="">-- Select User --</option>
+                  <option value="">{tCommon("info.selectUser")}</option>
                   {usersList.map((u) => (
                     <option key={u.id} value={u.id}>
                       {u.name} ({u.role}) - {u.email}
@@ -87,7 +90,7 @@ export function MembersTab({
                 </select>
               ) : (
                 <Input
-                  placeholder="Paste User UUID"
+                  placeholder={tCommon("info.pasteUserUUID")}
                   value={memberUserId}
                   onChange={(e) => onChangeMemberUserId(e.target.value)}
                   required
@@ -102,7 +105,7 @@ export function MembersTab({
               isLoading={isLoading}
             >
               <UserPlus className="w-4 h-4 mr-1.5" />
-              Add to School
+              {t("addToSchoolButton")}
             </Button>
           </form>
         </CardContent>
@@ -110,15 +113,15 @@ export function MembersTab({
 
       <Card className="md:col-span-2">
         <CardHeader>
-          <CardTitle className="text-lg">School Roster & Members</CardTitle>
+          <CardTitle className="text-lg">{tCommon("info.schoolRosterMembers")}</CardTitle>
           <CardDescription className="text-xs">
-            All affiliated teachers, students, and staff
+            {t("allAffiliatedMembers")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {schoolMembers.length === 0 ? (
             <div className="text-center py-8 text-xs text-muted-foreground">
-              No registered members found for this school yet.
+              {t("noRegisteredMembers")}
             </div>
           ) : (
             <div className="divide-y divide-border/40">
@@ -129,7 +132,7 @@ export function MembersTab({
                 >
                   <div>
                     <span className="font-bold text-foreground">
-                      {m.user?.name || "User"}
+                      {m.user?.name || tCommon("info.userFallback")}
                     </span>
                     <span className="text-muted-foreground ml-2">
                       ({m.user?.email || m.userId})

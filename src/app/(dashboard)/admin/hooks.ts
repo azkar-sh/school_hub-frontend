@@ -112,17 +112,17 @@ export function useAdminPage() {
       setIsLoading(true);
       if (isDemoMode) {
         setSchoolName("");
-        setFeedback({ type: "success", message: "School created (Demo Mode)" });
+        setFeedback({ type: "success", message: "School created (Demo Mode)" }); // i18n: TODO
         return;
       }
       await schoolsApi.create({ name: schoolName });
       setSchoolName("");
-      setFeedback({ type: "success", message: "School created successfully!" });
+      setFeedback({ type: "success", message: "School created successfully!" }); // i18n: TODO
       refetchSchools();
     } catch (error) {
       setFeedback({
         type: "error",
-        message: getErrorMessage(error, "Failed to create school"),
+        message: getErrorMessage(error, "Failed to create school"), // i18n: TODO
       });
     } finally {
       setIsLoading(false);
@@ -139,7 +139,7 @@ export function useAdminPage() {
         setAyName("");
         setFeedback({
           type: "success",
-          message: "Academic Year created (Demo Mode)",
+          message: "Academic Year created (Demo Mode)", // i18n: TODO
         });
         return;
       }
@@ -154,13 +154,13 @@ export function useAdminPage() {
       setAyEndsAt("");
       setFeedback({
         type: "success",
-        message: "Academic year created successfully!",
+        message: "Academic year created successfully!", // i18n: TODO
       });
       refetchAcademicYears();
     } catch (error) {
       setFeedback({
         type: "error",
-        message: getErrorMessage(error, "Failed to create academic year"),
+        message: getErrorMessage(error, "Failed to create academic year"), // i18n: TODO
       });
     } finally {
       setIsLoading(false);
@@ -176,7 +176,7 @@ export function useAdminPage() {
       if (isDemoMode) {
         setFeedback({
           type: "success",
-          message: "User added to school (Demo Mode)",
+          message: "User added to school (Demo Mode)", // i18n: TODO
         });
         return;
       }
@@ -184,13 +184,13 @@ export function useAdminPage() {
       setMemberUserId("");
       setFeedback({
         type: "success",
-        message: "School member added successfully!",
+        message: "School member added successfully!", // i18n: TODO
       });
       refetchMembers();
     } catch (error) {
       setFeedback({
         type: "error",
-        message: getErrorMessage(error, "Failed to add school member"),
+        message: getErrorMessage(error, "Failed to add school member"), // i18n: TODO
       });
     } finally {
       setIsLoading(false);
@@ -206,7 +206,7 @@ export function useAdminPage() {
       if (isDemoMode) {
         setFeedback({
           type: "success",
-          message: "Parent linked to student (Demo Mode)",
+          message: "Parent linked to student (Demo Mode)", // i18n: TODO
         });
         return;
       }
@@ -219,12 +219,12 @@ export function useAdminPage() {
       setLinkStudentId("");
       setFeedback({
         type: "success",
-        message: "Parent successfully linked to student!",
+        message: "Parent successfully linked to student!", // i18n: TODO
       });
     } catch (error) {
       setFeedback({
         type: "error",
-        message: getErrorMessage(error, "Failed to link parent and student"),
+        message: getErrorMessage(error, "Failed to link parent and student"), // i18n: TODO
       });
     } finally {
       setIsLoading(false);

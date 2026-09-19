@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
 
 export function Sidebar({
   isOpen,
@@ -33,78 +34,79 @@ export function Sidebar({
   const pathname = usePathname();
   const { user } = useAuthStore();
   const { activeRole } = useRoleThemeStore();
+  const t = useTranslations("Common.Sidebar");
 
   const currentRole = user?.role || activeRole;
 
   const navItems = [
     {
-      label: "Dashboard",
+      label: t("nav.dashboard"),
       href: "/dashboard",
       icon: LayoutDashboard,
       roles: ["TEACHER", "STUDENT", "PARENT", "SCHOOL_ADMIN"],
     },
     {
-      label: "School Admin Hub",
+      label: t("nav.schoolAdminHub"),
       href: "/admin",
       icon: ShieldAlert,
       roles: ["SCHOOL_ADMIN"],
     },
     {
-      label: "School",
+      label: t("nav.school"),
       href: "/school",
       icon: School,
       roles: ["SCHOOL_ADMIN"],
     },
     {
-      label: "Academic Years",
+      label: t("nav.academicYears"),
       href: "/academic-years",
       icon: CalendarDays,
       roles: ["SCHOOL_ADMIN"],
     },
     {
-      label: "Members",
+      label: t("nav.members"),
       href: "/members",
       icon: UserRound,
       roles: ["SCHOOL_ADMIN"],
     },
     {
-      label: "Teaching Assignments",
+      label: t("nav.teachingAssignments"),
       href: "/teaching-assignments",
       icon: ClipboardList,
       roles: ["SCHOOL_ADMIN"],
     },
     {
-      label: "Assessments",
+      label: t("nav.assessments"),
       href: "/assessments",
       icon: FileCheck2,
       roles: ["TEACHER", "STUDENT", "PARENT", "SCHOOL_ADMIN"],
     },
     {
-      label: "Submissions",
+      label: t("nav.submissions"),
       href: "/submissions",
       icon: FileSpreadsheet,
       roles: ["TEACHER", "STUDENT", "PARENT", "SCHOOL_ADMIN"],
     },
     {
-      label: "Classes",
+      label: t("nav.classes"),
       href: "/classes",
       icon: School,
       roles: ["TEACHER", "PARENT", "SCHOOL_ADMIN"],
     },
     {
-      label: "Subjects & Topics",
+      label: t("nav.subjectsTopics"),
       href: "/subjects",
       icon: BookOpen,
       roles: ["TEACHER", "STUDENT", "PARENT", "SCHOOL_ADMIN"],
     },
     {
-      label: "Results",
+      label: t("nav.results"),
       href: "/results",
       icon: BarChart3,
       roles: ["TEACHER", "STUDENT", "PARENT"],
     },
     {
-      label: "Children",
+      label: t("nav.children"),
       href: "/children",
       icon: UsersRound,
       roles: ["PARENT"],
@@ -117,7 +119,6 @@ export function Sidebar({
 
   const sidebarContent = (
     <aside className="flex flex-col h-full bg-card/40 backdrop-blur-xl border-r border-border/50 w-64 p-4 gap-6">
-      {/* Quick Action Button for Teachers */}
       {currentRole === "TEACHER" && (
         <Link href="/assessments/new" onClick={onClose}>
           <Button
@@ -125,15 +126,14 @@ export function Sidebar({
             className="w-full justify-start gap-2 shadow-md"
           >
             <PlusCircle className="w-4 h-4" />
-            <span>Create Assessment</span>
+            <span>{t("createAssessment")}</span>
           </Button>
         </Link>
       )}
 
-      {/* Main Navigation Links */}
       <nav className="flex flex-col gap-1.5 flex-1">
         <div className="px-3 text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
-          Navigation
+          {t("navigation")}
         </div>
         {filteredNavItems.map((item) => {
           const Icon = item.icon;
@@ -164,21 +164,18 @@ export function Sidebar({
         })}
       </nav>
 
-      {/* Role Footer Box */}
       <div className="lg:hidden p-3.5 rounded-2xl bg-muted/50 border border-border/40 text-xs flex flex-col gap-1">
         <div className="font-semibold text-foreground flex items-center justify-between">
-          <span>Active Role</span>
+          <span>{t("activeRole")}</span>
           <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/15 text-primary font-bold">
             {currentRole}
           </span>
         </div>
         <p className="text-muted-foreground text-[11px]">
-          {currentRole === "SCHOOL_ADMIN" &&
-            "School, academic year, class & subject administration."}
-          {currentRole === "TEACHER" &&
-            "Full grading & test creation privileges."}
-          {currentRole === "STUDENT" && "Quiz attempt & score tracker mode."}
-          {currentRole === "PARENT" && "Student progress monitoring mode."}
+          {currentRole === "SCHOOL_ADMIN" && t("descriptions.schoolAdmin")}
+          {currentRole === "TEACHER" && t("descriptions.teacher")}
+          {currentRole === "STUDENT" && t("descriptions.student")}
+          {currentRole === "PARENT" && t("descriptions.parent")}
         </p>
       </div>
     </aside>
@@ -186,12 +183,10 @@ export function Sidebar({
 
   return (
     <>
-      {/* Desktop Permanent Sidebar */}
       <div className="hidden lg:block h-[calc(100vh-4rem)] sticky top-16">
         {sidebarContent}
       </div>
 
-      {/* Mobile Drawer Overlay */}
       {isOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div

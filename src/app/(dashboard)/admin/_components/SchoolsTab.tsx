@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Building2, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { School } from "@/types";
 
 interface SchoolsTabProps {
@@ -30,26 +31,28 @@ export function SchoolsTab({
   selectedSchoolId,
   onSelectSchool,
 }: SchoolsTabProps) {
+  const tCommon = useTranslations("Common");
+  const t = useTranslations("Common.info");
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       <Card className="md:col-span-1">
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <Building2 className="w-5 h-5 text-primary" />
-            <span>Add New School</span>
+            <span>{tCommon("info.addNewSchool")}</span>
           </CardTitle>
           <CardDescription className="text-xs">
-            Create an institution profile
+            {t("createInstitutionProfile")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={onCreateSchool} className="space-y-4">
             <div>
               <label className="text-xs font-semibold text-foreground mb-1 block">
-                School Name
+                {t("schoolNameLabel")}
               </label>
               <Input
-                placeholder="e.g. SMA Garuda Hope"
+                placeholder={tCommon("info.schoolNamePlaceholder")}
                 value={schoolName}
                 onChange={(e) => onChangeSchoolName(e.target.value)}
                 required
@@ -62,7 +65,7 @@ export function SchoolsTab({
               isLoading={isLoading}
             >
               <Plus className="w-4 h-4 mr-1.5" />
-              Create School
+              {t("createSchoolButton")}
             </Button>
           </form>
         </CardContent>
@@ -70,16 +73,15 @@ export function SchoolsTab({
 
       <Card className="md:col-span-2">
         <CardHeader>
-          <CardTitle className="text-lg">Registered Schools</CardTitle>
+          <CardTitle className="text-lg">{tCommon("info.registeredSchools")}</CardTitle>
           <CardDescription className="text-xs">
-            Select a school to configure academic terms and members
+            {t("selectSchoolToConfigure")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {schools.length === 0 ? (
             <div className="text-center py-8 text-xs text-muted-foreground">
-              No schools created yet. Use the form on the left to add one.
-            </div>
+              {t("noSchoolsCreated")}            </div>
           ) : (
             <div className="space-y-3">
               {schools.map((sch) => (
@@ -100,14 +102,14 @@ export function SchoolsTab({
                       <h4 className="font-bold text-sm text-foreground">
                         {sch.name}
                       </h4>
-                      <p className="text-[11px] text-muted-foreground">
-                        ID: {sch.id}
+                       <p className="text-[11px] text-muted-foreground">
+                        {t("idLabel", { id: sch.id })}
                       </p>
                     </div>
                   </div>
                   {selectedSchoolId === sch.id && (
                     <Badge variant="role" className="text-[10px]">
-                      Active Context
+                      {t("activeContext")}
                     </Badge>
                   )}
                 </div>
