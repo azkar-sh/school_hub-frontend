@@ -2,13 +2,16 @@
 
 import { Compass } from 'lucide-react';
 import { ErrorDisplay } from '@/components/layout/ErrorDisplay';
+import { useTranslations } from 'next-intl';
 
 export default function NotFound() {
+  const t = useTranslations('ErrorPages');
+
   return (
     <ErrorDisplay
       code="404"
-      title="Page not found"
-      description="The page you are looking for has moved, been removed, or never existed. Check the URL or return to where you started."
+      title={t('pageNotFound')}
+      description={t('notFoundDescription')}
       icon={Compass}
       actions="navigation"
     />

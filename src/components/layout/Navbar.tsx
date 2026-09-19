@@ -10,6 +10,7 @@ import { RoleThemeSwitcher } from "./RoleThemeSwitcher";
 import { ThemeToggle } from "./ThemeToggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
 import {
   GraduationCap,
   LogOut,
@@ -18,6 +19,7 @@ import {
   ShieldAlert,
   School as SchoolIcon,
 } from "lucide-react";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 export function Navbar({ onOpenMobileNav }: { onOpenMobileNav?: () => void }) {
   const router = useRouter();
@@ -29,6 +31,7 @@ export function Navbar({ onOpenMobileNav }: { onOpenMobileNav?: () => void }) {
   const currentRole = user?.role || activeRole;
   const showSchoolSwitcher =
     isAuthenticated && !isDemoMode && userSchools.length > 1;
+  const t = useTranslations("Common.Navbar");
 
   const handleLogout = () => {
     logout();
@@ -44,7 +47,7 @@ export function Navbar({ onOpenMobileNav }: { onOpenMobileNav?: () => void }) {
             <button
               onClick={onOpenMobileNav}
               className="lg:hidden p-2 rounded-xl text-muted-foreground hover:bg-muted"
-              aria-label="Open Navigation"
+              aria-label={t("openNavigation")}
             >
               <Menu className="w-5 h-5" />
             </button>
@@ -64,7 +67,7 @@ export function Navbar({ onOpenMobileNav }: { onOpenMobileNav?: () => void }) {
                 </span>
               </span>
               <span className="text-[10px] font-medium text-muted-foreground tracking-wider uppercase">
-                Assessment System
+                {t("assessmentSystem")}
               </span>
             </div>
           </Link>
@@ -79,6 +82,7 @@ export function Navbar({ onOpenMobileNav }: { onOpenMobileNav?: () => void }) {
         {/* Center/Right Side: Role Switcher, Theme Toggle & User Info */}
         <div className="flex items-center gap-3">
           <RoleThemeSwitcher className="hidden md:flex" />
+          <LanguageSwitcher />
           <ThemeToggle />
 
           {showSchoolSwitcher && (
@@ -88,7 +92,7 @@ export function Navbar({ onOpenMobileNav }: { onOpenMobileNav?: () => void }) {
                 value={activeSchoolId}
                 onChange={(e) => setActiveSchool(e.target.value)}
                 className="bg-transparent text-xs font-semibold focus:outline-none max-w-[140px] truncate cursor-pointer"
-                title="Switch active school"
+                title={t("switchSchool")}
               >
                 {userSchools.map((s) => (
                   <option key={s.id} value={s.id}>
@@ -98,7 +102,6 @@ export function Navbar({ onOpenMobileNav }: { onOpenMobileNav?: () => void }) {
               </select>
             </div>
           )}
-
           {isAuthenticated && user && !isDemoMode ? (
             <div className="flex items-center gap-3 pl-2 border-l border-border/60">
               <div className="hidden sm:flex flex-col text-right">
@@ -120,7 +123,7 @@ export function Navbar({ onOpenMobileNav }: { onOpenMobileNav?: () => void }) {
                 variant="ghost"
                 size="icon"
                 onClick={handleLogout}
-                title="Logout"
+                title={t("logout")}
                 className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl"
               >
                 <LogOut className="w-4 h-4" />
@@ -130,12 +133,12 @@ export function Navbar({ onOpenMobileNav }: { onOpenMobileNav?: () => void }) {
             <div className="flex items-center gap-2">
               <Link href="/login">
                 <Button variant="ghost" size="sm">
-                  Sign In
+                  {t("signIn")}
                 </Button>
               </Link>
               <Link href="/register">
                 <Button variant="role" size="sm">
-                  Get Started
+                  {t("getStarted")}
                 </Button>
               </Link>
             </div>

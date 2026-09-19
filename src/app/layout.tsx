@@ -3,6 +3,8 @@ import { Inter, Geist, Manrope } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { cn } from "@/lib/utils";
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale, getMessages } from 'next-intl/server';
 
 const manrope = Manrope({subsets:['latin'],variable:'--font-sans'});
 
@@ -11,17 +13,22 @@ export const metadata: Metadata = {
   description: 'Interactive role-based assessment management system for Teachers, Students, and Parents.',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="en" suppressHydrationWarning className={cn("font-sans", manrope.variable)}>
+    <html lang={locale} suppressHydrationWarning className={cn("font-sans", manrope.variable)}>
       <body className={`${manrope.variable} font-sans antialiased`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {children}
-        </ThemeProvider>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            {children}
+          </ThemeProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

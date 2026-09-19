@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { TriangleAlert } from 'lucide-react';
 import { ErrorDisplay } from '@/components/layout/ErrorDisplay';
+import { useTranslations } from 'next-intl';
 
 export default function Error({
   error,
@@ -11,6 +12,8 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const t = useTranslations('ErrorPages');
+
   useEffect(() => {
     console.error(error);
   }, [error]);
@@ -18,8 +21,8 @@ export default function Error({
   return (
     <ErrorDisplay
       code="500"
-      title="Something went wrong"
-      description="An unexpected error interrupted your session. We've logged the issue — try again, or return home and continue where you left off."
+      title={t('somethingWentWrong')}
+      description={t('unexpectedError')}
       icon={TriangleAlert}
       actions="both"
       showSupport

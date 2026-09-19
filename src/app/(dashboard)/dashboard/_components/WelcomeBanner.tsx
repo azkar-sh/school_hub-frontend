@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PlusCircle, FileCheck2, CalendarDays } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface WelcomeBannerProps {
   currentRole: string;
@@ -14,6 +15,7 @@ export function WelcomeBanner({
   isDemoMode,
   userName,
 }: WelcomeBannerProps) {
+  const t = useTranslations("Dashboard.welcomeBanner");
   return (
     <div className="relative p-6 sm:p-8 rounded-3xl overflow-hidden gradient-role text-primary-foreground shadow-xl">
       <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -23,24 +25,20 @@ export function WelcomeBanner({
               variant="outline"
               className="bg-primary-foreground/20 text-primary-foreground border-primary-foreground/30 capitalize"
             >
-              {currentRole.toLowerCase()} Mode
+              {t("roleMode", { role: currentRole.toLowerCase() })}
             </Badge>
             <span className="text-xs text-primary-foreground/80 font-medium">
-              • {isDemoMode ? "Demo Preview" : "Academic Term 2026"}
+              • {isDemoMode ? t("demoPreview") : t("academicTerm")}
             </span>
           </div>
           <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
-            Hello, {userName || "Welcome Back"}! 👋
+            {userName ? t("hello", { name: userName }) : t("helloFallback")}
           </h1>
           <p className="text-sm text-primary-foreground/90 max-w-xl">
-            {currentRole === "SCHOOL_ADMIN" &&
-              "Manage your school, academic years, classes, members, and teaching assignments."}
-            {currentRole === "TEACHER" &&
-              "Manage your curriculum assessments, grade student submissions, and review topic coverage."}
-            {currentRole === "STUDENT" &&
-              "View your pending assessments, practice quizzes, and track your overall grade averages."}
-            {currentRole === "PARENT" &&
-              "Monitor your child's academic progress, review quiz scores, and track homework submission."}
+            {currentRole === "SCHOOL_ADMIN" && t("descAdmin")}
+            {currentRole === "TEACHER" && t("descTeacher")}
+            {currentRole === "STUDENT" && t("descStudent")}
+            {currentRole === "PARENT" && t("descParent")}
           </p>
         </div>
 
@@ -51,7 +49,7 @@ export function WelcomeBanner({
               className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 shadow-lg font-bold border-none"
             >
               <PlusCircle className="w-5 h-5 mr-2" />
-              New Assessment
+              {t("newAssessment")}
             </Button>
           </Link>
         )}
@@ -63,7 +61,7 @@ export function WelcomeBanner({
               className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 shadow-lg font-bold border-none"
             >
               <FileCheck2 className="w-5 h-5 mr-2" />
-              Start Quiz
+              {t("startQuiz")}
             </Button>
           </Link>
         )}
@@ -75,7 +73,7 @@ export function WelcomeBanner({
               className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 shadow-lg font-bold border-none"
             >
               <CalendarDays className="w-5 h-5 mr-2" />
-              Manage Years
+              {t("manageYears")}
             </Button>
           </Link>
         )}

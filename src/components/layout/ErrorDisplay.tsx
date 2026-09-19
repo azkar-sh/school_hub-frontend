@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
+import { useTranslations } from 'next-intl';
 import {
   GraduationCap,
   ArrowLeft,
@@ -36,6 +37,7 @@ export function ErrorDisplay({
   onRetry,
 }: ErrorDisplayProps) {
   const router = useRouter();
+  const t = useTranslations('ErrorPages');
   const handleRetry = () => {
     if (onRetry) {
       onRetry();
@@ -125,7 +127,7 @@ export function ErrorDisplay({
                   onClick={() => router.push('/')}
                 >
                   <Home className="h-4 w-4" />
-                  Back to Home
+                  {t('backToHome')}
                 </Button>
                 <Button
                   variant="outline"
@@ -134,7 +136,7 @@ export function ErrorDisplay({
                   onClick={() => router.back()}
                 >
                   <ArrowLeft className="h-4 w-4" />
-                  Go Back
+                  {t('goBack')}
                 </Button>
               </>
             )}
@@ -146,7 +148,7 @@ export function ErrorDisplay({
                 onClick={handleRetry}
               >
                 <RefreshCw className="h-4 w-4" />
-                Try Again
+                {t('tryAgain')}
               </Button>
             )}
           </motion.div>
@@ -160,12 +162,12 @@ export function ErrorDisplay({
             >
               <Badge variant="outline" className="rounded-full px-3 py-1 text-xs">
                 <LifeBuoy className="w-3.5 h-3.5 mr-1.5 text-muted-foreground" />
-                Need help? Contact{' '}
+                {t('needHelp')}
                 <a
                   href="mailto:support@schoolhub.edu"
                   className="ml-1 text-primary font-semibold hover:underline"
                 >
-                  support@schoolhub.edu
+                  {t('supportEmail')}
                 </a>
               </Badge>
             </motion.div>
@@ -174,7 +176,7 @@ export function ErrorDisplay({
       </main>
 
       <footer className="py-6 border-t border-border/40 text-center text-xs text-muted-foreground">
-        © 2026 School Hub Assessment System. All rights reserved.
+        {t('copyright')}
       </footer>
     </div>
   );

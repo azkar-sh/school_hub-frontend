@@ -13,10 +13,12 @@ import {
   Lock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 export function RoleThemeSwitcher({ className }: { className?: string }) {
   const { activeRole, setRoleTheme } = useRoleThemeStore();
   const { demoLoginAs, user, isDemoMode } = useAuthStore();
+  const t = useTranslations("Common.RoleThemeSwitcher");
 
   const handleSwitch = (role: UserRole) => {
     setRoleTheme(role);
@@ -32,7 +34,7 @@ export function RoleThemeSwitcher({ className }: { className?: string }) {
   }> = [
     {
       id: "STUDENT",
-      label: "Student",
+      label: t("student"),
       icon: GraduationCap,
       colorClass:
         "hover:text-primary data-[active=true]:bg-primary data-[active=true]:text-primary-foreground",
@@ -40,7 +42,7 @@ export function RoleThemeSwitcher({ className }: { className?: string }) {
     },
     {
       id: "TEACHER",
-      label: "Teacher",
+      label: t("teacher"),
       icon: BookOpen,
       colorClass:
         "hover:text-primary data-[active=true]:bg-primary data-[active=true]:text-primary-foreground",
@@ -48,7 +50,7 @@ export function RoleThemeSwitcher({ className }: { className?: string }) {
     },
     {
       id: "PARENT",
-      label: "Parent",
+      label: t("parent"),
       icon: Users,
       colorClass:
         "hover:text-primary data-[active=true]:bg-primary data-[active=true]:text-primary-foreground",
@@ -56,7 +58,7 @@ export function RoleThemeSwitcher({ className }: { className?: string }) {
     },
     {
       id: "SCHOOL_ADMIN",
-      label: "Admin",
+      label: t("admin"),
       icon: ShieldAlert,
       colorClass:
         "hover:text-primary data-[active=true]:bg-primary data-[active=true]:text-primary-foreground",
@@ -64,7 +66,6 @@ export function RoleThemeSwitcher({ className }: { className?: string }) {
     },
   ];
 
-  // For real authenticated users, show a locked role indicator instead of the switcher
   if (!isDemoMode && user) {
     const currentRoleConfig = roles.find((r) => r.id === user.role);
     const Icon = currentRoleConfig?.icon ?? GraduationCap;
@@ -76,17 +77,16 @@ export function RoleThemeSwitcher({ className }: { className?: string }) {
             "bg-muted/60 text-muted-foreground border-border/50",
           className,
         )}
-        title="Role is determined by your account"
+        title={t("roleLocked")}
       >
         <Icon className="w-3.5 h-3.5" />
         <span className="font-semibold capitalize">
-          {user.role.toLowerCase()} Portal
+          {user.role.toLowerCase()} {t("portal")}
         </span>
       </div>
     );
   }
 
-  // Demo mode: show the full role switcher
   return (
     <div
       className={cn(
@@ -96,7 +96,7 @@ export function RoleThemeSwitcher({ className }: { className?: string }) {
     >
       <div className="flex items-center gap-1.5 px-2 text-xs font-semibold text-muted-foreground sm:flex">
         <Sparkles className="w-3.5 h-3.5 text-primary animate-pulse" />
-        <span>Preview Role:</span>
+        <span>{t("previewRole")}</span>
       </div>
       {roles.map((r) => {
         const Icon = r.icon;
