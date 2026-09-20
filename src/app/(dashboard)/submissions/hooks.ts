@@ -31,13 +31,36 @@ function toSubmissionRow(s: Submission): SubmissionRow {
   };
 }
 
+import { useSearchParams } from "next/navigation";
+
 export function useSubmissionsPage() {
+  const searchParams = useSearchParams();
+  const initialStatus = (searchParams.get("status") as StatusFilter) || "ALL";
+  const initialAssessment = searchParams.get("assessmentTitle") || "ALL";
+
   const { user, isDemoMode } = useAuthStore();
   const { activeRole } = useRoleThemeStore();
   const currentRole = user?.role || activeRole;
 
   const [search, setSearch] = React.useState("");
-  const [statusFilter, setStatusFilter] = React.useState<StatusFilter>("ALL");
+  const [statusFilter, setStatusFilter] = React.useState<StatusFilter>(
+    STATUS_FILTERS.includes(initialStatus) ? initialStatus : "ALL",
+  );
+  const [assessmentFilter, setAssessmentFilter] =
+    React.useState<string>(initialAssessment);
+  const [subjectFilter, setSubjectFilter] = React.useState<string>("ALL");
+
+  // Synchronize when searchParams change
+  React.useEffect(() => {
+    const statusParam = searchParams.get("status") as StatusFilter;
+    if (statusParam && STATUS_FILTERS.includes(statusParam)) {
+      setStatusFilter(statusParam);
+    }
+    const asmParam = searchParams.get("assessmentTitle");
+    if (asmParam) {
+      setAssessmentFilter(asmParam);
+    }
+  }, [searchParams]);
 
   // Live fetch for parents (fetch child wards)
   React.useEffect(() => {
@@ -63,22 +86,62 @@ export function useSubmissionsPage() {
     !isDemoMode,
   );
 
-  const displaySubmissions = isDemoMode
-    ? getMockSubmissions(currentRole)
-    : (liveSubmissionsData ?? []);
+  const displaySubmissions = React.useMemo(() => {
+    return isDemoMode
+      ? getMockSubmissions(currentRole)
+      : (liveSubmissionsData ?? []);
+  }, [isDemoMode, currentRole, liveSubmissionsData]);
 
-  // Client-side filtering by status + search (student name / assessment title)
-  const filteredSubmissions = displaySubmissions.filter((sub) => {
-    const matchesStatus =
-      statusFilter === "ALL" || sub.status === statusFilter;
-    const q = search.toLowerCase().trim();
-    const matchesSearch =
-      q === "" ||
-      sub.studentName.toLowerCase().includes(q) ||
-      sub.assessmentTitle.toLowerCase().includes(q) ||
-      sub.subject.toLowerCase().includes(q);
-    return matchesStatus && matchesSearch;
-  });
+  // Derive unique assessment titles and subjects for filter dropdowns
+  const assessmentOptions = React.useMemo(() => {
+    const titles = new Set<string>();
+    displaySubmissions.forEach((s) => {
+      if (s.assessmentTitle) titles.add(s.assessmentTitle);
+    });
+    return Array.from(titles);
+  }, [displaySubmissions]);
+
+  const subjectOptions = React.useMemo(() => {
+    const subjects = new Set<string>();
+    displaySubmissions.forEach((s) => {
+      if (s.subject && s.subject !== "—") subjects.add(s.subject);
+    });
+    return Array.from(subjects);
+  }, [displaySubmissions]);
+
+  // Client-side filtering
+  const filteredSubmissions = React.useMemo(() => {
+    return displaySubmissions.filter((sub) => {
+      const matchesStatus =
+        statusFilter === "ALL" || sub.status === statusFilter;
+      const matchesAssessment =
+        assessmentFilter === "ALL" || sub.assessmentTitle === assessmentFilter;
+      const matchesSubject =
+        subjectFilter === "ALL" || sub.subject === subjectFilter;
+      const q = search.toLowerCase().trim();
+      const matchesSearch =
+        q === "" ||
+        sub.studentName.toLowerCase().includes(q) ||
+        sub.assessmentTitle.toLowerCase().includes(q) ||
+        sub.subject.toLowerCase().includes(q);
+      return (
+        matchesStatus && matchesAssessment && matchesSubject && matchesSearch
+      );
+    });
+  }, [
+    displaySubmissions,
+    statusFilter,
+    assessmentFilter,
+    subjectFilter,
+    search,
+  ]);
+
+  const pendingSubmissions = React.useMemo(() => {
+    return displaySubmissions.filter((s) => s.status === "SUBMITTED");
+  }, [displaySubmissions]);
+
+  const firstPendingSubmissionId = pendingSubmissions[0]?.id || null;
+  const pendingCount = pendingSubmissions.length;
 
   const pageTitle =
     currentRole === "TEACHER"
@@ -103,7 +166,16 @@ export function useSubmissionsPage() {
     setSearch,
     statusFilter,
     setStatusFilter,
+    assessmentFilter,
+    setAssessmentFilter,
+    assessmentOptions,
+    subjectFilter,
+    setSubjectFilter,
+    subjectOptions,
     filteredSubmissions,
     isLoadingSubmissions,
+    firstPendingSubmissionId,
+    pendingCount,
   };
 }
+

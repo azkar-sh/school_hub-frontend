@@ -28,6 +28,7 @@ interface SubmissionDetailCardProps {
   onStartGrading: (answerId: string, currentPoints?: number) => void;
   onCancelGrading: () => void;
   onSubmitGrade: (e: React.FormEvent) => void;
+  onQuickGrade?: (answerId: string, points: number) => void;
   onAutoGrade?: () => void;
   autoGrading?: boolean;
 }
@@ -50,10 +51,12 @@ export function SubmissionDetailCard({
   onStartGrading,
   onCancelGrading,
   onSubmitGrade,
+  onQuickGrade,
   onAutoGrade,
   autoGrading,
 }: SubmissionDetailCardProps) {
   const answers = submission.answers ?? [];
+  const isTeacher = currentRole === "TEACHER" || currentRole === "SCHOOL_ADMIN";
   const hasPendingManual = answers.some(
     (a) => a.pointsEarned === null || a.pointsEarned === undefined,
   );
@@ -66,56 +69,43 @@ export function SubmissionDetailCard({
 
   return (
     <Card className="border-primary/40 bg-primary/5">
-      <CardHeader className="flex flex-row items-center justify-between gap-3">
+      <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <Badge variant="role" className="mb-1">
             Submission Detail ({submission.status})
           </Badge>
-          <CardTitle className="text-lg">
+          <CardTitle className="text-xl">
             {submission.assessment?.title || "Assessment Submission"}
           </CardTitle>
-          <CardDescription className="text-xs">
-            Student: {submission.student?.name || submission.studentId}
+          <CardDescription className="text-xs mt-0.5">
+            Student: <span className="font-semibold text-foreground">{submission.student?.name || submission.studentId}</span>
+            {submission.assessment?.teachingAssignment?.class?.name && (
+              <span> • {submission.assessment.teachingAssignment.class.name}</span>
+            )}
           </CardDescription>
         </div>
-        <div className="text-right shrink-0">
+        <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center shrink-0 border-t sm:border-t-0 pt-3 sm:pt-0">
           <span className="text-xs uppercase font-semibold text-muted-foreground block">
-            Score
+            Overall Score
           </span>
-          <span className="text-2xl font-black text-success">
+          <span className="text-3xl font-black text-success">
             {submission.scorePercentage !== undefined &&
             submission.scorePercentage !== null
               ? `${submission.scorePercentage}%`
               : "Pending"}
           </span>
-          {/* {currentRole === "TEACHER" && autoGradableAnswers.length > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="mt-2 h-8 text-[11px]"
-              onClick={onAutoGrade}
-              disabled={autoGrading}
-            >
-              {autoGrading ? (
-                <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" />
-              ) : (
-                <Wand2 className="w-3.5 h-3.5 mr-1" />
-              )}
-              {hasPendingAuto ? "Auto-grade MCQ" : "Re-run auto-grade"}
-            </Button>
-          )} */}
         </div>
       </CardHeader>
 
       <CardContent className="space-y-4 pt-2">
-        {hasPendingManual && currentRole === "TEACHER" && (
-          <div className="flex items-center gap-2 p-3 rounded-xl bg-warning/10 border border-warning/30 text-xs text-warning font-medium">
+        {hasPendingManual && isTeacher && (
+          <div className="flex items-center gap-2 p-3.5 rounded-xl bg-warning/10 border border-warning/30 text-xs text-warning font-medium">
             <AlertCircle className="w-4 h-4 shrink-0" />
-            Some short-answer questions are awaiting manual grading.
+            <span>Short-answer questions require manual review. Use the quick presets below to grade in 1 click.</span>
           </div>
         )}
-        {hasPendingAuto && currentRole === "TEACHER" && (
-          <div className="flex items-center justify-between gap-2 p-3 rounded-xl bg-info/10 border border-info/30 text-xs text-info font-medium">
+        {hasPendingAuto && isTeacher && (
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-info/10 border border-info/30 text-xs text-info font-medium">
             <span className="flex items-center gap-2">
               <Wand2 className="w-4 h-4 shrink-0" />
               Some MCQ / True-False answers are ungraded.
@@ -123,7 +113,7 @@ export function SubmissionDetailCard({
             <Button
               variant="outline"
               size="sm"
-              className="h-7 text-[11px]"
+              className="h-8 text-xs font-semibold"
               onClick={onAutoGrade}
               disabled={autoGrading}
             >
@@ -141,6 +131,7 @@ export function SubmissionDetailCard({
 
           {answers.map((ans, idx) => {
             const q = ans.question;
+            const maxPts = q?.points ?? 1;
             const earned =
               ans.pointsEarned !== undefined && ans.pointsEarned !== null
                 ? Number(ans.pointsEarned)
@@ -156,7 +147,7 @@ export function SubmissionDetailCard({
             return (
               <div
                 key={ans.id}
-                className="p-4 rounded-xl bg-card border border-border/60 space-y-3"
+                className="p-4 sm:p-5 rounded-xl bg-card border border-border/60 space-y-3 shadow-xs"
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
@@ -166,54 +157,127 @@ export function SubmissionDetailCard({
                     {q?.type && (
                       <Badge
                         variant="outline"
-                        className="text-[10px] uppercase"
+                        className="text-[10px] uppercase font-semibold"
                       >
                         {q.type.replace("_", " ").toLowerCase()}
                       </Badge>
                     )}
-                    <Badge variant="outline">{q?.points ?? 1} pts</Badge>
+                    <Badge variant="outline">{maxPts} pts</Badge>
                   </div>
                 </div>
 
-                <p className="font-semibold text-sm text-foreground">
+                <p className="font-semibold text-sm sm:text-base text-foreground">
                   {q?.question || `Question ID: ${ans.questionId}`}
                 </p>
 
                 {isShortAnswer ? (
-                  <div className="space-y-2">
-                    <div className="p-3 rounded-xl border border-border bg-muted/40">
-                      <span className="text-[10px] uppercase font-semibold text-muted-foreground block mb-1">
-                        Student&apos;s Answer
+                  <div className="space-y-3 pt-1">
+                    <div className="p-3.5 rounded-xl border border-border bg-muted/40">
+                      <span className="text-[10px] uppercase font-bold text-muted-foreground block mb-1 tracking-wider">
+                        Student&apos;s Submitted Answer
                       </span>
-                      <span className="text-sm">
+                      <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
                         {ans.answer?.trim() ? ans.answer : "No response"}
-                      </span>
+                      </p>
                     </div>
-                    <div className="flex items-center justify-between gap-3">
-                      {isPending ? (
-                        <span className="flex items-center gap-1 text-xs text-warning font-medium">
-                          <Clock className="w-3.5 h-3.5" />
-                          Awaiting manual grading
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-1 text-xs font-medium">
-                          {earned} / {q?.points ?? 1} pts
-                        </span>
-                      )}
-                      {currentRole === "TEACHER" && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 text-[11px]"
-                          onClick={() =>
-                            onStartGrading(ans.id, earned ?? undefined)
-                          }
-                        >
-                          <Edit3 className="w-3.5 h-3.5 mr-1" />
-                          {isPending ? "Grade Answer" : "Update Grade"}
-                        </Button>
-                      )}
-                    </div>
+
+                    {/* Teacher Manual Grading Action Strip */}
+                    {isTeacher ? (
+                      <div className="p-3.5 rounded-xl bg-muted/50 border border-border/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-muted-foreground">
+                            Score:
+                          </span>
+                          <span
+                            className={`text-sm font-black ${
+                              isPending
+                                ? "text-warning flex items-center gap-1"
+                                : earned > 0
+                                  ? "text-success"
+                                  : "text-destructive"
+                            }`}
+                          >
+                            {isPending ? (
+                              <>
+                                <Clock className="w-3.5 h-3.5 inline" /> Ungraded
+                              </>
+                            ) : (
+                              `${earned} / ${maxPts} pts`
+                            )}
+                          </span>
+                        </div>
+
+                        {/* 1-Click Fast Scoring Presets */}
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-[11px] text-muted-foreground font-medium hidden md:inline">
+                            Quick Grade:
+                          </span>
+                          <Button
+                            type="button"
+                            variant={earned === 0 ? "destructive" : "outline"}
+                            size="sm"
+                            className="h-7 text-xs px-2.5 rounded-lg"
+                            onClick={() => onQuickGrade?.(ans.id, 0)}
+                          >
+                            0 pts
+                          </Button>
+                          <Button
+                            type="button"
+                            variant={
+                              earned === Math.round(maxPts / 2)
+                                ? "role"
+                                : "outline"
+                            }
+                            size="sm"
+                            className="h-7 text-xs px-2.5 rounded-lg"
+                            onClick={() =>
+                              onQuickGrade?.(ans.id, Math.round(maxPts / 2))
+                            }
+                          >
+                            50% ({Math.round(maxPts / 2)})
+                          </Button>
+                          <Button
+                            type="button"
+                            variant={earned === maxPts ? "role" : "outline"}
+                            size="sm"
+                            className="h-7 text-xs px-2.5 rounded-lg"
+                            onClick={() => onQuickGrade?.(ans.id, maxPts)}
+                          >
+                            Full ({maxPts} pts)
+                          </Button>
+
+                          {/* Custom input toggle */}
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 text-xs px-2"
+                            onClick={() =>
+                              onStartGrading(ans.id, earned ?? undefined)
+                            }
+                          >
+                            <Edit3 className="w-3.5 h-3.5 mr-1" />
+                            Custom
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      /* Read-only view for Student and Parent */
+                      <div className="flex items-center justify-between pt-1 text-xs">
+                        <span className="text-muted-foreground">Status</span>
+                        <div className="font-semibold">
+                          {isPending ? (
+                            <span className="text-warning flex items-center gap-1">
+                              <Clock className="w-3.5 h-3.5" /> Pending Teacher Review
+                            </span>
+                          ) : (
+                            <span className="text-success">
+                              {earned} / {maxPts} pts
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="space-y-2">
@@ -267,7 +331,7 @@ export function SubmissionDetailCard({
                       </span>
 
                       <div className="flex items-center gap-2">
-                        {isAutoGradable && currentRole === "TEACHER" && (
+                        {isAutoGradable && isTeacher && (
                           <Button
                             variant="ghost"
                             size="sm"
@@ -290,32 +354,33 @@ export function SubmissionDetailCard({
                         >
                           {isPending
                             ? "Pending and ready to grade"
-                            : `${earned} / ${q?.points ?? 1} pts`}
+                            : `${earned} / ${maxPts} pts`}
                         </div>
                       </div>
                     </div>
                   </div>
                 )}
 
-                {gradeAnswerId === ans.id && currentRole === "TEACHER" && (
+                {gradeAnswerId === ans.id && isTeacher && (
                   <form
                     onSubmit={onSubmitGrade}
-                    className="p-4 rounded-xl bg-muted/60 border border-border/60 space-y-3"
+                    className="p-4 rounded-xl bg-muted/70 border border-primary/30 space-y-3 animate-in fade-in duration-200"
                   >
                     <h5 className="font-bold text-xs text-foreground">
-                      Grade Answer
+                      Custom Points for Question {idx + 1}
                     </h5>
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-3">
                       <Input
                         type="number"
                         min={0}
-                        max={q?.points ?? undefined}
+                        max={maxPts}
                         placeholder="Points earned"
                         value={gradePoints}
                         onChange={(e) =>
                           onChangeGradePoints(Number(e.target.value))
                         }
-                        className="w-40 text-xs"
+                        className="w-32 text-xs"
+                        autoFocus
                       />
                       <Button type="submit" variant="role" size="sm">
                         Save Points
@@ -328,12 +393,10 @@ export function SubmissionDetailCard({
                       >
                         Cancel
                       </Button>
+                      <span className="text-[11px] text-muted-foreground">
+                        Max points: {maxPts} (Press Enter to save)
+                      </span>
                     </div>
-                    {q?.points !== undefined && (
-                      <p className="text-[10px] text-muted-foreground">
-                        Max points: {q.points}
-                      </p>
-                    )}
                   </form>
                 )}
               </div>
@@ -344,3 +407,4 @@ export function SubmissionDetailCard({
     </Card>
   );
 }
+
