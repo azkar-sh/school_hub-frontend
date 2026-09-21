@@ -84,7 +84,8 @@ export default function SubmissionDetailPage() {
         {isTeacher && totalSubmissions > 0 && (
           <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 border-t sm:border-t-0 pt-2 sm:pt-0">
             <span className="text-xs font-semibold text-muted-foreground">
-              Student {currentIndex >= 0 ? currentIndex + 1 : 1} of {totalSubmissions}
+              Student {currentIndex >= 0 ? currentIndex + 1 : 1} of{" "}
+              {totalSubmissions}
             </span>
 
             <div className="flex items-center gap-1.5">
@@ -230,4 +231,3 @@ export default function SubmissionDetailPage() {
     </div>
   );
 }
-

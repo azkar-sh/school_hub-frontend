@@ -180,6 +180,7 @@ export function useSubmissionsPage() {
     data: liveData,
     isLoading: isLoadingLive,
     error: isErrorLive,
+    refetch: refetchList,
   } = useFetchData<{
     submissions: Submission[];
     meta: PaginationMeta;
@@ -216,6 +217,27 @@ export function useSubmissionsPage() {
       filterSubject,
       filterClass,
     ],
+    shouldFetchLive,
+  );
+
+  // Separate fetch for unfiltered pending count (for "Start Grading" button)
+  const { data: pendingData } = useFetchData<{
+    submissions: Submission[];
+    meta: { total: number };
+  }>(
+    async () => {
+      if (!shouldFetchLive)
+        return { submissions: [], meta: { total: 0 } };
+      const res = await submissionsApi.findAll({
+        status: "SUBMITTED",
+        limit: 100,
+      });
+      return res.data as unknown as {
+        submissions: Submission[];
+        meta: { total: number };
+      };
+    },
+    [shouldFetchLive, currentRole],
     shouldFetchLive,
   );
 
@@ -270,9 +292,13 @@ export function useSubmissionsPage() {
       }
     : liveMeta;
 
+  // Compute pending from unfiltered data (not filteredItems)
   const pendingSubmissions = React.useMemo(() => {
-    return filteredItems.filter((s) => s.status === "SUBMITTED");
-  }, [filteredItems]);
+    if (isDemoMode) {
+      return mockItems.filter((s) => s.status === "SUBMITTED");
+    }
+    return (pendingData?.submissions ?? []).map((s) => toSubmissionRow(s));
+  }, [isDemoMode, mockItems, pendingData]);
 
   const firstPendingSubmissionId = pendingSubmissions[0]?.id || null;
   const pendingCount = pendingSubmissions.length;
@@ -309,6 +335,7 @@ export function useSubmissionsPage() {
     filtered: filteredItems,
     isLoading: isLoadingLive,
     fetchError: isErrorLive,
+    refetchList,
     meta,
     setPage,
     firstPendingSubmissionId,

@@ -38,9 +38,23 @@ export function useSubmissionDetailPage(submissionId: string) {
 
   const activeSubmission = isDemoMode ? demoSubmission : (liveSubmission ?? null);
 
-  // Inter-student navigation state
-  const { data: allLiveSubmissions } = useFetchData(
-    () => submissionsApi.findAll().then((res) => res.data),
+  // Fetch all submissions for prev/next navigation (include GRADED so current stays in list after grading)
+  const {
+    data: allLiveSubmissionsData,
+    refetch: refetchList,
+  } = useFetchData<{
+    submissions: Submission[];
+    meta: { total: number };
+  }>(
+    () =>
+      submissionsApi
+        .findAll({
+          limit: 200,
+        })
+        .then((res) => res.data as unknown as {
+          submissions: Submission[];
+          meta: { total: number };
+        }),
     [],
     !isDemoMode && (currentRole === "TEACHER" || currentRole === "SCHOOL_ADMIN"),
   );
@@ -49,8 +63,8 @@ export function useSubmissionDetailPage(submissionId: string) {
     if (isDemoMode) {
       return getMockSubmissions(currentRole);
     }
-    return Array.isArray(allLiveSubmissions) ? allLiveSubmissions : [];
-  }, [isDemoMode, currentRole, allLiveSubmissions]);
+    return allLiveSubmissionsData?.submissions ?? [];
+  }, [isDemoMode, currentRole, allLiveSubmissionsData]);
 
   const { currentIndex, totalSubmissions, prevSubmissionId, nextSubmissionId, nextPendingSubmissionId } =
     React.useMemo(() => {
@@ -135,6 +149,7 @@ export function useSubmissionDetailPage(submissionId: string) {
       setFeedbackMsg(`Saved ${points} points!`);
       setGradeAnswerId("");
       refetch();
+      refetchList();
     } catch (err: unknown) {
       setFeedbackMsg(getErrorMessage(err, "Failed to grade answer"));
     }
@@ -155,6 +170,7 @@ export function useSubmissionDetailPage(submissionId: string) {
       await submissionsApi.autoGrade(activeSubmission.id);
       setFeedbackMsg("Submission auto-graded successfully!");
       refetch();
+      refetchList();
     } catch (err: unknown) {
       setFeedbackMsg(getErrorMessage(err, "Failed to auto-grade submission"));
     } finally {
