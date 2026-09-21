@@ -6,6 +6,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
@@ -13,6 +14,9 @@ import {
   Users,
   FileCheck2,
   Loader2,
+  Clock,
+  Sparkles,
+  CheckCircle2,
 } from "lucide-react";
 import { MockTeacherDashboardClass } from "@/lib/mock-data";
 import { DisplayAssessment } from "../hooks";
@@ -37,16 +41,113 @@ export function TeacherDashboardContent({
   displayAssessments,
 }: TeacherDashboardContentProps) {
   const t = useTranslations("Dashboard.teacherContent");
+
+  // Assessments that require teacher review (in demo mode or from live data)
+  const pendingAssessments = isDemoMode
+    ? [
+        {
+          id: "asm-2",
+          title: "Science Homework 1 - 8A",
+          subject: "Science",
+          className: "Class 8A",
+          pendingCount: 4,
+          dueAt: "Due Today",
+        },
+        {
+          id: "asm-1",
+          title: "Mathematics Quiz 1 - 8A",
+          subject: "Mathematics",
+          className: "Class 8A",
+          pendingCount: 2,
+          dueAt: "Yesterday",
+        },
+      ]
+    : displayAssessments
+        .filter((a) => (a.submissionsCount ?? 0) > 0)
+        .map((a) => ({
+          id: a.id,
+          title: a.title,
+          subject: a.subject,
+          className: "Your Class",
+          pendingCount: a.submissionsCount ?? 0,
+          dueAt: a.dueAt || "Active",
+        }));
+
   return (
     <div className="space-y-6">
+      {/* Priority Section: Urgent Action Items / Needs Grading */}
+      <Card className="border-warning/40 bg-card shadow-xs">
+        <CardHeader className="flex flex-row items-center justify-between pb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-xl bg-warning/15 text-warning">
+              <Clock className="w-5 h-5" />
+            </div>
+            <div>
+              <CardTitle className="text-lg">Submissions Awaiting Grading</CardTitle>
+              <CardDescription className="text-xs">
+                Assessments with student work requiring manual review
+              </CardDescription>
+            </div>
+          </div>
+          <Link href="/submissions?status=SUBMITTED">
+            <Button variant="ghost" size="sm" className="gap-1 text-warning hover:text-warning text-xs font-semibold">
+              <span>View Queue</span>
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </Link>
+        </CardHeader>
+        <CardContent className="space-y-2.5 pt-0">
+          {pendingAssessments.length > 0 ? (
+            pendingAssessments.map((item) => (
+              <div
+                key={item.id}
+                className="p-3.5 sm:p-4 rounded-xl bg-muted/40 border border-border/60 hover:border-warning/40 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+              >
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-bold text-sm text-foreground truncate">
+                      {item.title}
+                    </span>
+                    <Badge variant="outline" className="text-[10px] uppercase font-semibold">
+                      {item.subject}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                    <span>{item.className}</span>
+                    <span>•</span>
+                    <span className="text-warning font-medium">
+                      {item.pendingCount} submissions pending
+                    </span>
+                  </div>
+                </div>
+
+                <Link href={`/submissions?status=SUBMITTED&assessmentTitle=${encodeURIComponent(item.title)}`}>
+                  <Button
+                    variant="role"
+                    size="sm"
+                    className="w-full sm:w-auto h-8 text-xs font-bold gap-1.5 shrink-0"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Grade Submissions</span>
+                  </Button>
+                </Link>
+              </div>
+            ))
+          ) : (
+            <div className="py-6 text-center text-xs text-muted-foreground flex items-center justify-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-success" />
+              <span>All caught up! No pending submissions requiring manual grading.</span>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* My Classes — Tree: Class Name, Subject, Student Count, Assessment Count */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle>{t("myClasses")}</CardTitle>
-            <CardDescription>
-              {t("classesYouTeach")}
-            </CardDescription>
+            <CardDescription>{t("classesYouTeach")}</CardDescription>
           </div>
           <Link href="/classes">
             <Button variant="ghost" size="sm" className="gap-1 text-primary">
@@ -84,7 +185,7 @@ export function TeacherDashboardContent({
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 text-xs">
+                <div className="flex items-center justify-between sm:justify-end gap-4 text-xs pt-2 sm:pt-0 border-t sm:border-t-0">
                   <span className="flex items-center gap-1 text-muted-foreground">
                     <Users className="w-3.5 h-3.5" />
                     {t("studentsCount", { count: cls.studentCount })}
@@ -117,3 +218,4 @@ export function TeacherDashboardContent({
     </div>
   );
 }
+

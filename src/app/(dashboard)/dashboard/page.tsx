@@ -54,8 +54,8 @@ export default function DashboardPage() {
         userName={user?.name}
       />
 
-      {/* Metric Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      {/* Metric Stats Grid — 2 columns on mobile for compactness, 4 columns on desktop */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
         {currentRole === "SCHOOL_ADMIN" && (
           <AdminStatsGrid
             overview={schoolAdminOverview}
