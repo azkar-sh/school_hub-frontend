@@ -499,7 +499,9 @@ export function DataDisplay<TItem>({
               <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:flex-wrap min-w-0">
                   {showSearch && (
-                    <div className="relative w-full sm:w-1/2 lg:w-1/2 shrink-0">
+                    <div
+                      className={`relative  shrink-0 ${filterGroups.length > 2 ? "w-full sm:w-1/3 lg:w-1/3" : "w-full sm:w-1/2 lg:w-1/2"}`}
+                    >
                       <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         placeholder={searchPlaceholder}
@@ -518,10 +520,10 @@ export function DataDisplay<TItem>({
                           return (
                             <div
                               key={group.id}
-                              className="flex items-center gap-2"
+                              className="flex items-center gap-1"
                             >
                               <span className="text-xs font-medium text-muted-foreground whitespace-nowrap hidden sm:inline">
-                                {group.label}:
+                                {group.label}
                               </span>
                               {variant === "pills" && (
                                 <FilterPills group={group} />
@@ -603,7 +605,7 @@ export function DataDisplay<TItem>({
                         )}
                       >
                         <LayoutGrid className="h-3.5 w-3.5" />
-                        Cards
+                        {/* Cards */}
                       </button>
                       <button
                         type="button"
@@ -617,7 +619,7 @@ export function DataDisplay<TItem>({
                         )}
                       >
                         <List className="h-3.5 w-3.5" />
-                        Table
+                        {/* Table */}
                       </button>
                     </div>
                   )}
