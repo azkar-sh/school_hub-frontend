@@ -225,7 +225,18 @@ export const submissionsApi = {
     apiClient.patch<Submission>(`/submissions/${id}/grade`, data),
   autoGrade: (id: string) =>
     apiClient.post<Submission>(`/submissions/${id}/auto-grade`),
-  findAll: () => apiClient.get<Submission[]>("/submissions"),
+  findAll: (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: string | string[];
+    subjectId?: string | string[];
+    classId?: string | string[];
+  }) =>
+    apiClient.get<{
+      submissions: Submission[];
+      meta: { page: number; limit: number; total: number; totalPages: number };
+    }>("/submissions", { params, paramsSerializer: { indexes: null } }),
   findOne: (id: string) => apiClient.get<Submission>(`/submissions/${id}`),
 };
 

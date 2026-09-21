@@ -1,13 +1,19 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
-import { DemoModeBanner } from "@/components/ui/DemoModeBanner";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { DataDisplay, FilterGroup } from "@/components/ui/DataDisplay";
 import { Button } from "@/components/ui/button";
-import { Search, Loader2, Sparkles, Filter } from "lucide-react";
-import { useSubmissionsPage, STATUS_FILTERS, StatusFilter } from "./hooks";
-import { SubmissionsTableCard } from "./_components/SubmissionsTableCard";
+import { Badge } from "@/components/ui/badge";
+import { Sparkles, CheckCircle2, Clock, ChevronRight } from "lucide-react";
+import { useSubmissionsPage, STATUS_FILTERS } from "./hooks";
+import { SubmissionCard } from "./_components/SubmissionCard";
+import { SubmissionRow } from "@/lib/mock-data";
+
+const STATUS_OPTIONS = STATUS_FILTERS.filter((s) => s !== "ALL").map((s) => ({
+  value: s,
+  label: s === "SUBMITTED" ? "Pending Review" : "Graded",
+}));
 
 export default function SubmissionsPage() {
   const {
@@ -16,137 +22,198 @@ export default function SubmissionsPage() {
     pageTitle,
     pageDescription,
     search,
-    setSearch,
-    statusFilter,
-    setStatusFilter,
-    assessmentFilter,
-    setAssessmentFilter,
-    assessmentOptions,
-    subjectFilter,
-    setSubjectFilter,
+    handleSearchChange,
+    filterStatus,
+    handleFilterStatusChange,
+    filterSubject,
+    handleFilterSubjectChange,
+    filterClass,
+    handleFilterClassChange,
     subjectOptions,
-    filteredSubmissions,
-    isLoadingSubmissions,
+    classOptions,
+    filtered,
+    isLoading,
+    fetchError,
+    meta,
+    setPage,
     firstPendingSubmissionId,
     pendingCount,
   } = useSubmissionsPage();
 
+  const [viewMode, setViewMode] = React.useState<"cards" | "table">("cards");
   const isTeacher = currentRole === "TEACHER" || currentRole === "SCHOOL_ADMIN";
+
+  const searchPlaceholder = isTeacher
+    ? "Search student or assessment title…"
+    : "Search assessment title or subject…";
+
+  const renderCard = React.useCallback(
+    (item: SubmissionRow) => (
+      <SubmissionCard currentRole={currentRole} item={item} />
+    ),
+    [currentRole],
+  );
+
+  const renderTableHeaders = React.useCallback(
+    () => [
+      { key: isTeacher ? "student" : "assessment", label: isTeacher ? "Student" : "Assessment" },
+      { key: isTeacher ? "assessment" : "subject", label: isTeacher ? "Assessment Title" : "Subject" },
+      { key: "submittedAt", label: "Submitted At" },
+      { key: "status", label: "Status" },
+      { key: "score", label: "Score", className: "text-right" },
+      { key: "action", label: "", className: "w-8" },
+    ],
+    [isTeacher],
+  );
+
+  const renderTableRow = React.useCallback(
+    (item: SubmissionRow) => [
+      <td key="primary" className="p-3.5 font-medium">
+        <Link
+          href={`/submissions/${item.id}`}
+          className="hover:text-primary transition-colors"
+        >
+          {isTeacher ? item.studentName : item.assessmentTitle}
+        </Link>
+      </td>,
+      <td key="secondary" className="p-3.5 font-medium text-foreground">
+        <Link href={`/submissions/${item.id}`}>
+          {isTeacher ? item.assessmentTitle : item.subject}
+        </Link>
+      </td>,
+      <td key="submittedAt" className="p-3.5 text-xs text-muted-foreground">
+        <Link href={`/submissions/${item.id}`}>{item.submittedAt}</Link>
+      </td>,
+      <td key="status" className="p-3.5">
+        <Link href={`/submissions/${item.id}`}>
+          {item.status === "GRADED" ? (
+            <Badge
+              variant="secondary"
+              className="bg-success/15 text-success gap-1"
+            >
+              <CheckCircle2 className="w-3 h-3" />
+              Graded
+            </Badge>
+          ) : (
+            <Badge
+              variant="outline"
+              className="text-warning border-warning/30 gap-1"
+            >
+              <Clock className="w-3 h-3" />
+              Pending Review
+            </Badge>
+          )}
+        </Link>
+      </td>,
+      <td key="score" className="p-3.5 text-right font-extrabold text-base text-foreground">
+        <Link href={`/submissions/${item.id}`}>
+          {item.score !== null ? `${item.score}%` : "—"}
+        </Link>
+      </td>,
+      <td key="action" className="p-3.5 w-8">
+        <Link
+          href={`/submissions/${item.id}`}
+          className="flex items-center justify-center"
+        >
+          <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+        </Link>
+      </td>,
+    ],
+    [isTeacher],
+  );
+
+  const filterGroups = React.useMemo<FilterGroup[]>(
+    () => [
+      {
+        id: "status",
+        mode: "multi",
+        variant: "dropdown",
+        options: STATUS_OPTIONS.map((s) => ({ value: s.value, label: s.label })),
+        value: filterStatus,
+        onChange: (v) => handleFilterStatusChange(v),
+        placeholder: "All Statuses",
+      },
+      {
+        id: "subject",
+        mode: "multi",
+        variant:
+          subjectOptions.length > 6 ? ("combobox" as const) : ("dropdown" as const),
+        options: subjectOptions,
+        value: filterSubject,
+        onChange: (v: string | string[]) => handleFilterSubjectChange(v),
+        placeholder: "All Subjects",
+        searchable: subjectOptions.length > 6,
+      },
+      ...(isTeacher
+        ? [
+            {
+              id: "class",
+              mode: "multi" as const,
+              variant:
+                classOptions.length > 6
+                  ? ("combobox" as const)
+                  : ("dropdown" as const),
+              options: classOptions,
+              value: filterClass,
+              onChange: (v: string | string[]) => handleFilterClassChange(v),
+              placeholder: "All Classes",
+              searchable: classOptions.length > 6,
+            },
+          ]
+        : []),
+    ],
+    [
+      isTeacher,
+      filterStatus,
+      filterSubject,
+      filterClass,
+      subjectOptions,
+      classOptions,
+      handleFilterStatusChange,
+      handleFilterSubjectChange,
+      handleFilterClassChange,
+    ],
+  );
 
   return (
     <div className="space-y-6">
-      {/* Demo Mode Banner */}
-      {isDemoMode && <DemoModeBanner />}
-
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-            {pageTitle}
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">{pageDescription}</p>
-        </div>
-
-        {/* 1-Click Fast Grade CTA for Teachers */}
-        {isTeacher && firstPendingSubmissionId && (
-          <Link href={`/submissions/${firstPendingSubmissionId}`}>
-            <Button
-              variant="role"
-              size="default"
-              className="font-bold gap-2 shadow-sm w-full sm:w-auto h-11"
-            >
-              <Sparkles className="w-4 h-4" />
-              <span>Start Grading ({pendingCount} Pending)</span>
-            </Button>
-          </Link>
-        )}
-      </div>
-
-      {/* Filter & Search Bar */}
-      <Card className="p-4 space-y-3">
-        <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
-          <div className="relative flex-1">
-            <Search className="w-4 h-4 absolute left-3.5 top-3.5 text-muted-foreground" />
-            <Input
-              placeholder={
-                currentRole === "TEACHER"
-                  ? "Search student or assessment title…"
-                  : "Search assessment title or subject…"
-              }
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 h-10"
-            />
-          </div>
-
-          {/* Assessment dropdown filter */}
-          {assessmentOptions.length > 0 && (
-            <select
-              value={assessmentFilter}
-              onChange={(e) => setAssessmentFilter(e.target.value)}
-              className="flex h-10 rounded-xl border border-input bg-background px-3 text-xs font-medium focus:ring-1 focus:ring-primary w-full md:w-56"
-            >
-              <option value="ALL">All Assessments</option>
-              {assessmentOptions.map((title) => (
-                <option key={title} value={title}>
-                  {title}
-                </option>
-              ))}
-            </select>
-          )}
-
-          {/* Subject dropdown filter */}
-          {subjectOptions.length > 0 && (
-            <select
-              value={subjectFilter}
-              onChange={(e) => setSubjectFilter(e.target.value)}
-              className="flex h-10 rounded-xl border border-input bg-background px-3 text-xs font-medium focus:ring-1 focus:ring-primary w-full md:w-44"
-            >
-              <option value="ALL">All Subjects</option>
-              {subjectOptions.map((subj) => (
-                <option key={subj} value={subj}>
-                  {subj}
-                </option>
-              ))}
-            </select>
-          )}
-
-          {/* Status Tabs */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
-            {STATUS_FILTERS.map((status) => (
-              <Button
-                key={status}
-                variant={statusFilter === status ? "role" : "outline"}
-                size="sm"
-                onClick={() => setStatusFilter(status as StatusFilter)}
-                className="capitalize text-xs h-10 px-3 shrink-0"
-              >
-                {status === "ALL"
-                  ? "All"
-                  : status === "SUBMITTED"
-                    ? "Pending Review"
-                    : "Graded"}
+      <DataDisplay<SubmissionRow>
+        title={pageTitle}
+        description={pageDescription}
+        searchPlaceholder={searchPlaceholder}
+        search={search}
+        onSearchChange={handleSearchChange}
+        filterGroups={filterGroups}
+        items={filtered}
+        isDemoMode={isDemoMode}
+        pagination={meta}
+        onPageChange={(p) => setPage(p)}
+        viewMode={viewMode}
+        onViewToggle={setViewMode}
+        renderCard={renderCard}
+        renderTableHeaders={renderTableHeaders}
+        renderTableRow={renderTableRow}
+        isLoading={isLoading}
+        error={fetchError ? "Failed to load submissions" : undefined}
+        showSearch
+        showFilters
+        showViewToggle
+        showDemoBanner
+        showPagination
+        showPaginationSummary
+        cardGridCols="2"
+        getItemKey={(item) => item.id}
+        headerAction={
+          isTeacher && firstPendingSubmissionId ? (
+            <Link href={`/submissions/${firstPendingSubmissionId}`}>
+              <Button variant="role" className="shadow-md">
+                <Sparkles className="w-4 h-4 mr-2" />
+                Start Grading ({pendingCount} Pending)
               </Button>
-            ))}
-          </div>
-        </div>
-      </Card>
-
-
-      {/* Loading state (live mode only) */}
-      {!isDemoMode && isLoadingSubmissions && (
-        <div className="flex items-center justify-center py-16 text-muted-foreground gap-2">
-          <Loader2 className="w-5 h-5 animate-spin" />
-          <span className="text-sm">Loading submissions…</span>
-        </div>
-      )}
-
-      {/* Submissions List Card */}
-      {(!isLoadingSubmissions || isDemoMode) && (
-        <SubmissionsTableCard
-          currentRole={currentRole}
-          submissions={filteredSubmissions}
-        />
-      )}
+            </Link>
+          ) : undefined
+        }
+      />
     </div>
   );
 }

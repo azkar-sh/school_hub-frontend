@@ -2,12 +2,21 @@ import * as React from "react";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useRoleThemeStore } from "@/stores/use-role-theme-store";
 import { getMockSubmissions, SubmissionRow } from "@/lib/mock-data";
-import { submissionsApi, parentStudentsApi } from "@/lib/api-client";
+import { submissionsApi, teachingAssignmentsApi } from "@/lib/api-client";
 import { useFetchData } from "@/lib/use-fetch-data";
-import { Submission } from "@/types";
+import { Submission, TeachingAssignment } from "@/types";
 
 export const STATUS_FILTERS = ["ALL", "SUBMITTED", "GRADED"] as const;
 export type StatusFilter = (typeof STATUS_FILTERS)[number];
+
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+type DisplayItem = SubmissionRow;
 
 function formatSubmittedAt(iso?: string): string {
   if (!iso) return "—";
@@ -31,114 +40,239 @@ function toSubmissionRow(s: Submission): SubmissionRow {
   };
 }
 
-import { useSearchParams } from "next/navigation";
+function useDebouncedValue<T>(value: T, delayMs: number): T {
+  const [debounced, setDebounced] = React.useState(value);
+  React.useEffect(() => {
+    const t = setTimeout(() => setDebounced(value), delayMs);
+    return () => clearTimeout(t);
+  }, [value, delayMs]);
+  return debounced;
+}
 
 export function useSubmissionsPage() {
-  const searchParams = useSearchParams();
-  const initialStatus = (searchParams.get("status") as StatusFilter) || "ALL";
-  const initialAssessment = searchParams.get("assessmentTitle") || "ALL";
-
   const { user, isDemoMode } = useAuthStore();
   const { activeRole } = useRoleThemeStore();
-  const currentRole = user?.role || activeRole;
+  const currentRole = user?.role ?? activeRole;
 
   const [search, setSearch] = React.useState("");
-  const [statusFilter, setStatusFilter] = React.useState<StatusFilter>(
-    STATUS_FILTERS.includes(initialStatus) ? initialStatus : "ALL",
+  const [filterStatus, setFilterStatus] = React.useState<string[]>([]);
+  const [filterSubject, setFilterSubject] = React.useState<string[]>([]);
+  const [filterClass, setFilterClass] = React.useState<string[]>([]);
+  const [page, setPage] = React.useState(1);
+  const limit = 10;
+
+  const [subjectOptions, setSubjectOptions] = React.useState<
+    { value: string; label: string }[]
+  >([]);
+  const [classOptions, setClassOptions] = React.useState<
+    { value: string; label: string }[]
+  >([]);
+
+  const handleSearchChange = React.useCallback((value: string) => {
+    setSearch(value);
+    setPage(1);
+  }, []);
+
+  const handleFilterStatusChange = React.useCallback(
+    (value: string | string[]) => {
+      setFilterStatus(
+        Array.isArray(value) ? value : value === "ALL" ? [] : [value],
+      );
+      setPage(1);
+    },
+    [],
   );
-  const [assessmentFilter, setAssessmentFilter] =
-    React.useState<string>(initialAssessment);
-  const [subjectFilter, setSubjectFilter] = React.useState<string>("ALL");
 
-  // Synchronize when searchParams change
-  React.useEffect(() => {
-    const statusParam = searchParams.get("status") as StatusFilter;
-    if (statusParam && STATUS_FILTERS.includes(statusParam)) {
-      setStatusFilter(statusParam);
-    }
-    const asmParam = searchParams.get("assessmentTitle");
-    if (asmParam) {
-      setAssessmentFilter(asmParam);
-    }
-  }, [searchParams]);
+  const handleFilterSubjectChange = React.useCallback(
+    (value: string | string[]) => {
+      setFilterSubject(
+        Array.isArray(value) ? value : value === "ALL" ? [] : [value],
+      );
+      setPage(1);
+    },
+    [],
+  );
 
-  // Live fetch for parents (fetch child wards)
+  const handleFilterClassChange = React.useCallback(
+    (value: string | string[]) => {
+      setFilterClass(
+        Array.isArray(value) ? value : value === "ALL" ? [] : [value],
+      );
+      setPage(1);
+    },
+    [],
+  );
+
+  const demoSubjectOptions = React.useMemo(
+    () =>
+      Array.from(
+        new Set(getMockSubmissions(currentRole).map((a) => a.subject)),
+      ).map((name) => ({ value: name, label: name })),
+    [currentRole],
+  );
+
+  const demoClassOptions = React.useMemo(
+    () =>
+      Array.from(
+        new Set(getMockSubmissions(currentRole).map((a) => a.subject)),
+      ).map((name) => ({ value: name, label: name })),
+    [currentRole],
+  );
+
   React.useEffect(() => {
     if (isDemoMode) return;
-    if (currentRole === "PARENT") {
-      parentStudentsApi.getChildren().catch(() => {});
+    let cancelled = false;
+    if (currentRole === "TEACHER" && user?.id) {
+      teachingAssignmentsApi
+        .findByTeacher(user.id)
+        .then((res) => {
+          if (cancelled) return;
+          const list: TeachingAssignment[] = Array.isArray(res.data)
+            ? res.data
+            : [];
+          const subjectOpts = Array.from(
+            new Map(
+              list
+                .filter((ta) => ta.subject)
+                .map(
+                  (ta) =>
+                    [
+                      ta.subject!.id,
+                      { value: ta.subject!.id, label: ta.subject!.name },
+                    ] as const,
+                ),
+            ).values(),
+          );
+          const classOpts = Array.from(
+            new Map(
+              list
+                .filter((ta) => ta.class)
+                .map(
+                  (ta) =>
+                    [
+                      ta.class!.id,
+                      { value: ta.class!.id, label: ta.class!.name },
+                    ] as const,
+                ),
+            ).values(),
+          );
+          setSubjectOptions(subjectOpts);
+          setClassOptions(classOpts);
+        })
+        .catch(() => {});
     }
-  }, [isDemoMode, currentRole]);
+    return () => {
+      cancelled = true;
+    };
+  }, [isDemoMode, currentRole, user?.id]);
 
-  // Load the role-aware submission history from the backend. Demo mode keeps
-  // mock data so the page is still browsable without a server.
+  const effectiveSubjectOptions = isDemoMode
+    ? demoSubjectOptions
+    : subjectOptions;
+  const effectiveClassOptions = isDemoMode ? demoClassOptions : classOptions;
+
+  const debouncedSearch = useDebouncedValue(search, 350);
+
+  const shouldFetchLive =
+    !isDemoMode && (currentRole === "TEACHER" || currentRole === "STUDENT" || currentRole === "PARENT");
+
   const {
-    data: liveSubmissionsData,
-    isLoading: isLoadingSubmissions,
-  } = useFetchData<SubmissionRow[]>(
-    () =>
-      submissionsApi
-        .findAll()
-        .then((res) =>
-          Array.isArray(res.data) ? res.data.map(toSubmissionRow) : [],
-        ),
-    [],
-    !isDemoMode,
+    data: liveData,
+    isLoading: isLoadingLive,
+    error: isErrorLive,
+  } = useFetchData<{
+    submissions: Submission[];
+    meta: PaginationMeta;
+  }>(
+    async () => {
+      if (!shouldFetchLive)
+        return {
+          submissions: [],
+          meta: { page: 1, limit, total: 0, totalPages: 0 },
+        };
+
+      const params: Record<string, string | number | string[]> = {
+        page,
+        limit,
+      };
+      if (debouncedSearch) params.search = debouncedSearch;
+      if (filterStatus.length > 0) params.status = filterStatus;
+      if (filterSubject.length > 0) params.subjectId = filterSubject;
+      if (filterClass.length > 0) params.classId = filterClass;
+
+      const res = await submissionsApi.findAll(params);
+      return res.data as unknown as {
+        submissions: Submission[];
+        meta: PaginationMeta;
+      };
+    },
+    [
+      shouldFetchLive,
+      currentRole,
+      page,
+      limit,
+      debouncedSearch,
+      filterStatus,
+      filterSubject,
+      filterClass,
+    ],
+    shouldFetchLive,
   );
 
-  const displaySubmissions = React.useMemo(() => {
-    return isDemoMode
-      ? getMockSubmissions(currentRole)
-      : (liveSubmissionsData ?? []);
-  }, [isDemoMode, currentRole, liveSubmissionsData]);
+  const liveItems = React.useMemo(() => {
+    if (!liveData) return [];
+    return liveData.submissions.map((s) => toSubmissionRow(s));
+  }, [liveData]);
 
-  // Derive unique assessment titles and subjects for filter dropdowns
-  const assessmentOptions = React.useMemo(() => {
-    const titles = new Set<string>();
-    displaySubmissions.forEach((s) => {
-      if (s.assessmentTitle) titles.add(s.assessmentTitle);
-    });
-    return Array.from(titles);
-  }, [displaySubmissions]);
+  const liveMeta = React.useMemo(() => {
+    if (!liveData) return { page: 1, limit, total: 0, totalPages: 0 };
+    return liveData.meta;
+  }, [liveData]);
 
-  const subjectOptions = React.useMemo(() => {
-    const subjects = new Set<string>();
-    displaySubmissions.forEach((s) => {
-      if (s.subject && s.subject !== "—") subjects.add(s.subject);
-    });
-    return Array.from(subjects);
-  }, [displaySubmissions]);
+  const mockItems = React.useMemo(
+    () => (isDemoMode ? getMockSubmissions(currentRole) : []),
+    [isDemoMode, currentRole],
+  );
 
-  // Client-side filtering
-  const filteredSubmissions = React.useMemo(() => {
-    return displaySubmissions.filter((sub) => {
-      const matchesStatus =
-        statusFilter === "ALL" || sub.status === statusFilter;
-      const matchesAssessment =
-        assessmentFilter === "ALL" || sub.assessmentTitle === assessmentFilter;
-      const matchesSubject =
-        subjectFilter === "ALL" || sub.subject === subjectFilter;
-      const q = search.toLowerCase().trim();
-      const matchesSearch =
-        q === "" ||
-        sub.studentName.toLowerCase().includes(q) ||
-        sub.assessmentTitle.toLowerCase().includes(q) ||
-        sub.subject.toLowerCase().includes(q);
-      return (
-        matchesStatus && matchesAssessment && matchesSubject && matchesSearch
-      );
-    });
+  const filteredItems = React.useMemo(() => {
+    if (isDemoMode) {
+      return mockItems.filter((item) => {
+        const matchesStatus =
+          filterStatus.length === 0 ||
+          filterStatus.includes(item.status as DisplayItem["status"]);
+        const matchesSubject =
+          filterSubject.length === 0 || filterSubject.includes(item.subject);
+        const q = search.toLowerCase();
+        const matchesSearch =
+          !q ||
+          item.studentName.toLowerCase().includes(q) ||
+          item.assessmentTitle.toLowerCase().includes(q) ||
+          item.subject.toLowerCase().includes(q);
+        return matchesStatus && matchesSubject && matchesSearch;
+      });
+    }
+    return liveItems;
   }, [
-    displaySubmissions,
-    statusFilter,
-    assessmentFilter,
-    subjectFilter,
+    mockItems,
+    filterStatus,
+    filterSubject,
     search,
+    liveItems,
+    isDemoMode,
   ]);
 
+  const meta = isDemoMode
+    ? {
+        page: 1,
+        limit: filteredItems.length,
+        total: filteredItems.length,
+        totalPages: 1,
+      }
+    : liveMeta;
+
   const pendingSubmissions = React.useMemo(() => {
-    return displaySubmissions.filter((s) => s.status === "SUBMITTED");
-  }, [displaySubmissions]);
+    return filteredItems.filter((s) => s.status === "SUBMITTED");
+  }, [filteredItems]);
 
   const firstPendingSubmissionId = pendingSubmissions[0]?.id || null;
   const pendingCount = pendingSubmissions.length;
@@ -163,19 +297,23 @@ export function useSubmissionsPage() {
     pageTitle,
     pageDescription,
     search,
-    setSearch,
-    statusFilter,
-    setStatusFilter,
-    assessmentFilter,
-    setAssessmentFilter,
-    assessmentOptions,
-    subjectFilter,
-    setSubjectFilter,
-    subjectOptions,
-    filteredSubmissions,
-    isLoadingSubmissions,
+    handleSearchChange,
+    filterStatus,
+    handleFilterStatusChange,
+    filterSubject,
+    handleFilterSubjectChange,
+    filterClass,
+    handleFilterClassChange,
+    subjectOptions: effectiveSubjectOptions,
+    classOptions: effectiveClassOptions,
+    filtered: filteredItems,
+    isLoading: isLoadingLive,
+    fetchError: isErrorLive,
+    meta,
+    setPage,
     firstPendingSubmissionId,
     pendingCount,
   };
 }
 
+export { toSubmissionRow };
