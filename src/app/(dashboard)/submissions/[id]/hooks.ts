@@ -1,14 +1,34 @@
 import * as React from "react";
+import { useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { submissionsApi } from "@/lib/api-client";
 import { useFetchData } from "@/lib/use-fetch-data";
 import { getErrorMessage } from "@/lib/errors";
 import { getMockSubmissionDetail, getMockSubmissions } from "@/lib/mock-data";
-import { Submission, Answer } from "@/types";
+import { Submission } from "@/types";
 
 export function useSubmissionDetailPage(submissionId: string) {
   const { user, isDemoMode } = useAuthStore();
   const currentRole = user?.role || "STUDENT";
+  const searchParams = useSearchParams();
+
+  const subjectIdParam = searchParams.get("subjectId");
+  const classIdParam = searchParams.get("classId");
+  const subjectIds = React.useMemo(
+    () => subjectIdParam?.split(",").filter(Boolean) ?? [],
+    [subjectIdParam],
+  );
+  const classIds = React.useMemo(
+    () => classIdParam?.split(",").filter(Boolean) ?? [],
+    [classIdParam],
+  );
+  const navQueryString = React.useMemo(() => {
+    const params = new URLSearchParams();
+    if (subjectIdParam) params.set("subjectId", subjectIdParam);
+    if (classIdParam) params.set("classId", classIdParam);
+    const qs = params.toString();
+    return qs ? `?${qs}` : "";
+  }, [subjectIdParam, classIdParam]);
 
   const [feedbackMsg, setFeedbackMsg] = React.useState<string | null>(null);
 
@@ -22,6 +42,7 @@ export function useSubmissionDetailPage(submissionId: string) {
   // Initialize demo submission
   React.useEffect(() => {
     if (isDemoMode && submissionId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDemoSubmission(getMockSubmissionDetail(submissionId));
     }
   }, [isDemoMode, submissionId]);
@@ -38,7 +59,7 @@ export function useSubmissionDetailPage(submissionId: string) {
 
   const activeSubmission = isDemoMode ? demoSubmission : (liveSubmission ?? null);
 
-  // Fetch all submissions for prev/next navigation (include GRADED so current stays in list after grading)
+  // Fetch grading queue for prev/next navigation using same filters as list page
   const {
     data: allLiveSubmissionsData,
     refetch: refetchList,
@@ -50,21 +71,29 @@ export function useSubmissionDetailPage(submissionId: string) {
       submissionsApi
         .findAll({
           limit: 200,
+          status: "SUBMITTED",
+          ...(subjectIds.length > 0 ? { subjectId: subjectIds } : {}),
+          ...(classIds.length > 0 ? { classId: classIds } : {}),
         })
         .then((res) => res.data as unknown as {
           submissions: Submission[];
           meta: { total: number };
         }),
-    [],
+    [navQueryString],
     !isDemoMode && (currentRole === "TEACHER" || currentRole === "SCHOOL_ADMIN"),
   );
 
   const submissionList = React.useMemo(() => {
     if (isDemoMode) {
-      return getMockSubmissions(currentRole);
+      const all = getMockSubmissions(currentRole);
+      if (subjectIds.length === 0) return all;
+      // Demo subjects use names as filter values (same as list page)
+      return all.filter((s) =>
+        subjectIds.includes((s as { subject?: string }).subject ?? ""),
+      );
     }
     return allLiveSubmissionsData?.submissions ?? [];
-  }, [isDemoMode, currentRole, allLiveSubmissionsData]);
+  }, [isDemoMode, currentRole, allLiveSubmissionsData, subjectIds]);
 
   const { currentIndex, totalSubmissions, prevSubmissionId, nextSubmissionId, nextPendingSubmissionId } =
     React.useMemo(() => {
@@ -199,6 +228,7 @@ export function useSubmissionDetailPage(submissionId: string) {
     prevSubmissionId,
     nextSubmissionId,
     nextPendingSubmissionId,
+    navQueryString,
   };
 }
 

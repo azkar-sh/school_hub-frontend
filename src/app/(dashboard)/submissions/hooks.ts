@@ -221,25 +221,28 @@ export function useSubmissionsPage() {
   );
 
   // Separate fetch for unfiltered pending count (for "Start Grading" button)
-  const { data: pendingData } = useFetchData<{
-    submissions: Submission[];
-    meta: { total: number };
-  }>(
-    async () => {
-      if (!shouldFetchLive)
-        return { submissions: [], meta: { total: 0 } };
-      const res = await submissionsApi.findAll({
-        status: "SUBMITTED",
-        limit: 100,
-      });
-      return res.data as unknown as {
-        submissions: Submission[];
-        meta: { total: number };
-      };
-    },
-    [shouldFetchLive, currentRole],
-    shouldFetchLive,
-  );
+const { data: pendingData } = useFetchData<{
+  submissions: Submission[];
+  meta: { total: number };
+}>(
+  async () => {
+    if (!shouldFetchLive)
+      return { submissions: [], meta: { total: 0 } };
+    const params: Record<string, string | number | string[]> = {
+      status: "SUBMITTED",
+      limit: 100,
+    };
+    if (filterSubject.length > 0) params.subjectId = filterSubject;
+    if (filterClass.length > 0) params.classId = filterClass;
+    const res = await submissionsApi.findAll(params);
+    return res.data as unknown as {
+      submissions: Submission[];
+      meta: { total: number };
+    };
+  },
+  [shouldFetchLive, currentRole, filterSubject, filterClass],
+  shouldFetchLive,
+);
 
   const liveItems = React.useMemo(() => {
     if (!liveData) return [];
@@ -295,10 +298,14 @@ export function useSubmissionsPage() {
   // Compute pending from unfiltered data (not filteredItems)
   const pendingSubmissions = React.useMemo(() => {
     if (isDemoMode) {
-      return mockItems.filter((s) => s.status === "SUBMITTED");
+      return mockItems.filter((s) => {
+        const matchesSubject =
+          filterSubject.length === 0 || filterSubject.includes(s.subject);
+        return s.status === "SUBMITTED" && matchesSubject;
+      });
     }
     return (pendingData?.submissions ?? []).map((s) => toSubmissionRow(s));
-  }, [isDemoMode, mockItems, pendingData]);
+  }, [isDemoMode, mockItems, pendingData, filterSubject]);
 
   const firstPendingSubmissionId = pendingSubmissions[0]?.id || null;
   const pendingCount = pendingSubmissions.length;

@@ -43,6 +43,14 @@ export default function SubmissionsPage() {
   const [viewMode, setViewMode] = React.useState<"cards" | "table">("cards");
   const isTeacher = currentRole === "TEACHER" || currentRole === "SCHOOL_ADMIN";
 
+  const startGradingHref = React.useMemo(() => {
+    const params = new URLSearchParams();
+    if (filterSubject.length > 0) params.set("subjectId", filterSubject.join(","));
+    if (filterClass.length > 0) params.set("classId", filterClass.join(","));
+    const qs = params.toString();
+    return `/submissions/${firstPendingSubmissionId}${qs ? `?${qs}` : ""}`;
+  }, [firstPendingSubmissionId, filterSubject, filterClass]);
+
   const searchPlaceholder = isTeacher
     ? "Search student or assessment title…"
     : "Search assessment title or subject…";
@@ -205,7 +213,7 @@ export default function SubmissionsPage() {
         getItemKey={(item) => item.id}
         headerAction={
           isTeacher && firstPendingSubmissionId ? (
-            <Link href={`/submissions/${firstPendingSubmissionId}`}>
+            <Link href={startGradingHref}>
               <Button variant="role" className="shadow-md">
                 <Sparkles className="w-4 h-4 mr-2" />
                 Start Grading ({pendingCount} Pending)

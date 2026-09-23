@@ -17,6 +17,21 @@ import { useSubmissionDetailPage } from "./hooks";
 import { SubmissionDetailCard } from "../_components/SubmissionDetailCard";
 
 export default function SubmissionDetailPage() {
+  return (
+    <React.Suspense
+      fallback={
+        <div className="flex items-center justify-center py-16 text-muted-foreground gap-2">
+          <Loader2 className="w-5 h-5 animate-spin" />
+          <span className="text-sm">Loading submission…</span>
+        </div>
+      }
+    >
+      <SubmissionDetailContent />
+    </React.Suspense>
+  );
+}
+
+function SubmissionDetailContent() {
   const router = useRouter();
   const params = useParams();
   const submissionId = params?.id as string;
@@ -42,6 +57,7 @@ export default function SubmissionDetailPage() {
     prevSubmissionId,
     nextSubmissionId,
     nextPendingSubmissionId,
+    navQueryString,
   } = useSubmissionDetailPage(submissionId);
 
   const isTeacher = currentRole === "TEACHER" || currentRole === "SCHOOL_ADMIN";
@@ -58,14 +74,14 @@ export default function SubmissionDetailPage() {
         return;
       }
       if (e.key === "[" && prevSubmissionId) {
-        router.push(`/submissions/${prevSubmissionId}`);
+        router.push(`/submissions/${prevSubmissionId}${navQueryString}`);
       } else if (e.key === "]" && nextSubmissionId) {
-        router.push(`/submissions/${nextSubmissionId}`);
+        router.push(`/submissions/${nextSubmissionId}${navQueryString}`);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isTeacher, prevSubmissionId, nextSubmissionId, router]);
+  }, [isTeacher, prevSubmissionId, nextSubmissionId, navQueryString, router]);
 
   return (
     <div className="space-y-6 pb-16 sm:pb-6">
@@ -96,7 +112,7 @@ export default function SubmissionDetailPage() {
                 disabled={!prevSubmissionId}
                 onClick={() =>
                   prevSubmissionId &&
-                  router.push(`/submissions/${prevSubmissionId}`)
+                  router.push(`/submissions/${prevSubmissionId}${navQueryString}`)
                 }
                 title="Previous Student (Shortcut: [)"
               >
@@ -111,7 +127,7 @@ export default function SubmissionDetailPage() {
                 disabled={!nextSubmissionId}
                 onClick={() =>
                   nextSubmissionId &&
-                  router.push(`/submissions/${nextSubmissionId}`)
+                  router.push(`/submissions/${nextSubmissionId}${navQueryString}`)
                 }
                 title="Next Student (Shortcut: ])"
               >
@@ -125,7 +141,7 @@ export default function SubmissionDetailPage() {
                   size="sm"
                   className="h-8 px-3 text-xs font-bold gap-1 shadow-xs"
                   onClick={() =>
-                    router.push(`/submissions/${nextPendingSubmissionId}`)
+                    router.push(`/submissions/${nextPendingSubmissionId}${navQueryString}`)
                   }
                   title="Jump to Next Student Awaiting Grading"
                 >
@@ -189,7 +205,7 @@ export default function SubmissionDetailPage() {
             disabled={!prevSubmissionId}
             onClick={() =>
               prevSubmissionId &&
-              router.push(`/submissions/${prevSubmissionId}`)
+              router.push(`/submissions/${prevSubmissionId}${navQueryString}`)
             }
           >
             <ChevronLeft className="w-4 h-4 mr-1" />
@@ -207,7 +223,7 @@ export default function SubmissionDetailPage() {
             disabled={!nextSubmissionId}
             onClick={() =>
               nextSubmissionId &&
-              router.push(`/submissions/${nextSubmissionId}`)
+              router.push(`/submissions/${nextSubmissionId}${navQueryString}`)
             }
           >
             Next
@@ -220,7 +236,7 @@ export default function SubmissionDetailPage() {
               size="sm"
               className="h-10 px-3 text-xs font-bold min-h-[44px]"
               onClick={() =>
-                router.push(`/submissions/${nextPendingSubmissionId}`)
+                router.push(`/submissions/${nextPendingSubmissionId}${navQueryString}`)
               }
             >
               <Sparkles className="w-4 h-4" />
