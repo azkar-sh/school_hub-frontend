@@ -16,7 +16,6 @@ import {
   LogOut,
   Menu,
   User as UserIcon,
-  ShieldAlert,
   School as SchoolIcon,
 } from "lucide-react";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -40,9 +39,8 @@ export function Navbar({ onOpenMobileNav }: { onOpenMobileNav?: () => void }) {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl">
-      <div className="flex h-16 items-center justify-between px-4 sm:px-8">
-        {/* Left Side: Brand Logo & Mobile Trigger */}
-        <div className="flex items-center gap-3">
+      <div className="flex h-16 items-center justify-between px-3 sm:px-6 lg:px-8 gap-2">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           {onOpenMobileNav && (
             <button
               onClick={onOpenMobileNav}
@@ -57,16 +55,16 @@ export function Navbar({ onOpenMobileNav }: { onOpenMobileNav?: () => void }) {
               <GraduationCap className="h-6 w-6" />
             </div>
             <div className="flex flex-col">
-              <span className="font-bold tracking-tight text-lg leading-tight bg-linear-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+              <span className="font-bold tracking-tight text-base sm:text-lg leading-tight bg-linear-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
                 School<span className="text-primary">Hub</span>
-                <span className="lg:inline hidden">
+                <span className="hidden lg:inline">
                   {" "}
                   |{" "}
                   {user?.role !== "SCHOOL_ADMIN" &&
                     user?.schoolMemberships?.[0]?.school?.name}
                 </span>
               </span>
-              <span className="text-[10px] font-medium text-muted-foreground tracking-wider uppercase">
+              <span className="hidden sm:block text-[10px] font-medium text-muted-foreground tracking-wider uppercase">
                 {t("assessmentSystem")}
               </span>
             </div>
@@ -79,8 +77,7 @@ export function Navbar({ onOpenMobileNav }: { onOpenMobileNav?: () => void }) {
           </Badge> */}
         </div>
 
-        {/* Center/Right Side: Role Switcher, Theme Toggle & User Info */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <RoleThemeSwitcher className="hidden md:flex" />
           <LanguageSwitcher />
           <ThemeToggle />
@@ -103,12 +100,12 @@ export function Navbar({ onOpenMobileNav }: { onOpenMobileNav?: () => void }) {
             </div>
           )}
           {isAuthenticated && user && !isDemoMode ? (
-            <div className="flex items-center gap-3 pl-2 border-l border-border/60">
-              <div className="hidden sm:flex flex-col text-right">
-                <span className="text-sm font-semibold leading-none">
+            <div className="flex items-center gap-2 sm:gap-3 pl-2 border-l border-border/60 shrink-0">
+              <div className="hidden md:flex flex-col text-right">
+                <span className="text-sm font-semibold leading-none max-w-[160px] truncate">
                   {user.name}
                 </span>
-                <span className="text-xs text-muted-foreground mt-0.5">
+                <span className="text-xs text-muted-foreground mt-0.5 max-w-[160px] truncate">
                   {user.email}
                 </span>
               </div>

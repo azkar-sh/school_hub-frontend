@@ -10,6 +10,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Sparkles,
+  Wand2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DemoModeBanner } from "@/components/ui/DemoModeBanner";
@@ -83,12 +84,30 @@ function SubmissionDetailContent() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isTeacher, prevSubmissionId, nextSubmissionId, navQueryString, router]);
 
+  const pendingAutoCount = React.useMemo(() => {
+    const answers = submission?.answers ?? [];
+    return answers.filter(
+      (a) =>
+        (a.question?.type === "MCQ" || a.question?.type === "TRUE_FALSE") &&
+        (a.pointsEarned === null || a.pointsEarned === undefined),
+    ).length;
+  }, [submission]);
+
+  const hasPendingAuto = pendingAutoCount > 0;
+  const bottomPad = isTeacher
+    ? hasPendingAuto
+      ? "pb-36 sm:pb-6"
+      : totalSubmissions > 0
+        ? "pb-24 sm:pb-6"
+        : "pb-6"
+    : "pb-6";
+
   return (
-    <div className="space-y-6 pb-16 sm:pb-6">
+    <div className={`space-y-4 sm:space-y-6 ${bottomPad}`}>
       {isDemoMode && <DemoModeBanner />}
 
       {/* Top Header & SpeedGrader Navigation Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-3.5 sm:p-4 rounded-2xl bg-card border border-border/70 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:p-4 rounded-2xl bg-card border border-border/70 shadow-xs">
         <Link
           href="/submissions"
           className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
@@ -98,10 +117,9 @@ function SubmissionDetailContent() {
         </Link>
 
         {isTeacher && totalSubmissions > 0 && (
-          <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 border-t sm:border-t-0 pt-2 sm:pt-0">
-            <span className="text-xs font-semibold text-muted-foreground">
-              Student {currentIndex >= 0 ? currentIndex + 1 : 1} of{" "}
-              {totalSubmissions}
+          <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 border-t sm:border-t-0 pt-2.5 sm:pt-0">
+            <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap">
+              {currentIndex >= 0 ? currentIndex + 1 : 1}/{totalSubmissions}
             </span>
 
             <div className="flex items-center gap-1.5">
@@ -116,7 +134,7 @@ function SubmissionDetailContent() {
                 }
                 title="Previous Student (Shortcut: [)"
               >
-                <ChevronLeft className="w-3.5 h-3.5 mr-0.5" />
+                <ChevronLeft className="w-3.5 h-3.5" />
                 <span className="hidden md:inline">Prev</span>
               </Button>
 
@@ -132,7 +150,7 @@ function SubmissionDetailContent() {
                 title="Next Student (Shortcut: ])"
               >
                 <span className="hidden md:inline">Next</span>
-                <ChevronRight className="w-3.5 h-3.5 ml-0.5" />
+                <ChevronRight className="w-3.5 h-3.5" />
               </Button>
 
               {nextPendingSubmissionId && (
@@ -146,7 +164,7 @@ function SubmissionDetailContent() {
                   title="Jump to Next Student Awaiting Grading"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
-                  <span>Next Pending</span>
+                  <span className="hidden sm:inline">Next Pending</span>
                 </Button>
               )}
             </div>
@@ -179,20 +197,37 @@ function SubmissionDetailContent() {
         </div>
       )}
 
-      {submission && (!isLoading || isDemoMode) && (
-        <SubmissionDetailCard
-          submission={submission}
-          currentRole={currentRole}
-          gradeAnswerId={gradeAnswerId}
-          gradePoints={gradePoints}
-          onChangeGradePoints={setGradePoints}
-          onStartGrading={startGradingAnswer}
-          onCancelGrading={cancelGradingAnswer}
-          onSubmitGrade={handleGradeSubmission}
-          onQuickGrade={handleQuickGrade}
-          onAutoGrade={handleAutoGradeSubmission}
-          autoGrading={autoGrading}
-        />
+{submission && (!isLoading || isDemoMode) && (
+         <SubmissionDetailCard
+           submission={submission}
+           currentRole={currentRole}
+           gradeAnswerId={gradeAnswerId}
+           gradePoints={gradePoints}
+           onChangeGradePoints={setGradePoints}
+           onStartGrading={startGradingAnswer}
+           onCancelGrading={cancelGradingAnswer}
+           onSubmitGrade={handleGradeSubmission}
+           onQuickGrade={handleQuickGrade}
+           onAutoGrade={handleAutoGradeSubmission}
+           autoGrading={autoGrading}
+         />
+       )}
+
+      {/* Sticky Auto-Grade Button on Mobile (above bottom nav) */}
+      {isTeacher && hasPendingAuto && !autoGrading && (
+        <div className="fixed bottom-20 left-3 right-3 sm:hidden z-30">
+          <Button
+            variant="default"
+            size="lg"
+            className="w-full min-h-[52px] text-sm font-bold gap-2 shadow-xl"
+            onClick={handleAutoGradeSubmission}
+            disabled={autoGrading}
+            isLoading={autoGrading}
+          >
+            <Wand2 className="w-4 h-4" />
+            Auto-grade {pendingAutoCount} MCQ / TF
+          </Button>
+        </div>
       )}
 
       {/* Sticky Bottom Floating Bar on Mobile for 1-Thumb Phone Grading */}
