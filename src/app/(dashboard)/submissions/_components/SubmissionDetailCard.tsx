@@ -30,6 +30,7 @@ interface SubmissionDetailCardProps {
   onQuickGrade?: (answerId: string, points: number) => void;
   onAutoGrade?: () => void;
   autoGrading?: boolean;
+  highlightAnswerId?: string | null;
 }
 
 function optionMatches(
@@ -41,15 +42,22 @@ function optionMatches(
   return a === (opt.id ?? "").trim() || a === opt.text.trim();
 }
 
-const QUICK_GRADE_RATIOS = [0, 0.5, 1] as const;
+const QUICK_GRADE_RATIOS = [
+  { ratio: 0, label: "No credit" },
+  { ratio: 0.5, label: "Half credit" },
+  { ratio: 1, label: "Full credit" },
+] as const;
 
 function buildQuickGradePresets(maxPoints: number) {
   const safeMax = Number.isFinite(maxPoints) && maxPoints > 0 ? maxPoints : 1;
-  const presets = QUICK_GRADE_RATIOS.map((ratio) =>
-    Number((safeMax * ratio).toFixed(2)),
-  );
+  const byPoints = new Map<number, string>();
+  for (const { ratio, label } of QUICK_GRADE_RATIOS) {
+    byPoints.set(Number((safeMax * ratio).toFixed(2)), label);
+  }
 
-  return Array.from(new Set(presets)).sort((a, b) => a - b);
+  return Array.from(byPoints.entries())
+    .map(([points, label]) => ({ points, label }))
+    .sort((a, b) => a.points - b.points);
 }
 
 function formatPresetPoints(points: number) {
@@ -70,6 +78,7 @@ export function SubmissionDetailCard({
   onQuickGrade,
   onAutoGrade,
   autoGrading,
+  highlightAnswerId,
 }: SubmissionDetailCardProps) {
   const answers = submission.answers ?? [];
   const isTeacher = currentRole === "TEACHER" || currentRole === "SCHOOL_ADMIN";
@@ -85,14 +94,27 @@ export function SubmissionDetailCard({
   const pendingManual = manualAnswers.filter(
     (a) => a.pointsEarned === null || a.pointsEarned === undefined,
   );
+  const totalGradable = autoGradableAnswers.length + manualAnswers.length;
+  const totalPending = pendingAuto.length + pendingManual.length;
+  const gradedCount = totalGradable - totalPending;
+  const allGraded = totalGradable > 0 && totalPending === 0;
+  const progressPct =
+    totalGradable > 0 ? Math.round((gradedCount / totalGradable) * 100) : 100;
 
   return (
     <Card className="border-primary/40 bg-primary/5 overflow-hidden">
       <CardHeader className="flex flex-row items-center justify-between gap-3 pb-3">
         <div className="min-w-0">
-          <Badge variant="role" className="mb-1">
-            {submission.status}
-          </Badge>
+          <div className="flex items-center gap-1.5 mb-1">
+            <Badge variant="role">{submission.status}</Badge>
+            {isTeacher && totalGradable > 0 && (
+              <Badge variant={allGraded ? "success" : "warning"}>
+                {allGraded
+                  ? "Fully graded"
+                  : `${gradedCount}/${totalGradable} graded`}
+              </Badge>
+            )}
+          </div>
           <CardTitle className="text-base sm:text-xl truncate">
             {submission.assessment?.title || "Assessment Submission"}
           </CardTitle>
@@ -122,35 +144,70 @@ export function SubmissionDetailCard({
       </CardHeader>
 
       <CardContent className="space-y-3 sm:space-y-4 pt-2 px-3 sm:px-6">
-        {pendingAuto.length > 0 && isTeacher && (
-          <div className="hidden sm:flex flex-col gap-2.5 p-3 sm:p-3.5 rounded-xl bg-info/10 border border-info/30">
-            <div className="flex items-center gap-2 text-xs font-semibold text-info">
-              <Wand2 className="w-4 h-4 shrink-0" />
-              <span>{pendingAuto.length} MCQ / True-False ungraded</span>
+        {isTeacher && totalGradable > 0 && (
+          <div
+            className={`flex flex-col gap-2.5 p-3 sm:p-3.5 rounded-xl border ${
+              allGraded
+                ? "bg-success/10 border-success/30"
+                : "bg-muted/40 border-border/60"
+            }`}
+          >
+            <div className="flex items-center justify-between gap-2">
+              <div
+                className={`flex items-center gap-1.5 text-xs font-bold ${
+                  allGraded ? "text-success" : "text-foreground"
+                }`}
+              >
+                {allGraded ? (
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                ) : (
+                  <Clock className="w-4 h-4 shrink-0 text-warning" />
+                )}
+                <span>
+                  {allGraded
+                    ? "All questions graded"
+                    : `${gradedCount}/${totalGradable} questions graded`}
+                </span>
+              </div>
+              {!allGraded && (
+                <span className="text-[11px] font-semibold text-muted-foreground shrink-0">
+                  {totalPending} pending
+                </span>
+              )}
             </div>
-            <Button
-              variant="default"
-              size="sm"
-              className="w-full min-h-[44px] text-sm font-bold gap-2"
-              onClick={onAutoGrade}
-              disabled={autoGrading}
-              isLoading={autoGrading}
-            >
-              {!autoGrading && <Wand2 className="w-4 h-4" />}
-              {autoGrading
-                ? "Auto-grading…"
-                : `Auto-grade ${pendingAuto.length} question${pendingAuto.length > 1 ? "s" : ""}`}
-            </Button>
-          </div>
-        )}
 
-        {pendingManual.length > 0 && isTeacher && (
-          <div className="flex items-center gap-2 p-3 rounded-xl bg-warning/10 border border-warning/30 text-xs text-warning font-medium">
-            <AlertCircle className="w-4 h-4 shrink-0" />
-            <span>
-              {pendingManual.length} short-answer need
-              {pendingManual.length > 1 ? "" : "s"} manual review below.
-            </span>
+            <div className="h-1.5 w-full rounded-full bg-border/50 overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all ${
+                  allGraded ? "bg-success" : "bg-info"
+                }`}
+                style={{ width: `${progressPct}%` }}
+              />
+            </div>
+
+            {pendingAuto.length > 0 && (
+              <Button
+                variant="default"
+                size="sm"
+                className="w-full min-h-[44px] text-sm font-bold gap-2"
+                onClick={onAutoGrade}
+                disabled={autoGrading}
+                isLoading={autoGrading}
+              >
+                {!autoGrading && <Wand2 className="w-4 h-4" />}
+                {autoGrading
+                  ? "Auto-grading…"
+                  : `Auto-grade ${pendingAuto.length} MCQ / True-False`}
+              </Button>
+            )}
+
+            {pendingManual.length > 0 && (
+              <p className="flex items-center gap-1.5 text-xs text-warning font-medium">
+                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                {pendingManual.length} short-answer response
+                {pendingManual.length > 1 ? "s" : ""} need manual review below.
+              </p>
+            )}
           </div>
         )}
 
@@ -177,10 +234,19 @@ export function SubmissionDetailCard({
               optionMatches(ans.answer, o),
             );
 
+            const isHighlighted = ans.id === highlightAnswerId;
+
             return (
               <div
                 key={ans.id}
-                className="p-3 sm:p-5 rounded-xl bg-card border border-border/60 shadow-xs"
+                id={`answer-${ans.id}`}
+                className={`p-3 sm:p-5 rounded-xl bg-card border shadow-xs scroll-mt-36 transition-all ${
+                  isHighlighted
+                    ? "border-info/60 ring-2 ring-info/50"
+                    : isPending && isTeacher
+                      ? "border-warning/40 ring-1 ring-warning/20"
+                      : "border-border/60"
+                }`}
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
@@ -253,11 +319,12 @@ export function SubmissionDetailCard({
                         </div>
 
                         <div className="grid grid-cols-3 gap-2">
-                          {quickGradePresets.map((preset) => {
+                          {quickGradePresets.map(({ points, label }) => {
                             const isSelected =
-                              earned !== null && Math.abs(earned - preset) < 0.001;
+                              earned !== null &&
+                              Math.abs(earned - points) < 0.001;
                             const variant =
-                              isSelected && preset === 0
+                              isSelected && points === 0
                                 ? "destructive"
                                 : isSelected
                                   ? "role"
@@ -265,14 +332,17 @@ export function SubmissionDetailCard({
 
                             return (
                               <Button
-                                key={`${ans.id}-${preset}`}
+                                key={`${ans.id}-${points}`}
                                 type="button"
                                 variant={variant}
                                 size="sm"
-                                className="min-h-[44px] text-xs font-bold"
-                                onClick={() => onQuickGrade?.(ans.id, preset)}
+                                className="min-h-[48px] flex-col gap-0 text-xs font-bold"
+                                onClick={() => onQuickGrade?.(ans.id, points)}
                               >
-                                {formatPresetPoints(preset)}
+                                <span>{formatPresetPoints(points)} pts</span>
+                                <span className="text-[10px] font-medium opacity-70">
+                                  {label}
+                                </span>
                               </Button>
                             );
                           })}
