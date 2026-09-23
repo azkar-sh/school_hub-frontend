@@ -55,7 +55,7 @@ export function Navbar({ onOpenMobileNav }: { onOpenMobileNav?: () => void }) {
               <GraduationCap className="h-6 w-6" />
             </div>
             <div className="flex flex-col">
-              <span className="font-bold tracking-tight text-base sm:text-lg leading-tight bg-linear-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+              <span className="font-bold tracking-tight text-base sm:text-lg leading-tight bg-linear-to-r from-foreground to-muted-foreground bg-clip-text text-transparent hidden lg:inline">
                 School<span className="text-primary">Hub</span>
                 <span className="hidden lg:inline">
                   {" "}
