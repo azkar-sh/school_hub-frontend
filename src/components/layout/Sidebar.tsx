@@ -189,43 +189,53 @@ export function Sidebar({
         {sidebarContent}
       </div>
 
-      {isOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div
-            className="fixed inset-0 bg-overlay/60 backdrop-blur-xs"
+<div className={cn("fixed inset-0 z-50 lg:hidden", isOpen ? "pointer-events-auto" : "pointer-events-none")}>
+         {/* Backdrop */}
+         <div
+            className={cn(
+              "fixed inset-0 transition-all duration-200",
+              isOpen
+                ? "bg-overlay/60 backdrop-blur-xs pointer-events-auto"
+                : "bg-transparent backdrop-blur-none pointer-events-none"
+            )}
             onClick={onClose}
           />
-          <div className="fixed inset-y-0 left-0 z-50 w-64 bg-background shadow-2xl flex flex-col">
-<div className="p-4 flex items-center justify-between border-b border-border">
-      <div className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-md transition-transform group-hover:scale-105">
-          <GraduationCap className="h-4 w-4" />
-        </div>
-        <div className="flex flex-col">
-          <span className="font-bold tracking-tight text-sm leading-none bg-linear-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-            School<span className="text-primary">Hub</span>
-          </span>
-          <span className="text-[8px] font-medium text-muted-foreground tracking-wider uppercase">
-            {tNav("assessmentSystem")}
-          </span>
-          {user?.schoolMemberships?.[0]?.school?.name && (
-            <span className="text-[11px] font-semibold text-foreground leading-none mt-0.5 max-w-[160px] truncate">
-              {user.schoolMemberships[0].school.name}
-            </span>
-          )}
-        </div>
-      </div>
-      <button
-        onClick={onClose}
-        className="p-1 rounded-lg hover:bg-muted text-muted-foreground"
-      >
-        <X className="w-5 h-5" />
-      </button>
-    </div>
-            <div className="flex-1 overflow-y-auto">{sidebarContent}</div>
-          </div>
-        </div>
-      )}
+         {/* Sidebar panel */}
+         <div className={cn(
+           "fixed inset-y-0 left-0 z-50 w-64 bg-background shadow-2xl flex flex-col",
+           "transition-transform duration-200",
+           isOpen ? "translate-x-0" : "-translate-x-full"
+         )}
+         >
+           <div className="p-4 flex items-center justify-between border-b border-border">
+             <div className="flex items-center gap-2">
+               <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-md transition-transform group-hover:scale-105">
+                 <GraduationCap className="h-4 w-4" />
+               </div>
+               <div className="flex flex-col">
+                 <span className="font-bold tracking-tight text-sm leading-none bg-linear-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+                   School<span className="text-primary">Hub</span>
+                 </span>
+                 <span className="text-[8px] font-medium text-muted-foreground tracking-wider uppercase">
+                   {tNav("assessmentSystem")}
+                 </span>
+                 {user?.schoolMemberships?.[0]?.school?.name && (
+                   <span className="text-[11px] font-semibold text-foreground leading-none mt-0.5 max-w-[160px] truncate">
+                     {user.schoolMemberships[0].school.name}
+                   </span>
+                 )}
+               </div>
+             </div>
+             <button
+               onClick={onClose}
+               className="p-1 rounded-lg hover:bg-muted text-muted-foreground"
+             >
+               <X className="w-5 h-5" />
+             </button>
+           </div>
+           <div className="flex-1 overflow-y-auto">{sidebarContent}</div>
+         </div>
+       </div>
     </>
   );
 }
