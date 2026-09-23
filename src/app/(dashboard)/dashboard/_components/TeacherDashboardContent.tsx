@@ -70,7 +70,7 @@ export function TeacherDashboardContent({
           subject: a.subject,
           className: "Your Class",
           pendingCount: a.submissionsCount ?? 0,
-          dueAt: a.dueAt || "Active",
+          dueAt: a.due || "Active",
         }));
 
   return (

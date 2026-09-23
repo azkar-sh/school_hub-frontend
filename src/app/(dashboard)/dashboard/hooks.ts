@@ -34,6 +34,7 @@ export interface DisplayAssessment {
   due: string;
   questionsCount: number;
   points: number;
+  submissionsCount?: number;
 }
 
 interface LiveSubject {
@@ -189,8 +190,10 @@ export function useDashboardPage() {
   } = useFetchData<LiveAssessment[]>(
     () =>
       apiClient
-        .get<LiveAssessment[]>(teacherAssessmentsEndpoint!)
-        .then((res) => (Array.isArray(res.data) ? res.data : [])),
+        .get<{ assessments: LiveAssessment[]; meta: unknown }>(teacherAssessmentsEndpoint!, { params: { limit: 100 } })
+        .then((res) =>
+          Array.isArray(res.data) ? res.data : (res.data?.assessments ?? []),
+        ),
     [currentRole],
     !isDemoMode && !!teacherAssessmentsEndpoint,
   );
@@ -206,8 +209,10 @@ export function useDashboardPage() {
   } = useFetchData<LiveAssessment[]>(
     () =>
       apiClient
-        .get<LiveAssessment[]>(studentAssessmentsEndpoint!)
-        .then((res) => (Array.isArray(res.data) ? res.data : [])),
+        .get<{ assessments: LiveAssessment[]; meta: unknown }>(studentAssessmentsEndpoint!, { params: { limit: 100 } })
+        .then((res) =>
+          Array.isArray(res.data) ? res.data : (res.data?.assessments ?? []),
+        ),
     [currentRole],
     !isDemoMode && !!studentAssessmentsEndpoint,
   );
@@ -224,8 +229,10 @@ export function useDashboardPage() {
     useFetchData<LiveSubmission[]>(
       () =>
         submissionsApi
-          .findAll()
-          .then((res) => (Array.isArray(res.data) ? res.data : [])),
+          .findAll({ limit: 1000 })
+          .then((res) =>
+            Array.isArray(res.data) ? res.data : (res.data?.submissions ?? []),
+          ),
       [currentRole],
       !isDemoMode && (isTeacher || isStudent || isParent || isAdmin),
     );
@@ -335,9 +342,10 @@ export function useDashboardPage() {
         due: a.dueAt ? new Date(a.dueAt).toLocaleDateString() : tHooks("noDueDate"),
         questionsCount: a._count?.questions ?? a.questions?.length ?? 0,
         points: 0,
+        submissionsCount: a._count?.submissions,
       }));
     }
-    if (isStudent) {
+if (isStudent) {
       return studentAssessments
         .filter((a) => {
           const sub = a.submissions?.[0];
@@ -349,11 +357,12 @@ export function useDashboardPage() {
           id: a.id,
           title: a.title,
           type: a.type,
-        subject: a.teachingAssignment?.subject?.name,
-        due: a.dueAt ? new Date(a.dueAt).toLocaleDateString() : tHooks("noDueDate"),
-        questionsCount: a._count?.questions ?? a.questions?.length ?? 0,
-        points: 0,
-      }));
+          subject: a.teachingAssignment?.subject?.name,
+          due: a.dueAt ? new Date(a.dueAt).toLocaleDateString() : tHooks("noDueDate"),
+          questionsCount: a._count?.questions ?? a.questions?.length ?? 0,
+          points: 0,
+          submissionsCount: a._count?.submissions,
+        }));
     }
     return [];
   }, [

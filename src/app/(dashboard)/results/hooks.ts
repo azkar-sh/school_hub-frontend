@@ -65,8 +65,10 @@ export function useResultsPage() {
   const { data: submissionsData, isLoading } = useFetchData<LiveSubmission[]>(
     () =>
       submissionsApi
-        .findAll()
-        .then((res) => (Array.isArray(res.data) ? res.data : [])),
+        .findAll({ limit: 1000 })
+        .then((res) =>
+          Array.isArray(res.data) ? res.data : (res.data?.submissions ?? []),
+        ),
     [currentRole],
     shouldFetch,
   );

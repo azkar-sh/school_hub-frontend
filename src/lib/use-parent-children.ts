@@ -68,8 +68,10 @@ export function useParentChildren() {
     useFetchData<LiveSubmission[]>(
       () =>
         submissionsApi
-          .findAll()
-          .then((res) => (Array.isArray(res.data) ? res.data : [])),
+          .findAll({ limit: 1000 })
+          .then((res) =>
+            Array.isArray(res.data) ? res.data : (res.data?.submissions ?? []),
+          ),
       [user?.id],
       enabled,
     );
