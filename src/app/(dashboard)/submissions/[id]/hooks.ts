@@ -71,7 +71,6 @@ export function useSubmissionDetailPage(submissionId: string) {
       submissionsApi
         .findAll({
           limit: 200,
-          status: "SUBMITTED",
           ...(subjectIds.length > 0 ? { subjectId: subjectIds } : {}),
           ...(classIds.length > 0 ? { classId: classIds } : {}),
         })
