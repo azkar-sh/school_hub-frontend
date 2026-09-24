@@ -5,9 +5,11 @@ import Link from "next/link";
 import { DataDisplay, FilterGroup } from "@/components/ui/DataDisplay";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, CheckCircle2, Clock, ChevronRight } from "lucide-react";
+import { Sparkles, CheckCircle2, Clock, ChevronRight, Users, FileText } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { useSubmissionsPage, STATUS_FILTERS } from "./hooks";
 import { SubmissionCard } from "./_components/SubmissionCard";
+import { GroupedSubmissionsView } from "./_components/GroupedSubmissionsView";
 import { SubmissionRow } from "@/lib/mock-data";
 
 const STATUS_OPTIONS = STATUS_FILTERS.filter((s) => s !== "ALL").map((s) => ({
@@ -41,6 +43,7 @@ export default function SubmissionsPage() {
   } = useSubmissionsPage();
 
   const [viewMode, setViewMode] = React.useState<"cards" | "table">("cards");
+  const [groupBy, setGroupBy] = React.useState<"none" | "class" | "assessment">("none");
   const isTeacher = currentRole === "TEACHER" || currentRole === "SCHOOL_ADMIN";
 
   const startGradingHref = React.useMemo(() => {
@@ -183,6 +186,55 @@ export default function SubmissionsPage() {
     ],
   );
 
+  const toolbarExtra = React.useMemo(() => {
+    if (!isTeacher) return null;
+    return (
+      <div className="flex items-center gap-1 bg-muted/60 p-1 rounded-xl border border-border/60">
+        <span className="text-[11px] font-bold text-muted-foreground px-2 uppercase tracking-wider hidden sm:inline">
+          Kelompok:
+        </span>
+        <button
+          type="button"
+          onClick={() => setGroupBy("none")}
+          className={cn(
+            "px-2.5 py-1 rounded-lg text-xs font-semibold transition-all",
+            groupBy === "none"
+              ? "bg-card text-foreground shadow-xs font-bold"
+              : "text-muted-foreground hover:text-foreground",
+          )}
+        >
+          Semua
+        </button>
+        <button
+          type="button"
+          onClick={() => setGroupBy("class")}
+          className={cn(
+            "px-2.5 py-1 rounded-lg text-xs font-semibold transition-all flex items-center gap-1",
+            groupBy === "class"
+              ? "bg-card text-foreground shadow-xs font-bold"
+              : "text-muted-foreground hover:text-foreground",
+          )}
+        >
+          <Users className="w-3.5 h-3.5" />
+          Kelas
+        </button>
+        <button
+          type="button"
+          onClick={() => setGroupBy("assessment")}
+          className={cn(
+            "px-2.5 py-1 rounded-lg text-xs font-semibold transition-all flex items-center gap-1",
+            groupBy === "assessment"
+              ? "bg-card text-foreground shadow-xs font-bold"
+              : "text-muted-foreground hover:text-foreground",
+          )}
+        >
+          <FileText className="w-3.5 h-3.5" />
+          Asesmen
+        </button>
+      </div>
+    );
+  }, [isTeacher, groupBy]);
+
   return (
     <div className="space-y-6">
       <DataDisplay<SubmissionRow>
@@ -205,12 +257,13 @@ export default function SubmissionsPage() {
         error={fetchError ? "Failed to load submissions" : undefined}
         showSearch
         showFilters
-        showViewToggle
+        showViewToggle={groupBy === "none"}
         showDemoBanner
         showPagination
         showPaginationSummary
         cardGridCols="2"
         getItemKey={(item) => item.id}
+        toolbarExtra={toolbarExtra}
         headerAction={
           isTeacher && firstPendingSubmissionId ? (
             <Link href={startGradingHref}>
@@ -221,7 +274,15 @@ export default function SubmissionsPage() {
             </Link>
           ) : undefined
         }
-      />
+      >
+        {isTeacher && groupBy !== "none" ? (
+          <GroupedSubmissionsView
+            items={filtered}
+            groupBy={groupBy}
+            currentRole={currentRole}
+          />
+        ) : null}
+      </DataDisplay>
     </div>
   );
 }

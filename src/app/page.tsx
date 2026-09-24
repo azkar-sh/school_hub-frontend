@@ -825,7 +825,7 @@ export default function LandingPage() {
         </section>
 
         {/* FAQ Accordion */}
-        <section id="faq" className="w-full py-20 px-4 max-w-4xl border-t border-border/40 scroll-mt-20">
+        <section id="faq" className="w-full py-20 px-4 max-w-6xl border-t border-border/40 scroll-mt-20">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <span className="text-xs font-bold uppercase tracking-wider text-primary mb-2 block">
               {t('faq.tag')}

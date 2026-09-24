@@ -37,6 +37,8 @@ function toSubmissionRow(s: Submission): SubmissionRow {
     score: s.scorePercentage ?? null,
     submittedAt: formatSubmittedAt(s.submittedAt),
     status: s.status === "GRADED" ? "GRADED" : "SUBMITTED",
+    className: s.assessment?.teachingAssignment?.class?.name ?? "Tanpa Kelas",
+    assessmentId: s.assessmentId,
   };
 }
 

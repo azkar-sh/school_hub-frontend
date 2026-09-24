@@ -1,3 +1,4 @@
+import * as React from "react";
 import Link from "next/link";
 import {
   Card,
@@ -23,6 +24,12 @@ import { DisplayAssessment } from "../hooks";
 import { UpcomingAssessmentsCard } from "./UpcomingAssessmentsCard";
 import { useTranslations } from "next-intl";
 
+interface LiveSubmissionLike {
+  assessmentId?: string;
+  status: string;
+  assessment?: { id: string };
+}
+
 interface TeacherDashboardContentProps {
   isDemoMode: boolean;
   teacherClasses: MockTeacherDashboardClass[];
@@ -30,6 +37,7 @@ interface TeacherDashboardContentProps {
   isLoadingLive: boolean;
   liveFetchError: unknown;
   displayAssessments: DisplayAssessment[];
+  submissions?: LiveSubmissionLike[];
 }
 
 export function TeacherDashboardContent({
@@ -39,8 +47,22 @@ export function TeacherDashboardContent({
   isLoadingLive,
   liveFetchError,
   displayAssessments,
+  submissions,
 }: TeacherDashboardContentProps) {
   const t = useTranslations("Dashboard.teacherContent");
+
+  const pendingByAssessment = React.useMemo(() => {
+    const map = new Map<string, number>();
+    (submissions ?? []).forEach((s) => {
+      if (s.status === "SUBMITTED") {
+        const aId = s.assessmentId ?? s.assessment?.id;
+        if (aId) {
+          map.set(aId, (map.get(aId) || 0) + 1);
+        }
+      }
+    });
+    return map;
+  }, [submissions]);
 
   // Assessments that require teacher review (in demo mode or from live data)
   const pendingAssessments = isDemoMode
@@ -63,13 +85,13 @@ export function TeacherDashboardContent({
         },
       ]
     : displayAssessments
-        .filter((a) => (a.submissionsCount ?? 0) > 0)
+        .filter((a) => (pendingByAssessment.get(a.id) ?? 0) > 0)
         .map((a) => ({
           id: a.id,
           title: a.title,
           subject: a.subject,
           className: "Your Class",
-          pendingCount: a.submissionsCount ?? 0,
+          pendingCount: pendingByAssessment.get(a.id) ?? 0,
           dueAt: a.due || "Active",
         }));
 
@@ -134,9 +156,26 @@ export function TeacherDashboardContent({
               </div>
             ))
           ) : (
-            <div className="py-6 text-center text-xs text-muted-foreground flex items-center justify-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-success" />
-              <span>All caught up! No pending submissions requiring manual grading.</span>
+            <div className="py-8 text-center text-xs text-muted-foreground flex flex-col items-center justify-center gap-2">
+              <div className="w-10 h-10 rounded-2xl bg-success/15 text-success flex items-center justify-center">
+                <CheckCircle2 className="w-5 h-5" />
+              </div>
+              <span className="font-bold text-foreground text-sm">Semua Tugas Sudah Selesai Dinilai</span>
+              <span className="text-muted-foreground max-w-sm">
+                Tidak ada pengumpulan siswa yang menunggu koreksi saat ini. Semua submission aktif telah dinilai.
+              </span>
+              <div className="flex gap-2 pt-2">
+                <Link href="/submissions">
+                  <Button variant="outline" size="sm" className="rounded-xl text-xs">
+                    Lihat Semua Pengumpulan
+                  </Button>
+                </Link>
+                <Link href="/results">
+                  <Button variant="role" size="sm" className="rounded-xl text-xs">
+                    Buka Buku Nilai
+                  </Button>
+                </Link>
+              </div>
             </div>
           )}
         </CardContent>

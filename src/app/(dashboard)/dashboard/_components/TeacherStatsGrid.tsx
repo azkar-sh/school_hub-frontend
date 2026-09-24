@@ -97,7 +97,7 @@ export function TeacherStatsGrid({
               <ArrowUpRight className="w-3.5 h-3.5 text-warning transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </div>
             <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 truncate">
-              {t("submissionsWaitingReview")}
+              {pendingCount === 0 ? "Semua tugas dinilai ✓" : t("submissionsWaitingReview")}
             </p>
           </CardContent>
         </Card>

@@ -8,6 +8,8 @@ export interface SubmissionRow {
   score: number | null;
   submittedAt: string;
   status: "SUBMITTED" | "GRADED";
+  className?: string;
+  assessmentId?: string;
 }
 
 export function getMockSubmissions(role: UserRole): SubmissionRow[] {

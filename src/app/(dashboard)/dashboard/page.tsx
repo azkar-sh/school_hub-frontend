@@ -29,6 +29,7 @@ export default function DashboardPage() {
     teacherPendingResults,
     teacherClassAverage,
     teacherIsLoading,
+    submissions,
     studentClass,
     studentQuizzesTaken,
     studentAverageScore,
@@ -108,6 +109,7 @@ export default function DashboardPage() {
           isLoadingLive={isLoadingLive}
           liveFetchError={liveFetchError}
           displayAssessments={displayAssessments}
+          submissions={submissions}
         />
       )}
 

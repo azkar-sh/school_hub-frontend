@@ -124,6 +124,7 @@ interface DataDisplayProps<TItem> {
   getItemKey?: (item: TItem, index: number) => string | number;
   headerAction?: React.ReactNode;
   toolbarExtra?: React.ReactNode;
+  children?: React.ReactNode;
   className?: string;
 }
 
@@ -406,6 +407,7 @@ export function DataDisplay<TItem>({
   getItemKey,
   headerAction,
   toolbarExtra,
+  children,
   className = "",
 }: DataDisplayProps<TItem>) {
   const { isDemoMode: storeIsDemoMode } = useAuthStore();
@@ -643,21 +645,35 @@ export function DataDisplay<TItem>({
         </div>
       )}
 
-      {!isBlocked && !hasItems && (
-        <div className="text-center py-12">
-          <p className="text-sm text-muted-foreground">
-            No items match your search.
-          </p>
-        </div>
-      )}
+      {children ? (
+        !isBlocked && (
+          hasItems ? (
+            children
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-sm text-muted-foreground">
+                No items match your search.
+              </p>
+            </div>
+          )
+        )
+      ) : (
+        <>
+          {!isBlocked && !hasItems && (
+            <div className="text-center py-12">
+              <p className="text-sm text-muted-foreground">
+                No items match your search.
+              </p>
+            </div>
+          )}
 
-      {!isBlocked && hasItems && viewMode === "cards" && renderCard && (
-        <div className={cn("grid gap-5", gridColsClass[cardGridCols])}>
-          {items.map((item, index) => (
-            <div key={resolveKey(item, index)}>{renderCard(item)}</div>
-          ))}
-        </div>
-      )}
+          {!isBlocked && hasItems && viewMode === "cards" && renderCard && (
+            <div className={cn("grid gap-5", gridColsClass[cardGridCols])}>
+              {items.map((item, index) => (
+                <div key={resolveKey(item, index)}>{renderCard(item)}</div>
+              ))}
+            </div>
+          )}
 
       {!isBlocked &&
         hasItems &&
@@ -721,6 +737,8 @@ export function DataDisplay<TItem>({
           ))}
         </div>
       )}
+    </>
+  )}
 
       {showPagination &&
         pagination &&

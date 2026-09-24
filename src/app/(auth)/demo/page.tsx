@@ -56,7 +56,7 @@ export default function DemoPage() {
 
   return (
     <main className="min-h-screen bg-background px-4 py-12">
-      <div className="mx-auto max-w-4xl space-y-8">
+      <div className="mx-auto max-w-6xl space-y-8">
         <div>
           <p className="text-xs font-bold uppercase tracking-widest text-primary">
             {t("demoTitle")}

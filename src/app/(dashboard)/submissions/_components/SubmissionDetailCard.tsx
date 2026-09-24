@@ -1,3 +1,4 @@
+import * as React from "react";
 import {
   Card,
   CardContent,
@@ -16,7 +17,15 @@ import {
   AlertCircle,
   Wand2,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Submission } from "@/types";
+
+const FEEDBACK_PRESETS = [
+  { label: "👍 Sangat Baik", text: "Penjelasan sangat baik dan tepat." },
+  { label: "🔍 Rincikan Langkah", text: "Langkah pengerjaan perlu ditulis lebih rinci." },
+  { label: "⚠️ Periksa Rumus", text: "Periksa kembali rumus dan hitungan akhir." },
+  { label: "💡 Teliti Hitungan", text: "Konsep sudah benar, namun kurang teliti saat menghitung." },
+];
 
 interface SubmissionDetailCardProps {
   submission: Submission;
@@ -100,6 +109,16 @@ export function SubmissionDetailCard({
   const allGraded = totalGradable > 0 && totalPending === 0;
   const progressPct =
     totalGradable > 0 ? Math.round((gradedCount / totalGradable) * 100) : 100;
+
+  const [copiedPresetKey, setCopiedPresetKey] = React.useState<string | null>(null);
+
+  const handleCopyPreset = (key: string, text: string) => {
+    if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(text).catch(() => {});
+    }
+    setCopiedPresetKey(key);
+    setTimeout(() => setCopiedPresetKey(null), 2000);
+  };
 
   return (
     <Card className="border-primary/40 bg-primary/5 overflow-hidden">
@@ -360,6 +379,46 @@ export function SubmissionDetailCard({
                           <Edit3 className="w-3.5 h-3.5 mr-1.5" />
                           Custom points
                         </Button>
+
+                        <div className="mt-2.5 pt-2.5 border-t border-border/50">
+                          <span className="text-[10px] uppercase font-bold text-muted-foreground block mb-1.5 tracking-wider">
+                            Komentar Cepat (Quick Feedback):
+                          </span>
+                          <div className="flex flex-wrap gap-1.5">
+                            {FEEDBACK_PRESETS.map((preset) => {
+                              const isCopied =
+                                copiedPresetKey === `${ans.id}-${preset.label}`;
+                              return (
+                                <button
+                                  key={preset.label}
+                                  type="button"
+                                  onClick={() =>
+                                    handleCopyPreset(
+                                      `${ans.id}-${preset.label}`,
+                                      preset.text,
+                                    )
+                                  }
+                                  className={cn(
+                                    "text-[11px] px-2.5 py-1 rounded-lg border transition-all inline-flex items-center gap-1",
+                                    isCopied
+                                      ? "bg-success/15 border-success/40 text-success font-bold"
+                                      : "bg-background/80 border-border/70 hover:border-primary/50 text-foreground",
+                                  )}
+                                  title={`Salin komentar: "${preset.text}"`}
+                                >
+                                  {isCopied ? (
+                                    <>
+                                      <CheckCircle2 className="w-3 h-3 text-success" />
+                                      <span>Tersalin!</span>
+                                    </>
+                                  ) : (
+                                    <span>{preset.label}</span>
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
                       </div>
                     ) : (
                       <div className="flex items-center justify-between text-xs">

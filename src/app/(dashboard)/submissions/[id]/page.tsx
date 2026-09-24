@@ -202,7 +202,8 @@ function SubmissionDetailContent() {
 
               <Button
                 variant="outline"
-                size="icon-sm"
+                size="sm"
+                className="h-8 px-2 text-xs gap-1"
                 disabled={!prevSubmissionId}
                 onClick={() =>
                   prevSubmissionId &&
@@ -213,11 +214,15 @@ function SubmissionDetailContent() {
                 title="Previous student (Shortcut: [)"
               >
                 <ChevronLeft className="w-4 h-4" />
+                <kbd className="hidden lg:inline-block px-1 py-0.5 text-[10px] font-mono font-bold bg-muted border border-border/80 rounded text-muted-foreground leading-none">
+                  [
+                </kbd>
               </Button>
 
               <Button
                 variant="outline"
-                size="icon-sm"
+                size="sm"
+                className="h-8 px-2 text-xs gap-1"
                 disabled={!nextSubmissionId}
                 onClick={() =>
                   nextSubmissionId &&
@@ -227,6 +232,9 @@ function SubmissionDetailContent() {
                 }
                 title="Next student (Shortcut: ])"
               >
+                <kbd className="hidden lg:inline-block px-1 py-0.5 text-[10px] font-mono font-bold bg-muted border border-border/80 rounded text-muted-foreground leading-none">
+                  ]
+                </kbd>
                 <ChevronRight className="w-4 h-4" />
               </Button>
 

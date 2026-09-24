@@ -97,6 +97,7 @@ export interface LiveAssessment {
 
 interface LiveSubmission {
   id: string;
+  assessmentId?: string;
   status: string;
   score?: number | string | null;
   scorePercentage?: number | null;
@@ -650,6 +651,7 @@ if (isStudent) {
     teacherPendingResults,
     teacherClassAverage,
     teacherIsLoading,
+    submissions,
     // student
     studentClass,
     studentQuizzesTaken,
