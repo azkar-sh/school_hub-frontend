@@ -320,7 +320,7 @@ export function useAssessmentsPage() {
 
   // Action label based on role and item status
   const actionLabel = (item: DisplayItem) => {
-    if (currentRole === "TEACHER") return "Manage Questions"; // i18n: TODO
+    if (currentRole === "TEACHER") return "Manage"; // i18n: TODO
     if (currentRole === "PARENT") return "View Results"; // i18n: TODO
     if (item.status === "GRADED") return "Review Score"; // i18n: TODO
     if (item.status === "SUBMITTED") return "Review"; // i18n: TODO

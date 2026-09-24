@@ -10,6 +10,10 @@ import {
   Download,
   Upload,
   CheckCircle2,
+  Calendar,
+  Edit,
+  GraduationCap,
+  Layers,
 } from "lucide-react";
 import { useNewAssessmentForm } from "./hooks";
 import { AssessmentDetailsStep } from "./_components/AssessmentDetailsStep";
@@ -57,6 +61,8 @@ export default function NewAssessmentPage() {
     handleImportFile,
     handleFinalPublish,
     handleRemoveQuestion,
+    handleMoveQuestionUp,
+    handleMoveQuestionDown,
     editingIndex,
     handleStartEdit,
     handleSaveEdit,
@@ -69,8 +75,13 @@ export default function NewAssessmentPage() {
     e.target.value = "";
   };
 
+  const currentAssignment = React.useMemo(() => {
+    const targetId = draft.teachingAssignmentId || selectedAssignmentId;
+    return assignments.find((a) => a.id === targetId);
+  }, [assignments, draft.teachingAssignmentId, selectedAssignmentId]);
+
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6">
       <input
         ref={fileInputRef}
         type="file"
@@ -79,6 +90,7 @@ export default function NewAssessmentPage() {
         onChange={onFileSelected}
       />
 
+      {/* Top Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Button
@@ -94,50 +106,39 @@ export default function NewAssessmentPage() {
               {t("createTitle")}
             </h1>
             <p className="text-xs text-muted-foreground">
-              {t("stepOf", { active: activeStep, label: activeStep === 1 ? t("generalDetails") : t("stepQuestionBank") })}
+              {t("stepOf", {
+                active: activeStep,
+                label:
+                  activeStep === 1
+                    ? t("generalDetails")
+                    : t("stepQuestionBank"),
+              })}
             </p>
           </div>
         </div>
 
+        {/* Step Indicator Badges */}
         <div className="flex items-center gap-2">
-          <Badge variant={activeStep === 1 ? "role" : "outline"}>
-            {t("badgeDetails")}
+          <Badge
+            variant={activeStep === 1 ? "role" : "outline"}
+            className="cursor-pointer"
+            onClick={() => setActiveStep(1)}
+          >
+            1. {t("badgeDetails")}
           </Badge>
-          <Badge variant={activeStep === 2 ? "role" : "outline"}>
-            {t("badgeQuestions", { count: draft.questions.length })}
+          <Badge
+            variant={activeStep === 2 ? "role" : "outline"}
+            className="cursor-pointer"
+            onClick={() => {
+              if (draft.title) setActiveStep(2);
+            }}
+          >
+            2. {t("badgeQuestions", { count: draft.questions.length })}
           </Badge>
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleDownloadTemplate}
-          disabled={!canDownloadTemplate || isDownloading || isImporting}
-          isLoading={isDownloading}
-          title={downloadDisabledReason ?? ""}
-        >
-          <Download className="w-4 h-4 mr-2" />
-          {t("downloadTemplate")}
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={isImporting || isDownloading}
-          isLoading={isImporting}
-        >
-          <Upload className="w-4 h-4 mr-2" />
-          {t("importQuestions")}
-        </Button>
-        <span className="text-[11px] text-muted-foreground">
-          {downloadDisabledReason
-            ? downloadDisabledReason
-            : t("downloadHintDefault")}
-        </span>
-      </div>
-
+      {/* Import / Error Alerts */}
       {importInfo && (
         <div className="p-4 rounded-2xl bg-success/15 border border-success/30 text-xs text-success font-medium flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
@@ -152,37 +153,129 @@ export default function NewAssessmentPage() {
         </div>
       )}
 
+      {/* Step 1: Details */}
       {activeStep === 1 && (
-        <AssessmentDetailsStep
-          methods={methods}
-          isDemoMode={isDemoMode}
-          assignments={assignments}
-          selectedAssignmentId={selectedAssignmentId}
-          onSelectAssignment={setSelectedAssignmentId}
-          onSubmit={handleStep1Submit}
-          topics={topics}
-          selectedTopicId={selectedTopicId}
-          onSelectTopic={setSelectedTopicId}
-        />
+        <div className="space-y-6">
+          {/* Quick Import Option in Step 1 */}
+          <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl bg-muted/40 border border-border/60">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                <Upload className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="text-xs font-semibold text-foreground block">
+                  Opsi Import Cepat Excel
+                </span>
+                <span className="text-[11px] text-muted-foreground">
+                  {downloadDisabledReason || "Download template lalu upload untuk membuat penilaian sekaligus."}
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleDownloadTemplate}
+                disabled={!canDownloadTemplate || isDownloading || isImporting}
+                isLoading={isDownloading}
+                title={downloadDisabledReason ?? ""}
+                className="text-xs rounded-xl"
+              >
+                <Download className="w-3.5 h-3.5 mr-1.5" />
+                {t("downloadTemplate")}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isImporting || isDownloading}
+                isLoading={isImporting}
+                className="text-xs rounded-xl"
+              >
+                <Upload className="w-3.5 h-3.5 mr-1.5" />
+                {t("importQuestions")}
+              </Button>
+            </div>
+          </div>
+
+          <AssessmentDetailsStep
+            methods={methods}
+            isDemoMode={isDemoMode}
+            assignments={assignments}
+            selectedAssignmentId={selectedAssignmentId}
+            onSelectAssignment={setSelectedAssignmentId}
+            onSubmit={handleStep1Submit}
+            topics={topics}
+            selectedTopicId={selectedTopicId}
+            onSelectTopic={setSelectedTopicId}
+          />
+        </div>
       )}
 
+      {/* Step 2: Questions & Bank */}
       {activeStep === 2 && (
         <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <Button variant="ghost" size="sm" onClick={() => setActiveStep(1)}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              {t("backToDetails")}
-            </Button>
-            <div className="flex items-center gap-2">
+          {/* Persistent Context Summary Banner */}
+          <div className="p-4 rounded-2xl bg-card border border-border/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="space-y-1.5 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <Badge variant="role" className="font-semibold text-xs">
+                  {draft.type === "QUIZ"
+                    ? "Kuis"
+                    : draft.type === "EXAM"
+                      ? "Ujian"
+                      : "Tugas"}
+                </Badge>
+                {currentAssignment?.subject?.name && (
+                  <Badge variant="outline" className="text-xs font-medium">
+                    {currentAssignment.subject.name}
+                  </Badge>
+                )}
+                {currentAssignment?.class?.name && (
+                  <Badge variant="outline" className="text-xs font-medium">
+                    {currentAssignment.class.name}
+                  </Badge>
+                )}
+                {draft.dueAt && (
+                  <span className="text-xs text-muted-foreground flex items-center gap-1 font-medium">
+                    <Calendar className="w-3.5 h-3.5" />
+                    Tenggat: {draft.dueAt}
+                  </span>
+                )}
+              </div>
+
+              <h2 className="text-lg font-bold text-foreground truncate">
+                {draft.title || "Penilaian Tanpa Judul"}
+              </h2>
+
+              {draft.description && (
+                <p className="text-xs text-muted-foreground line-clamp-1">
+                  {draft.description}
+                </p>
+              )}
+            </div>
+
+            {/* Step 2 Consolidated Action Buttons */}
+            <div className="flex items-center gap-2 shrink-0 flex-wrap">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setActiveStep(1)}
+                className="rounded-xl text-xs"
+              >
+                <Edit className="w-3.5 h-3.5 mr-1.5" />
+                Ubah Detail
+              </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleDownloadTemplate}
                 disabled={!canDownloadTemplate || isDownloading}
                 isLoading={isDownloading}
+                className="rounded-xl text-xs"
                 title={downloadDisabledReason ?? ""}
               >
-                <Download className="w-4 h-4 mr-2" />
+                <Download className="w-3.5 h-3.5 mr-1.5" />
                 {t("downloadTemplate")}
               </Button>
               <Button
@@ -191,13 +284,15 @@ export default function NewAssessmentPage() {
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isImporting}
                 isLoading={isImporting}
+                className="rounded-xl text-xs"
               >
-                <Upload className="w-4 h-4 mr-2" />
+                <Upload className="w-3.5 h-3.5 mr-1.5" />
                 {t("importXlsx")}
               </Button>
             </div>
           </div>
 
+          {/* Question Creator Form */}
           <QuestionCreatorCard
             isDemoMode={isDemoMode}
             subTopics={subTopics}
@@ -217,10 +312,13 @@ export default function NewAssessmentPage() {
             onCancelEdit={handleCancelEdit}
           />
 
+          {/* Question List Card with Reordering & Scale Tracker */}
           <QuestionListCard
             questions={draft.questions}
             onRemoveQuestion={handleRemoveQuestion}
             onEditQuestion={handleStartEdit}
+            onMoveQuestionUp={handleMoveQuestionUp}
+            onMoveQuestionDown={handleMoveQuestionDown}
             onPublish={handleFinalPublish}
             isSubmitting={isSubmitting}
             editingIndex={editingIndex}
