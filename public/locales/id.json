@@ -39,44 +39,177 @@
   },
   "LandingPage": {
     "title": "School Hub",
+    "badge": "Sistem Operasi Asesmen & Kontinuitas Akademik K-12",
+    "nav": {
+      "features": "Fitur",
+      "howItWorks": "Cara Kerja",
+      "roles": "Peran",
+      "impact": "Dampak",
+      "faq": "Tanya Jawab",
+      "demo": "Demo Langsung",
+      "signIn": "Masuk",
+      "createAccount": "Mulai Sekarang"
+    },
     "heroSubtitle": "Platform Penilaian Pendidikan Modern",
-    "empoweringEducation": "Memberdayakan Pendidikan dengan",
-    "roleAdaptiveLearning": "Pembelajaran Adaptif per Peran",
-    "heroDescription": "Satu portal terpadu untuk Guru, Siswa, dan Orang Tua. Rasakan penilaian otomatis, kuis interaktif, dan pelacakan performa real-time.",
-    "selectRolePreview": "Pilih Portal Peran untuk Pratinjau",
+    "empoweringEducation": "Ketika Kurikulum, Penilaian, &",
+    "roleAdaptiveLearning": "Transparansi Orang Tua Terhubung.",
+    "heroDescription": "Dirancang khusus untuk ekosistem sekolah modern di Indonesia. Tinggalkan rekap nilai manual di Excel, kertas tercecer, dan grup WhatsApp yang melelahkan. Berdayakan guru dengan koreksi otomatis instan, sediakan ujian bebas distraksi untuk siswa, dan beri orang tua keterbukaan nilai tanpa menunggu rapor semester.",
+    "primaryCta": "Eksplorasi Demo Interaktif",
+    "secondaryCta": "Pelajari Cara Kerja",
+    "livePreviewBadge": "Panggung Pratinjau Produk",
+    "livePreviewHint": "Klik tab di bawah untuk melihat simulasi antarmuka setiap peran:",
+    "stageTabs": {
+      "teacher": "Studio Guru & Penilaian",
+      "student": "Runner Ujian Siswa",
+      "parent": "Portal Pantau Orang Tua",
+      "admin": "Tata Kelola Akademik"
+    },
+    "stagePreviews": {
+      "teacher": {
+        "title": "Studio Pembuat Asesmen & Bank Soal",
+        "badge": "Konteks Aktif: SMA Garuda Hope • Kelas 8A",
+        "subject": "Matematika (MATH)",
+        "topic": "Topik: Trigonometri ➔ Sub-Topik: Sinus & Cosinus",
+        "examTitle": "Asesmen Tengah Semester: Identitas Trigonometri",
+        "questionPreview": "Soal 1: Pada segitiga siku-siku ABC dengan sudut B = 90°, jika sin(A) = 3/5, berapakah nilai cos(A)?",
+        "qType": "Pilihan Ganda (MCQ)",
+        "autoGraded": "Koreksi Otomatis Aktif",
+        "xlsxImportBadge": "Mendukung Impor Template Excel (XLSX)"
+      },
+      "student": {
+        "title": "Runner Ujian Bebas Distraksi",
+        "studentName": "Ahmad Fauzi • Kelas 8A",
+        "timeRemaining": "Sisa waktu 28m 42d",
+        "currentQuestion": "Soal 3 dari 10",
+        "prompt": "Hitunglah nilai dari tan(45°) + sin(30°):",
+        "optA": "A. 1.0",
+        "optB": "B. 1.5",
+        "optC": "C. 2.0",
+        "optD": "D. 0.5",
+        "status": "Jawaban tersimpan otomatis • Progres real-time"
+      },
+      "parent": {
+        "title": "Pemantauan Perkembangan Belajar Anak",
+        "childName": "Siti Nurhaliza • Kelas 8A (SMA Garuda Hope)",
+        "overallGpa": "88.4",
+        "statusBadge": "Sangat Baik (≥80)",
+        "recentExam": "Ulangan Harian Rasio Trigonometri",
+        "score": "92/100",
+        "teacherNote": "Bu Siti: Siti menunjukkan pemahaman yang sangat kuat pada identitas trigonometri.",
+        "alert": "Notifikasi nilai instan terkirim begitu selesai dinilai"
+      },
+      "admin": {
+        "title": "Arsitektur Akademik Multi-Tahun",
+        "schoolName": "SMA Garuda Hope (Jakarta)",
+        "academicYear": "Tahun Ajaran Aktif: 2026/2027",
+        "stats": "6 Guru • 16 Siswa • 2 Kelas (8A, 8B) • 6 Mata Pelajaran",
+        "homeroom": "Wali Kelas 8A: Bu Siti • Wali Kelas 8B: Pak Joko",
+        "integrity": "Riwayat rombel & kelas tersimpan abadi saat pergantian tahun ajaran"
+      }
+    },
+    "selectRolePreview": "Pilih Portal Peran untuk Uji Coba Langsung",
     "studentPortal": {
       "title": "Portal Siswa",
-      "feature": "Pembelajaran Interaktif",
-      "description": "Ikuti penilaian daring, kerjakan kuis dengan pengatur waktu instan, lacak lencana kemajuan, dan lihat nilai.",
-      "button": "Masuk ke Portal Siswa"
+      "feature": "Ujian Daring Bebas Distraksi",
+      "description": "Kerjakan asesmen berwaktu secara tertib, dapatkan skor otomatis instan, tinjau pembahasan kesalahan, dan pantau grafik nilai sepanjang semester.",
+      "button": "Masuk Portal Siswa"
     },
     "teacherPortal": {
       "title": "Portal Guru",
-      "feature": "Penyusun Penilaian",
-      "description": "Buat bank soal kustom, terbitkan ujian, nilai pengumpulan siswa, dan kelola topik mata pelajaran.",
-      "button": "Masuk ke Portal Guru"
+      "feature": "Penyusun Asesmen & Koreksi Otomatis",
+      "description": "Petakan butir soal langsung ke hierarki Mapel ➔ Topik ➔ Sub-Topik, unggah soal massal via Excel, dan selesaikan koreksi ratusan siswa dalam hitungan menit.",
+      "button": "Masuk Portal Guru"
     },
     "parentPortal": {
       "title": "Portal Orang Tua",
-      "feature": "Pemantau Performa",
-      "description": "Pantau perkembangan akademik anak, tinjau analitik nilai ujian, dan lacak tugas yang telah selesai.",
-      "button": "Masuk ke Portal Orang Tua"
+      "feature": "Transparansi Akademik Keluarga",
+      "description": "Pantau riwayat asesmen anak secara berkala, lihat rata-rata nilai per mata pelajaran, dan ketahui kebutuhan belajar anak tanpa menunggu pembagian rapor.",
+      "button": "Masuk Portal Orang Tua"
+    },
+    "adminPortal": {
+      "title": "Hub Administrator",
+      "feature": "Tata Kelola Sekolah & Rombel",
+      "description": "Kelola periode tahun ajaran, pembagian kelas, penugasan guru pengampu mapel, dan relasi akun orang tua-siswa dengan integritas data terjaga.",
+      "button": "Masuk Hub Admin"
+    },
+    "problemSolution": {
+      "tag": "Transformasi Cara Kerja",
+      "title": "Hentikan Penggunaan Alat yang Terfragmentasi",
+      "description": "Kebanyakan sekolah masih terbebani oleh rekap formulir kuis yang terpisah, kalkulasi nilai manual di spreadsheet, dan orang tua yang tidak tahu perkembangan anak. School Hub menyatukan seluruh siklus penilaian.",
+      "beforeTitle": "Sebelum Memakai School Hub",
+      "beforeItem1": "Soal kuis tercecer di Google Forms & kertas, terpisah dari capaian kurikulum resmi",
+      "beforeItem2": "Guru menghabiskan 10+ jam seminggu hanya untuk memeriksa dan menghitung nilai pilihan ganda",
+      "beforeItem3": "Orang tua baru mengetahui penurunan nilai anak saat pembagian buku rapor akhir semester",
+      "beforeItem4": "Data siswa dan riwayat guru hilang atau tercampur saat memasuki tahun ajaran baru",
+      "afterTitle": "Bersama School Hub",
+      "afterItem1": "Setiap soal terhubung ke hierarki terstruktur: Mata Pelajaran ➔ Topik ➔ Sub-Topik",
+      "afterItem2": "Koreksi otomatis instan untuk pilihan ganda & formulir koreksi cepat untuk jawaban singkat",
+      "afterItem3": "Orang tua melihat hasil ujian secara langsung dengan indikator warna (Hijau/Kuning/Merah)",
+      "afterItem4": "Kontinuitas multi-tahun yang menjaga riwayat rombel dan penugasan guru secara permanen"
     },
     "features": {
+      "tag": "Kemampuan Utama",
+      "title": "Direkayasa untuk Keunggulan Akademik",
+      "subtitle": "Dibangun dari bawah ke atas untuk menjawab tantangan operasional harian sekolah di Indonesia.",
       "autoGrading": {
-        "title": "Mesin Penilaian Otomatis",
-        "description": "Penilaian instan untuk soal Pilihan Ganda & Benar/Salah dengan metrik poin yang presisi."
+        "title": "Mesin Koreksi Otomatis Instan",
+        "description": "Penilaian soal Pilihan Ganda dan Benar/Salah diproses dalam hitungan milidetik. Siswa segera menerima hasil belajar, guru menghemat berhari-hari kerja rekap."
       },
       "curriculum": {
-        "title": "Hierarki Kurikulum",
-        "description": "Pemetaan terstruktur Mata Pelajaran, Topik, Sub-Topik, dan tahun ajaran Kelas."
+        "title": "Pemetaan Hierarki Kurikulum",
+        "description": "Kelola materi pelajaran dengan rapi: Sekolah ➔ Mata Pelajaran ➔ Topik ➔ Sub-Topik. Setiap butir soal dapat dilacak ke capaian kompetensi."
+      },
+      "xlsx": {
+        "title": "Impor & Ekspor Massal Excel (XLSX)",
+        "description": "Unduh template resmi, susun puluhan soal secara offline di spreadsheet, lalu unggah kembali untuk membuat bank soal instan tanpa ketik ulang satu per satu."
+      },
+      "timed": {
+        "title": "Runner Ujian Berwaktu yang Aman",
+        "description": "Tampilan ujian yang bersih dengan hitung mundur otomatis, penyimpanan jawaban berkala, dan navigasi nomor soal yang ramah bagi siswa."
+      },
+      "parentVisibility": {
+        "title": "Keterbukaan Akademik untuk Orang Tua",
+        "description": "Orang tua dapat memantau rata-rata nilai, riwayat ulangan harian, serta indikator pencapaian (≥80 Hijau, ≥60 Kuning, <60 Merah) secara langsung."
       },
       "themes": {
-        "title": "Tema Dinamis",
-        "description": "Identitas visual yang disesuaikan untuk setiap peran dengan aksesibilitas mode Gelap & Terang yang jernih."
+        "title": "Tema Visual Khusus per Peran",
+        "description": "Identitas visual yang unik untuk setiap peran (Siswa Indigo, Guru Emerald, Orang Tua Amber, Admin Violet) lengkap dengan mode Gelap & Terang."
       }
     },
-    "footer": "© 2026 Sistem Penilaian School Hub. Hak cipta dilindungi."
+    "marketFocus": {
+      "tag": "Sentuhan Konteks Indonesia",
+      "title": "Disesuaikan dengan Alur Sekolah di Indonesia",
+      "description": "Meski dibangun dengan standar arsitektur perangkat lunak global, School Hub selaras dengan realitas operasional K-12 Indonesia: penugasan Wali Kelas, pergantian Tahun Ajaran baru, Guru Pengampu Mata Pelajaran, serta pelibatan Orang Tua tanpa perlu spam rekap manual di grup WhatsApp."
+    },
+    "metrics": {
+      "stat1": "85%",
+      "label1": "Penghematan Waktu Koreksi Guru",
+      "stat2": "100%",
+      "label2": "Keterlacakan Soal ke Materi Kurikulum",
+      "stat3": "4 Peran",
+      "label3": "Terhubung dalam Satu Database Terpadu",
+      "stat4": "0 Kejutan",
+      "label4": "Nilai Anjlok Saat Pembagian Rapor"
+    },
+    "faq": {
+      "tag": "Tanya Jawab",
+      "title": "Pertanyaan yang Sering Diajukan",
+      "q1": "Apakah guru bisa mengunggah soal langsung dari Excel?",
+      "a1": "Tentu saja! Guru dapat mengunduh template XLSX resmi dengan 1 klik, mengisi soal dan kunci jawaban di Excel, lalu mengunggahnya untuk langsung menerbitkan asesmen.",
+      "q2": "Bagaimana sistem menilai soal esai atau jawaban singkat?",
+      "a2": "Soal pilihan ganda dan benar/salah dinilai otomatis oleh sistem. Untuk soal jawaban singkat, guru disediakan antarmuka koreksi cepat untuk memberi poin dan catatan evaluasi.",
+      "q3": "Bagaimana akun orang tua dihubungkan dengan siswa?",
+      "a3": "Administrator sekolah menghubungkan akun orang tua dan siswa melalui Hub Admin. Setelah terhubung, orang tua dapat langsung melihat linimasa ujian dan rata-rata nilai anak.",
+      "q4": "Bagaimana data lama saat pergantian tahun ajaran baru?",
+      "a4": "School Hub mengadopsi model data relasional permanen. Pembuatan Tahun Ajaran baru (misal: 2026/2027) tidak menghapus nilai atau kelas lama, melainkan membentuk riwayat rombel baru secara tertata."
+    },
+    "ctaBanner": {
+      "title": "Siap Memodernisasi Ekosistem Penilaian Sekolah Anda?",
+      "description": "Rasakan kemudahan tata kelola asesmen terpadu untuk kepala sekolah, guru, siswa, dan orang tua.",
+      "primaryBtn": "Coba Demo Langsung Sekarang",
+      "secondaryBtn": "Masuk ke Portal Akun"
+    },
+    "footer": "© 2026 Sistem Operasi Asesmen School Hub. Hak cipta dilindungi undang-undang."
   },
   "Dashboard": {
     "overview": "Ringkasan Dasbor",

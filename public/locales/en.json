@@ -39,44 +39,177 @@
   },
   "LandingPage": {
     "title": "School Hub",
+    "badge": "K-12 Academic Assessment & Continuity OS",
+    "nav": {
+      "features": "Features",
+      "howItWorks": "How It Works",
+      "roles": "Roles",
+      "impact": "Impact",
+      "faq": "FAQ",
+      "demo": "Live Demo",
+      "signIn": "Sign In",
+      "createAccount": "Get Started"
+    },
     "heroSubtitle": "Modern Educational Assessment Platform",
-    "empoweringEducation": "Empowering Education with",
-    "roleAdaptiveLearning": "Role-Adaptive Learning",
-    "heroDescription": "One unified portal for Teachers, Students, and Parents. Experience automated assessment grading, interactive quizzes, and real-time performance tracking.",
-    "selectRolePreview": "Select a Role Portal to Preview",
+    "empoweringEducation": "Where Curriculum, Assessments, &",
+    "roleAdaptiveLearning": "Family Transparency Connect.",
+    "heroDescription": "Built specifically for modern K-12 schools. Stop juggling disconnected Google Forms, WhatsApp chats, and paper grading. Empower teachers with automated scoring, provide students a distraction-free exam runner, and give parents real-time visibility.",
+    "primaryCta": "Explore Live Demo",
+    "secondaryCta": "See How It Works",
+    "livePreviewBadge": "Interactive Product Stage",
+    "livePreviewHint": "Switch tabs below to preview the live experience for each role:",
+    "stageTabs": {
+      "teacher": "Teacher Studio",
+      "student": "Student Exam Runner",
+      "parent": "Parent Progress Hub",
+      "admin": "School Governance"
+    },
+    "stagePreviews": {
+      "teacher": {
+        "title": "Assessment & Question Bank Studio",
+        "badge": "Active Context: SMA Garuda Hope • Class 8A",
+        "subject": "Mathematics (MATH)",
+        "topic": "Topic: Trigonometry ➔ Sub-Topic: Sine & Cosine",
+        "examTitle": "Mid-Term Assessment: Trigonometric Identities",
+        "questionPreview": "Q1: In a right-angled triangle ABC with angle B = 90°, if sin(A) = 3/5, what is the exact value of cos(A)?",
+        "qType": "Multiple Choice (MCQ)",
+        "autoGraded": "Instant Auto-Grading Enabled",
+        "xlsxImportBadge": "Excel XLSX Template Import Ready"
+      },
+      "student": {
+        "title": "Distraction-Free Exam Player",
+        "studentName": "Ahmad Fauzi • Grade 8A",
+        "timeRemaining": "28m 42s remaining",
+        "currentQuestion": "Question 3 of 10",
+        "prompt": "Evaluate the value of tan(45°) + sin(30°):",
+        "optA": "A. 1.0",
+        "optB": "B. 1.5",
+        "optC": "C. 2.0",
+        "optD": "D. 0.5",
+        "status": "Auto-saving answer • Real-time progress"
+      },
+      "parent": {
+        "title": "Real-Time Child Performance Monitor",
+        "childName": "Siti Nurhaliza • Grade 8A (SMA Garuda Hope)",
+        "overallGpa": "88.4",
+        "statusBadge": "Good Standing (≥80)",
+        "recentExam": "Trigonometric Ratios Test",
+        "score": "92/100",
+        "teacherNote": "Bu Siti: Siti shows exceptional mastery in Trigonometric identities.",
+        "alert": "Instant score notification delivered upon grading"
+      },
+      "admin": {
+        "title": "Multi-Year Academic Architecture",
+        "schoolName": "SMA Garuda Hope (Jakarta)",
+        "academicYear": "Active Academic Year: 2026/2027",
+        "stats": "6 Teachers • 16 Students • 2 Classes (8A, 8B) • 6 Subjects",
+        "homeroom": "Homeroom 8A: Bu Siti • Homeroom 8B: Pak Joko",
+        "integrity": "Student enrollment history is preserved across academic years without data loss"
+      }
+    },
+    "selectRolePreview": "Select a Role Portal to Test Drive",
     "studentPortal": {
       "title": "Student Portal",
-      "feature": "Interactive Learning",
-      "description": "Take online assessments, solve quizzes with instant timers, track progress badges, and view scores.",
+      "feature": "Distraction-Free Assessment",
+      "description": "Take timed online assessments, receive instant automated scores, review mistake breakdowns, and track semester-long academic progress.",
       "button": "Enter Student Portal"
     },
     "teacherPortal": {
       "title": "Teacher Portal",
-      "feature": "Assessment Builder",
-      "description": "Create customized question banks, publish exams, grade student submissions, and manage subject topics.",
+      "feature": "Assessment Builder & Auto-Grader",
+      "description": "Map questions directly to Subject ➔ Topic ➔ Sub-Topic curriculum units, upload questions in bulk via Excel, and grade submissions in minutes.",
       "button": "Enter Teacher Portal"
     },
     "parentPortal": {
       "title": "Parent Portal",
-      "feature": "Performance Monitor",
-      "description": "Monitor children's academic progression, review test score analytics, and track completed assignments.",
+      "feature": "Family Academic Transparency",
+      "description": "Monitor linked children's academic progression, review test score breakdowns, and receive real-time updates—no report card surprises.",
       "button": "Enter Parent Portal"
     },
+    "adminPortal": {
+      "title": "Admin Hub",
+      "feature": "School & Academic Governance",
+      "description": "Manage academic year terms, class rosters, teacher subject assignments, and student-parent links with immutable data integrity.",
+      "button": "Enter Admin Hub"
+    },
+    "problemSolution": {
+      "tag": "The Paradigm Shift",
+      "title": "Stop Juggling Disconnected Tools",
+      "description": "Traditional school workflows rely on separate quiz tools, manual spreadsheet grading, and end-of-term surprise report cards. School Hub unifies the entire lifecycle.",
+      "beforeTitle": "Without School Hub",
+      "beforeItem1": "Quizzes scattered across Google Forms & loose paper, detached from curriculum standards",
+      "beforeItem2": "Teachers losing 10+ hours every week manually marking and recalculating test scores",
+      "beforeItem3": "Parents kept in the dark about academic gaps until final report cards arrive",
+      "beforeItem4": "Student rosters and class histories wiped out or duplicated when academic years change",
+      "afterTitle": "With School Hub",
+      "afterItem1": "Every question is mapped to a structured Subject ➔ Topic ➔ Sub-Topic curriculum taxonomy",
+      "afterItem2": "Instant automated scoring for MCQs and True/False, plus streamlined grading for short answers",
+      "afterItem3": "Parents get real-time visibility into assessment results with color-coded health badges",
+      "afterItem4": "Multi-year continuity preserving historical enrollments and teacher assignments permanently"
+    },
     "features": {
+      "tag": "Core Capabilities",
+      "title": "Engineered for Academic Excellence",
+      "subtitle": "Built from the ground up to solve the real-world operational challenges of modern schools.",
       "autoGrading": {
-        "title": "Auto-Grading Engine",
-        "description": "Instant scoring for MCQ & True/False questions with precise point metrics."
+        "title": "Instant Auto-Grading Engine",
+        "description": "Scoring for Multiple Choice and True/False questions happens in milliseconds, giving students immediate feedback while saving teachers days of work."
       },
       "curriculum": {
-        "title": "Curriculum Hierarchy",
-        "description": "Structured mapping of Subjects, Topics, SubTopics, and Class academic years."
+        "title": "Hierarchical Curriculum Mapping",
+        "description": "Organize your academic content with precision: School ➔ Subject ➔ Topic ➔ Sub-Topic. Every test question is traceable to learning objectives."
+      },
+      "xlsx": {
+        "title": "Excel / XLSX Bulk Import & Export",
+        "description": "Download pre-formatted question templates, draft questions offline, and bulk-import an entire assessment bank in a single click."
+      },
+      "timed": {
+        "title": "Secure Timed Exam Runner",
+        "description": "A focus-optimized exam interface with persistent countdown timers, auto-save state, and question navigation designed for students."
+      },
+      "parentVisibility": {
+        "title": "Family Academic Transparency",
+        "description": "Parents stay connected with real-time test scores, color-coded health indicators (≥80 Green, ≥60 Yellow, <60 Red), and teacher notes."
       },
       "themes": {
-        "title": "Dynamic Themes",
-        "description": "Tailored visual identity for each role with crisp Dark & Light mode accessibility."
+        "title": "Role-Adaptive Theming",
+        "description": "Dedicated visual identities for each role (Student Indigo, Teacher Emerald, Parent Amber, Admin Violet) in crisp Dark & Light modes."
       }
     },
-    "footer": "© 2026 School Hub Assessment System. All rights reserved."
+    "marketFocus": {
+      "tag": "Indonesia-First Context",
+      "title": "Designed for Indonesian School Realities",
+      "description": "While built to international software standards, School Hub seamlessly maps to Indonesian K-12 operational structures: Tahun Ajaran baru, Wali Kelas assignments, Guru Pengampu Mata Pelajaran, and direct Parent transparency without manual WhatsApp reporting."
+    },
+    "metrics": {
+      "stat1": "85%",
+      "label1": "Reduction in Manual Grading Time",
+      "stat2": "100%",
+      "label2": "Curriculum Traceability per Question",
+      "stat3": "4 Roles",
+      "label3": "Connected on One Shared Database",
+      "stat4": "0 Surprises",
+      "label4": "On End-of-Term Report Card Day"
+    },
+    "faq": {
+      "tag": "Questions & Answers",
+      "title": "Frequently Asked Questions",
+      "q1": "Can teachers import questions from existing spreadsheets?",
+      "a1": "Yes! Teachers can download an official XLSX template with one click, enter questions and options in Excel, and re-upload to instantly populate assessments.",
+      "q2": "How does auto-grading handle short answers and essays?",
+      "a2": "Multiple Choice and True/False questions are graded automatically by the engine upon submission. Short answers are presented in an inline manual grading view where teachers can award points and leave constructive feedback.",
+      "q3": "How are parents connected to their children?",
+      "a3": "School administrators securely establish Parent-Student links in the Admin Hub. Once linked, parents immediately see their children's assessment timeline and performance averages.",
+      "q4": "What happens when a new academic year begins?",
+      "a4": "School Hub uses an immutable enrollment and assignment model. Creating a new Academic Year (e.g. 2026/2027) retains previous historical grades and student records while establishing new class rosters and teacher assignments."
+    },
+    "ctaBanner": {
+      "title": "Ready to Modernize Your School's Assessment Ecosystem?",
+      "description": "Experience how effortless assessment management can be for teachers, students, parents, and administrators.",
+      "primaryBtn": "Test Drive Live Demo Now",
+      "secondaryBtn": "Sign In to Portal"
+    },
+    "footer": "© 2026 School Hub Assessment Operating System. All rights reserved."
   },
   "Dashboard": {
     "overview": "Dashboard Overview",

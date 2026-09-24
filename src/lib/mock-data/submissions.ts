@@ -130,7 +130,7 @@ export function getMockSubmissions(role: UserRole): SubmissionRow[] {
 import { Submission } from "@/types";
 
 export function getMockSubmissionDetail(id: string): Submission | null {
-  const details: Record<string, Submission> = {
+  const details: Record<string, Submission> = ({
     "sub-1": {
       id: "sub-1",
       assessmentId: "asm-1",
@@ -344,7 +344,7 @@ export function getMockSubmissionDetail(id: string): Submission | null {
         },
       ],
     },
-  };
+  } as unknown as Record<string, Submission>);
 
   return details[id] || details["sub-4"];
 }
