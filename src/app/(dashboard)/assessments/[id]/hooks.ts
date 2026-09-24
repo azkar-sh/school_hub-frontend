@@ -55,6 +55,11 @@ export function useAssessmentPlayer({
     null,
   );
 
+  const [flaggedQuestionIds, setFlaggedQuestionIds] = React.useState<Set<string>>(new Set());
+  const [lastSaved, setLastSaved] = React.useState<number>(Date.now());
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = React.useState(false);
+  const [isExitModalOpen, setIsExitModalOpen] = React.useState(false);
+
   const [isLoading, setIsLoading] = React.useState(
     !isDemoMode && !!assessmentId,
   );
@@ -136,14 +141,34 @@ export function useAssessmentPlayer({
   const handleSelectOption = (questionId: string, answerText: string) => {
     if (isSubmitted) return;
     setAnswer(questionId, answerText);
+    setLastSaved(Date.now());
+  };
+
+  const toggleFlagQuestion = (questionId: string) => {
+    setFlaggedQuestionIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(questionId)) {
+        next.delete(questionId);
+      } else {
+        next.add(questionId);
+      }
+      return next;
+    });
+  };
+
+  const jumpToQuestion = (index: number) => {
+    if (index >= 0 && index < questionsList.length) {
+      setCurrentIdx(index);
+    }
   };
 
   const goToPrevQuestion = () => setCurrentIdx((i) => Math.max(0, i - 1));
-  const goToNextQuestion = () => setCurrentIdx((i) => i + 1);
+  const goToNextQuestion = () => setCurrentIdx((i) => Math.min(questionsList.length - 1, i + 1));
 
   const resetQuiz = () => {
     setIsSubmitted(false);
     clearAnswers();
+    setFlaggedQuestionIds(new Set());
     setCurrentIdx(0);
   };
 
@@ -224,6 +249,14 @@ export function useAssessmentPlayer({
     (reviewSubmission.status === "SUBMITTED" ||
       reviewSubmission.status === "GRADED");
 
+  const answeredCount = questionsList.filter((q) => {
+    const val = selectedAnswers[q.id];
+    return val !== undefined && val !== null && String(val).trim() !== "";
+  }).length;
+
+  const flaggedCount = questionsList.filter((q) => flaggedQuestionIds.has(q.id)).length;
+  const unansweredCount = Math.max(0, questionsList.length - answeredCount);
+
   return {
     assessment,
     isLoading,
@@ -233,10 +266,14 @@ export function useAssessmentPlayer({
     currentQ,
     progressPercent,
     timeFormatted,
+    timeLeft,
     isSubmitted,
     calculatedScore,
     isSubmittingApi,
     selectedAnswers,
+    flaggedQuestionIds,
+    toggleFlagQuestion,
+    jumpToQuestion,
     handleSelectOption,
     goToPrevQuestion,
     goToNextQuestion,
@@ -244,6 +281,14 @@ export function useAssessmentPlayer({
     resetQuiz,
     reviewMode,
     reviewSubmission,
+    lastSaved,
+    isConfirmModalOpen,
+    setIsConfirmModalOpen,
+    isExitModalOpen,
+    setIsExitModalOpen,
+    answeredCount,
+    flaggedCount,
+    unansweredCount,
   };
 }
 
