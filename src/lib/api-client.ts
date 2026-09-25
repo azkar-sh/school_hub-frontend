@@ -203,7 +203,7 @@ export const assessmentsApi = {
   // subjectId/type accept single or array; repeat serialization matches Nest implicitConversion
   findForTeacher: (params?: { page?: number; limit?: number; search?: string; subjectId?: string | string[]; type?: string | string[] }) =>
     apiClient.get<Assessment[]>("/assessments/teacher", { params, paramsSerializer: { indexes: null } }),
-  findForStudent: (params?: { page?: number; limit?: number; search?: string; subjectId?: string | string[]; type?: string | string[] }) =>
+  findForStudent: (params?: { page?: number; limit?: number; search?: string; subjectId?: string | string[]; type?: string | string[]; status?: string | string[] }) =>
     apiClient.get<{ assessments: Assessment[]; meta: { page: number; limit: number; total: number; totalPages: number } }>("/assessments/student", { params, paramsSerializer: { indexes: null } }),
   findOne: (id: string) => apiClient.get<Assessment>(`/assessments/${id}`),
   findSubjectsForStudent: () => apiClient.get<Subject[]>("/assessments/student/subjects"),

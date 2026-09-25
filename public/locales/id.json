@@ -591,6 +591,8 @@
     "filterAllTypes": "Semua tipe",
     "filterAllSubjects": "Semua mata pelajaran",
     "filterAllClasses": "Semua kelas",
+    "filterAllStatuses": "Semua status",
+    "statusAwaitingSubmission": "Menunggu Pengumpulan",
     "tableTitle": "Judul",
     "tableType": "Tipe",
     "tableSubject": "Mata Pelajaran",

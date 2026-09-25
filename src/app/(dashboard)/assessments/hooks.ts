@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useRoleThemeStore } from "@/stores/use-role-theme-store";
 import { getMockAssessments, MockAssessment } from "@/lib/mock-data";
@@ -89,13 +90,28 @@ export function useAssessmentsPage() {
   const { activeRole } = useRoleThemeStore();
   const currentRole = user?.role ?? activeRole;
 
+  const searchParams = useSearchParams();
+  const statusParam = searchParams?.get("status");
+
   // UI state — search/filter drive backend query (server-side)
   const [search, setSearch] = React.useState("");
   const [filterType, setFilterType] = React.useState<string[]>([]);
   const [filterSubject, setFilterSubject] = React.useState<string[]>([]);
   const [filterClass, setFilterClass] = React.useState<string[]>([]);
+  const [filterStatus, setFilterStatus] = React.useState<string[]>(
+    statusParam ? [statusParam] : [],
+  );
   const [page, setPage] = React.useState(1);
   const limit = 10;
+
+  // Synchronize when searchParams status changes (e.g. navigation from dashboard)
+  React.useEffect(() => {
+    const s = searchParams?.get("status");
+    if (s) {
+      setFilterStatus([s]);
+      setPage(1);
+    }
+  }, [searchParams]);
 
   // Subject options for filter dropdown — derived for demo, fetched for live
   const [subjectOptions, setSubjectOptions] = React.useState<
@@ -134,6 +150,16 @@ export function useAssessmentsPage() {
   const handleFilterSubjectChange = React.useCallback(
     (value: string | string[]) => {
       setFilterSubject(
+        Array.isArray(value) ? value : value === "ALL" ? [] : [value],
+      );
+      setPage(1);
+    },
+    [],
+  );
+
+  const handleFilterStatusChange = React.useCallback(
+    (value: string | string[]) => {
+      setFilterStatus(
         Array.isArray(value) ? value : value === "ALL" ? [] : [value],
       );
       setPage(1);
@@ -246,6 +272,7 @@ export function useAssessmentsPage() {
       if (filterType.length > 0) params.type = filterType;
       if (filterSubject.length > 0) params.subjectId = filterSubject;
       if (filterClass.length > 0) params.classId = filterClass;
+      if (filterStatus.length > 0) params.status = filterStatus;
 
       const req =
         currentRole === "TEACHER"
@@ -267,6 +294,7 @@ export function useAssessmentsPage() {
       filterType,
       filterSubject,
       filterClass,
+      filterStatus,
     ],
     shouldFetchLive,
   );
@@ -288,7 +316,7 @@ export function useAssessmentsPage() {
     [isDemoMode, currentRole],
   );
 
-  // In demo mode, filter mock data by type, subject, and search (client-side)
+  // In demo mode, filter mock data by type, subject, status, and search (client-side)
   // In live mode, rely on backend filtering (no client-side filter)
   const filteredItems = React.useMemo(() => {
     if (isDemoMode) {
@@ -298,16 +326,36 @@ export function useAssessmentsPage() {
           filterType.includes(item.type as DisplayItem["type"]);
         const matchesSubject =
           filterSubject.length === 0 || filterSubject.includes(item.subject);
+        const matchesStatus =
+          filterStatus.length === 0 ||
+          filterStatus.some((s) => {
+            const upper = s.toUpperCase();
+            if (upper === "PENDING" || upper === "AWAITING_SUBMISSION") {
+              return item.status === "AVAILABLE" || item.status === "DRAFT";
+            }
+            if (upper === "COMPLETED") {
+              return item.status === "SUBMITTED" || item.status === "GRADED";
+            }
+            return item.status === upper;
+          });
         const q = search.toLowerCase();
         const matchesSearch =
           !q ||
           item.title.toLowerCase().includes(q) ||
           item.subject.toLowerCase().includes(q);
-        return matchesType && matchesSubject && matchesSearch;
+        return matchesType && matchesSubject && matchesStatus && matchesSearch;
       });
     }
     return liveItems;
-  }, [mockItems, filterType, filterSubject, search, liveItems, isDemoMode]);
+  }, [
+    mockItems,
+    filterType,
+    filterSubject,
+    filterStatus,
+    search,
+    liveItems,
+    isDemoMode,
+  ]);
 
   const meta = isDemoMode
     ? {
@@ -335,11 +383,13 @@ export function useAssessmentsPage() {
     filterType,
     filterSubject,
     filterClass,
+    filterStatus,
     subjectOptions: effectiveSubjectOptions,
     handleSearchChange,
     handleFilterTypeChange,
     handleFilterSubjectChange,
     handleFilterClassChange,
+    handleFilterStatusChange,
     classOptions: effectiveClassOptions,
     setPage,
     isLoading: isLoadingLive,

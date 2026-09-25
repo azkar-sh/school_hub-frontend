@@ -40,6 +40,14 @@ function TypeBadge({ type }: { type: string }) {
 }
 
 export default function AssessmentsPage() {
+  return (
+    <React.Suspense fallback={null}>
+      <AssessmentsPageContent />
+    </React.Suspense>
+  );
+}
+
+function AssessmentsPageContent() {
   const t = useTranslations("Assessments");
   const {
     isDemoMode,
@@ -48,12 +56,14 @@ export default function AssessmentsPage() {
     filterType,
     filterSubject,
     filterClass,
+    filterStatus,
     subjectOptions,
     classOptions,
     handleSearchChange,
     handleFilterTypeChange,
     handleFilterSubjectChange,
     handleFilterClassChange,
+    handleFilterStatusChange,
     setPage,
     isLoading,
     fetchError,
@@ -189,6 +199,23 @@ export default function AssessmentsPage() {
             },
           ]
         : []),
+      ...(currentRole === "STUDENT"
+        ? [
+            {
+              id: "status",
+              mode: "multi" as const,
+              variant: "dropdown" as const,
+              options: [
+                { value: "PENDING", label: t("statusAwaitingSubmission") },
+                { value: "SUBMITTED", label: t("statusSubmitted") },
+                { value: "GRADED", label: t("statusGraded") },
+              ],
+              value: filterStatus,
+              onChange: (v: string | string[]) => handleFilterStatusChange(v),
+              placeholder: t("filterAllStatuses"),
+            },
+          ]
+        : []),
       ...(currentRole === "TEACHER"
         ? [
             {
@@ -212,11 +239,13 @@ export default function AssessmentsPage() {
       filterType,
       filterSubject,
       filterClass,
+      filterStatus,
       subjectOptions,
       classOptions,
       handleFilterTypeChange,
       handleFilterSubjectChange,
       handleFilterClassChange,
+      handleFilterStatusChange,
       t,
     ],
   );

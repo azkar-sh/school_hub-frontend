@@ -62,7 +62,7 @@ export function StudentStatsGrid({
             ? { text: "Action Needed", variant: "warning" }
             : { text: "Up to Date", variant: "success" }
         }
-        href="/assessments"
+        href={pending > 0 ? "/assessments?status=PENDING" : "/assessments"}
         variant={pending > 0 ? "warning" : "default"}
         isLoading={isLoading}
       />

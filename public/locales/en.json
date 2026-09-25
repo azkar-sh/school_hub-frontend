@@ -591,6 +591,8 @@
     "filterAllTypes": "All types",
     "filterAllSubjects": "All subjects",
     "filterAllClasses": "All classes",
+    "filterAllStatuses": "All statuses",
+    "statusAwaitingSubmission": "Awaiting Submission",
     "tableTitle": "Title",
     "tableType": "Type",
     "tableSubject": "Subject",
