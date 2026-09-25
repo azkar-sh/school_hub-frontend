@@ -1,13 +1,12 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   FileCheck2,
   Award,
   Clock,
   CheckCircle2,
   TrendingUp,
-  Loader2,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { StatCard } from "@/components/ui/StatCard";
 
 interface StudentStatsGridProps {
   isDemoMode: boolean;
@@ -29,89 +28,55 @@ export function StudentStatsGrid({
   const avg = isDemoMode ? 92.5 : averageScore;
   const pending = isDemoMode ? 2 : pendingDue;
 
-  const num = (v: number) =>
-    isLoading ? (
-      <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-    ) : (
-      v
-    );
-
   return (
     <>
-      <Card className="border-primary/20 bg-primary/5">
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
-            {t("quizzesTaken")}
-          </CardTitle>
-          <FileCheck2 className="w-4 h-4 text-primary" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-extrabold text-foreground">
-            {num(taken)}
-          </div>
-          <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-            <TrendingUp className="w-3 h-3 text-success" />
-            <span>
-              {isDemoMode ? t("plusThisWeek") : t("submittedAssessments")}
-            </span>
-          </p>
-        </CardContent>
-      </Card>
+      <StatCard
+        title={t("quizzesTaken")}
+        value={taken}
+        icon={FileCheck2}
+        subtitle={isDemoMode ? t("plusThisWeek") : t("submittedAssessments")}
+        subtitleIcon={<TrendingUp className="w-3.5 h-3.5 text-success shrink-0" />}
+        badge={isDemoMode ? { text: "+2 this week", variant: "success" } : undefined}
+        href="/assessments"
+        isLoading={isLoading}
+      />
 
-      <Card className="border-primary/20 bg-primary/5">
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
-            {t("averageScore")}
-          </CardTitle>
-          <Award className="w-4 h-4 text-primary" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-extrabold text-primary">
-            {isLoading ? (
-              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-            ) : avg === null ? (
-              t("noData")
-            ) : (
-              `${avg}%`
-            )}
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            {isDemoMode
-              ? t("honorRoll")
-              : t("acrossGradedAssessments")}
-          </p>
-        </CardContent>
-      </Card>
+      <StatCard
+        title={t("averageScore")}
+        value={avg === null ? t("noData") : `${avg}%`}
+        icon={Award}
+        subtitle={isDemoMode ? t("honorRoll") : t("acrossGradedAssessments")}
+        badge={avg && avg >= 90 ? { text: "Top Tier", variant: "primary" } : undefined}
+        href="/results"
+        valueColor="primary"
+        isLoading={isLoading}
+      />
 
-      <Card className="border-primary/20 bg-primary/5">
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
-            {t("pendingDue")}
-          </CardTitle>
-          <Clock className="w-4 h-4 text-primary" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-extrabold text-warning">
-            {num(pending)}
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            {isDemoMode ? t("mathScienceExams") : t("awaitingSubmission")}
-          </p>
-        </CardContent>
-      </Card>
+      <StatCard
+        title={t("pendingDue")}
+        value={pending}
+        icon={Clock}
+        subtitle={isDemoMode ? t("mathScienceExams") : t("awaitingSubmission")}
+        badge={
+          pending > 0
+            ? { text: "Action Needed", variant: "warning" }
+            : { text: "Up to Date", variant: "success" }
+        }
+        href="/assessments"
+        variant={pending > 0 ? "warning" : "default"}
+        isLoading={isLoading}
+      />
 
-      <Card className="border-primary/20 bg-primary/5">
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
-            {t("studyStreak")}
-          </CardTitle>
-          <CheckCircle2 className="w-4 h-4 text-primary" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-extrabold text-success">{t("daysValue")}</div>
-          <p className="text-xs text-muted-foreground mt-1">{t("keepItUp")}</p>
-        </CardContent>
-      </Card>
+      <StatCard
+        title={t("studyStreak")}
+        value={t("daysValue")}
+        icon={CheckCircle2}
+        subtitle={t("keepItUp")}
+        badge={{ text: "On Fire 🔥", variant: "success" }}
+        href="/results"
+        valueColor="success"
+        isLoading={isLoading}
+      />
     </>
   );
 }

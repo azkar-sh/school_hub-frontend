@@ -1,13 +1,12 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Users,
   Award,
   CheckCircle2,
   GraduationCap,
-  Loader2,
 } from "lucide-react";
 import { MockParentChild } from "@/lib/mock-data";
 import { useTranslations } from "next-intl";
+import { StatCard } from "@/components/ui/StatCard";
 
 interface ParentStatsGridProps {
   parentChildren: MockParentChild[];
@@ -25,87 +24,50 @@ export function ParentStatsGrid({
   isLoading,
 }: ParentStatsGridProps) {
   const t = useTranslations("Dashboard.parentStats");
-  const num = (v: number) =>
-    isLoading ? (
-      <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-    ) : (
-      v
-    );
+
+  const childSummary = `${parentChildren[0]?.name ?? t("noChildren")}${
+    studentClassGrade ? t("gradeSuffix", { grade: studentClassGrade }) : ""
+  }`;
 
   return (
     <>
-      <Card className="border-primary/20 bg-primary/5">
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
-            {t("childrenLinked")}
-          </CardTitle>
-          <Users className="w-4 h-4 text-primary" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-extrabold text-foreground">
-            {num(parentChildren.length)}
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            {parentChildren[0]?.name ?? t("noChildren")}
-            {studentClassGrade ? t("gradeSuffix", { grade: studentClassGrade }) : ""}
-          </p>
-        </CardContent>
-      </Card>
+      <StatCard
+        title={t("childrenLinked")}
+        value={parentChildren.length}
+        icon={Users}
+        subtitle={childSummary}
+        href="/children"
+        isLoading={isLoading}
+      />
 
-      <Card className="border-primary/20 bg-primary/5">
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
-            {t("childGpaAvg")}
-          </CardTitle>
-          <Award className="w-4 h-4 text-primary" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-extrabold text-primary">
-            {isLoading ? (
-              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-            ) : avgScore === null ? (
-              t("noData")
-            ) : (
-              `${avgScore}%`
-            )}
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            {t("acrossGradedAssessments")}
-          </p>
-        </CardContent>
-      </Card>
+      <StatCard
+        title={t("childGpaAvg")}
+        value={avgScore === null ? t("noData") : `${avgScore}%`}
+        icon={Award}
+        subtitle={t("acrossGradedAssessments")}
+        href="/results"
+        valueColor="primary"
+        isLoading={isLoading}
+      />
 
-      <Card className="border-primary/20 bg-primary/5">
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
-            {t("completedTests")}
-          </CardTitle>
-          <CheckCircle2 className="w-4 h-4 text-success" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-extrabold text-success">
-            {num(completedCount)}
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            {t("submittedAssessments")}
-          </p>
-        </CardContent>
-      </Card>
+      <StatCard
+        title={t("completedTests")}
+        value={completedCount}
+        icon={CheckCircle2}
+        subtitle={t("submittedAssessments")}
+        href="/results"
+        valueColor="success"
+        isLoading={isLoading}
+      />
 
-      <Card className="border-primary/20 bg-primary/5">
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
-            {t("attendance")}
-          </CardTitle>
-          <GraduationCap className="w-4 h-4 text-primary" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-extrabold text-foreground">{t("attendanceValue")}</div>
-          <p className="text-xs text-muted-foreground mt-1">
-            {t("perfectAttendance")}
-          </p>
-        </CardContent>
-      </Card>
+      <StatCard
+        title={t("attendance")}
+        value={t("attendanceValue")}
+        icon={GraduationCap}
+        subtitle={t("perfectAttendance")}
+        href="/children"
+        isLoading={isLoading}
+      />
     </>
   );
 }
