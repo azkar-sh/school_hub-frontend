@@ -189,15 +189,15 @@ export default function SubmissionsPage() {
   const toolbarExtra = React.useMemo(() => {
     if (!isTeacher) return null;
     return (
-      <div className="flex items-center gap-1 bg-muted/60 p-1 rounded-xl border border-border/60">
-        <span className="text-[11px] font-bold text-muted-foreground px-2 uppercase tracking-wider hidden sm:inline">
+      <div className="flex items-center gap-1 bg-muted/60 p-1 rounded-xl border border-border/60 w-full sm:w-auto">
+        <span className="text-[11px] font-bold text-muted-foreground px-2 uppercase tracking-wider hidden sm:inline shrink-0">
           Kelompok:
         </span>
         <button
           type="button"
           onClick={() => setGroupBy("none")}
           className={cn(
-            "px-2.5 py-1 rounded-lg text-xs font-semibold transition-all",
+            "flex-1 sm:flex-none text-center px-2.5 py-1.5 sm:py-1 rounded-lg text-xs font-semibold transition-all",
             groupBy === "none"
               ? "bg-card text-foreground shadow-xs font-bold"
               : "text-muted-foreground hover:text-foreground",
@@ -209,27 +209,27 @@ export default function SubmissionsPage() {
           type="button"
           onClick={() => setGroupBy("class")}
           className={cn(
-            "px-2.5 py-1 rounded-lg text-xs font-semibold transition-all flex items-center gap-1",
+            "flex-1 sm:flex-none text-center px-2.5 py-1.5 sm:py-1 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1",
             groupBy === "class"
               ? "bg-card text-foreground shadow-xs font-bold"
               : "text-muted-foreground hover:text-foreground",
           )}
         >
-          <Users className="w-3.5 h-3.5" />
-          Kelas
+          <Users className="w-3.5 h-3.5 shrink-0" />
+          <span>Kelas</span>
         </button>
         <button
           type="button"
           onClick={() => setGroupBy("assessment")}
           className={cn(
-            "px-2.5 py-1 rounded-lg text-xs font-semibold transition-all flex items-center gap-1",
+            "flex-1 sm:flex-none text-center px-2.5 py-1.5 sm:py-1 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1",
             groupBy === "assessment"
               ? "bg-card text-foreground shadow-xs font-bold"
               : "text-muted-foreground hover:text-foreground",
           )}
         >
-          <FileText className="w-3.5 h-3.5" />
-          Asesmen
+          <FileText className="w-3.5 h-3.5 shrink-0" />
+          <span>Asesmen</span>
         </button>
       </div>
     );
