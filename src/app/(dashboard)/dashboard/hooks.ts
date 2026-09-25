@@ -296,7 +296,11 @@ export function useDashboardPage() {
       () =>
         schoolsApi
           .getMembers(selectedSchoolId)
-          .then((res) => (Array.isArray(res.data) ? res.data : [])),
+          .then((res) =>
+            Array.isArray(res.data)
+              ? res.data
+              : (res.data as any)?.items || [],
+          ),
       [selectedSchoolId],
       goLive && isAdmin,
     );

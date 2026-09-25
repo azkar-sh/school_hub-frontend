@@ -18,7 +18,9 @@ import {
   CreateTopicDto,
   EnrollStudentDto,
   FindParentStudentsQuery,
+  FindSchoolMembersQuery,
   GradeSubmissionDto,
+  PaginatedResponse,
   ParentStudent,
   ParentStudentOverviewResponse,
   ParentChildLink,
@@ -119,8 +121,11 @@ export const schoolsApi = {
   findOne: (id: string) => apiClient.get<School>(`/schools/${id}`),
   addMember: (schoolId: string, data: AddSchoolMemberDto) =>
     apiClient.post<SchoolMember>(`/schools/${schoolId}/members`, data),
-  getMembers: (schoolId: string) =>
-    apiClient.get<SchoolMember[]>(`/schools/${schoolId}/members`),
+  getMembers: (schoolId: string, params?: FindSchoolMembersQuery) =>
+    apiClient.get<SchoolMember[] | PaginatedResponse<SchoolMember>>(
+      `/schools/${schoolId}/members`,
+      { params },
+    ),
 };
 
 // Academic Years API

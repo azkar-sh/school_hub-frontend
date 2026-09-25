@@ -13,6 +13,7 @@ import { getErrorMessage } from "@/lib/errors";
 import {
   TeachingAssignment,
   SchoolMember,
+  PaginatedResponse,
   Subject,
   Class,
   AcademicYear,
@@ -57,7 +58,11 @@ export function useTeachingAssignmentsPage() {
     () =>
       schoolsApi
         .getMembers(selectedSchoolId)
-        .then((res) => (Array.isArray(res.data) ? res.data : [])),
+        .then((res) =>
+          Array.isArray(res.data)
+            ? res.data
+            : (res.data as PaginatedResponse<SchoolMember>)?.items || [],
+        ),
     [selectedSchoolId],
     !isDemoMode && !!selectedSchoolId,
   );

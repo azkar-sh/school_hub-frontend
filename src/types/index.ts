@@ -16,6 +16,28 @@ export interface User {
   createdAt?: string;
   updatedAt?: string;
   schoolMemberships?: SchoolMember[];
+  teachingAssignments?: TeachingAssignment[];
+  homeroomAssignments?: HomeroomAssignment[];
+  enrollments?: Enrollment[];
+  studentLinks?: ParentStudent[];
+  parentLinks?: ParentStudent[];
+}
+
+export interface PaginatedResponse<T> {
+  items: T[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
+export interface FindSchoolMembersQuery {
+  page?: number;
+  limit?: number;
+  search?: string;
+  role?: UserRole | "ALL";
 }
 
 export interface AuthResponse {
