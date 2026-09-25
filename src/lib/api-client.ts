@@ -244,10 +244,14 @@ export const submissionsApi = {
 export const parentStudentsApi = {
   link: (data: CreateParentStudentDto) =>
     apiClient.post<ParentStudent>("/parent-students", data),
+  findAll: () =>
+    apiClient.get<ParentStudent[]>("/parent-students"),
   getChildren: (parentId?: string) =>
     apiClient.get<ParentChildLink[]>("/parent-students/children", {
       params: parentId ? { parentId } : undefined,
     }),
   getParents: (studentId: string) =>
     apiClient.get<User[]>(`/parent-students/parents/${studentId}`),
+  unlink: (parentId: string, studentId: string) =>
+    apiClient.delete(`/parent-students/${parentId}/${studentId}`),
 };

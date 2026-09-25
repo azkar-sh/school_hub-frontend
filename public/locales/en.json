@@ -1609,9 +1609,25 @@
   },
   "TeachingAssignments": {
     "title": "Teaching Assignments",
-    "description": "See which teacher delivers each subject to each class in 2026/2027.",
+    "description": "See which teacher delivers each subject to each class across academic years.",
     "assignTeacher": "Assign Teacher",
     "active": "Active",
-    "institutionDetail": "SMA Garuda Hope · Active"
+    "institutionDetail": "Assigned Teacher",
+    "selectTeacher": "Select Teacher",
+    "selectSubject": "Select Subject",
+    "selectClass": "Select Class",
+    "selectAcademicYear": "Select Academic Year",
+    "searchPlaceholder": "Search by teacher, subject, or class...",
+    "noAssignments": "No teaching assignments found",
+    "allSubjects": "All Subjects",
+    "allClasses": "All Classes",
+    "teacher": "Teacher",
+    "subject": "Subject",
+    "class": "Class",
+    "academicYear": "Academic Year",
+    "status": "Status",
+    "createNewAssignment": "Assign Teacher",
+    "submitAssignment": "Save Assignment",
+    "assignmentCreated": "Teaching assignment created successfully!"
   }
 }

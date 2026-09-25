@@ -1609,9 +1609,25 @@
   },
   "TeachingAssignments": {
     "title": "Penugasan Mengajar",
-    "description": "Lihat guru yang mengajar setiap mata pelajaran untuk masing-masing kelas pada tahun ajaran 2026/2027.",
+    "description": "Kelola penugasan guru untuk setiap mata pelajaran dan kelas dalam tahun ajaran.",
     "assignTeacher": "Tugaskan Guru",
     "active": "Aktif",
-    "institutionDetail": "SMA Garuda Hope · Aktif"
+    "institutionDetail": "Guru Pengampu",
+    "selectTeacher": "Pilih Guru",
+    "selectSubject": "Pilih Mata Pelajaran",
+    "selectClass": "Pilih Kelas",
+    "selectAcademicYear": "Pilih Tahun Ajaran",
+    "searchPlaceholder": "Cari berdasarkan nama guru, mapel, atau kelas...",
+    "noAssignments": "Belum ada penugasan mengajar",
+    "allSubjects": "Semua Mata Pelajaran",
+    "allClasses": "Semua Kelas",
+    "teacher": "Guru",
+    "subject": "Mata Pelajaran",
+    "class": "Kelas",
+    "academicYear": "Tahun Ajaran",
+    "status": "Status",
+    "createNewAssignment": "Tugaskan Guru",
+    "submitAssignment": "Simpan Penugasan",
+    "assignmentCreated": "Penugasan mengajar berhasil dibuat!"
   }
 }

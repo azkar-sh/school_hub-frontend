@@ -108,44 +108,52 @@ function SubjectCard({
       </CardHeader>
 
       <CardContent className="pt-6 space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {sub.topics?.map((topic) => (
-            <div
-              key={topic.id}
-              className="p-4 rounded-2xl bg-muted/40 border border-border/50 space-y-2"
-            >
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 font-semibold text-sm">
-                  <Layers className="w-4 h-4 text-primary" />
-                  <span>{topic.name}</span>
-                </div>
-                {canEdit && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-7 text-[11px]"
-                    onClick={() => onAddSubTopic(topic.id)}
-                  >
-                    <PlusCircle className="w-3 h-3 mr-1" />
-                    {t("subTopicShort")}
-                  </Button>
-                )}
-              </div>
-              <p className="text-xs text-muted-foreground">{topic.description}</p>
-
-              <div className="pl-6 space-y-1 text-xs text-muted-foreground">
-                {topic.subTopics?.map((st) => (
-                  <div key={st.id} className="flex items-center gap-1.5">
-                    <BookmarkCheck className="w-3.5 h-3.5 text-success" />
-                    <span className="font-medium text-foreground">
-                      {st.name}
-                    </span>
+        {sub.topics && sub.topics.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {sub.topics.map((topic) => (
+              <div
+                key={topic.id}
+                className="p-4 rounded-2xl bg-muted/40 border border-border/50 space-y-2"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 font-semibold text-sm">
+                    <Layers className="w-4 h-4 text-primary" />
+                    <span>{topic.name}</span>
                   </div>
-                ))}
+                  {canEdit && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 text-[11px]"
+                      onClick={() => onAddSubTopic(topic.id)}
+                    >
+                      <PlusCircle className="w-3 h-3 mr-1" />
+                      {t("subTopicShort")}
+                    </Button>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground">{topic.description}</p>
+
+                <div className="pl-6 space-y-1 text-xs text-muted-foreground">
+                  {topic.subTopics?.map((st) => (
+                    <div key={st.id} className="flex items-center gap-1.5">
+                      <BookmarkCheck className="w-3.5 h-3.5 text-success" />
+                      <span className="font-medium text-foreground">
+                        {st.name}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="p-4 rounded-xl bg-muted/30 border border-dashed border-border/60 text-center text-xs text-muted-foreground">
+            {canEdit
+              ? "No syllabus topics added yet. Click '+ Add Topic' to create curriculum units."
+              : "No syllabus topics added yet. Topics and subtopics are authored by assigned subject teachers."}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

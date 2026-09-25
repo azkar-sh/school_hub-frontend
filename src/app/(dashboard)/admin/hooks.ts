@@ -2,41 +2,26 @@ import * as React from "react";
 import { useAuthStore } from "@/stores/use-auth-store";
 import {
   schoolsApi,
-  academicYearsApi,
   usersApi,
   parentStudentsApi,
 } from "@/lib/api-client";
 import { useFetchData } from "@/lib/use-fetch-data";
 import { useSchoolSelection } from "@/lib/use-school-selection";
 import { getErrorMessage } from "@/lib/errors";
-import { AcademicYear, ParentRelationship, SchoolMember } from "@/types";
+import { ParentRelationship, ParentStudent, School, User } from "@/types";
 
-export type AdminTab = "schools" | "academicYears" | "members" | "parents";
+export type AdminTab = "institution" | "guardianship" | "operations";
 
-// Demo Fallback Data
-const DEMO_ACADEMIC_YEARS: AcademicYear[] = [
-  {
-    id: "ay-1",
-    schoolId: "demo-school-id",
-    name: "2025/2026",
-    startsAt: "2025-07-01",
-    endsAt: "2026-06-30",
-    isActive: true,
-  },
-  {
-    id: "ay-2",
-    schoolId: "demo-school-id",
-    name: "2026/2027",
-    startsAt: "2026-07-01",
-    endsAt: "2027-06-30",
-    isActive: true,
-  },
-];
+interface SchoolWithCount extends School {
+  _count?: {
+    members?: number;
+    classes?: number;
+  };
+}
 
 export function useAdminPage() {
-  const { isDemoMode } = useAuthStore();
-
-  const [activeTab, setActiveTab] = React.useState<AdminTab>("schools");
+  const { user, isDemoMode } = useAuthStore();
+  const [activeTab, setActiveTab] = React.useState<AdminTab>("institution");
 
   const {
     schools,
@@ -50,58 +35,87 @@ export function useAdminPage() {
     message: string;
   } | null>(null);
 
-  // Form States
+  // Form & Modal States
+  const [showCreateSchoolModal, setShowCreateSchoolModal] = React.useState(false);
   const [schoolName, setSchoolName] = React.useState("");
-  const [ayName, setAyName] = React.useState("");
-  const [ayStartsAt, setAyStartsAt] = React.useState("");
-  const [ayEndsAt, setAyEndsAt] = React.useState("");
 
-  const [memberUserId, setMemberUserId] = React.useState("");
-
-  // Parent-Student Link Form
+  const [showLinkModal, setShowLinkModal] = React.useState(false);
   const [linkParentId, setLinkParentId] = React.useState("");
   const [linkStudentId, setLinkStudentId] = React.useState("");
   const [linkRelationship, setLinkRelationship] =
     React.useState<ParentRelationship>("FATHER");
 
-  // Fetch academic years via hook
-  const { data: academicYearsData, refetch: refetchAcademicYears } =
-    useFetchData(
-      () =>
-        academicYearsApi
-          .findBySchool(selectedSchoolId)
-          .then((res) => (Array.isArray(res.data) ? res.data : [])),
-      [selectedSchoolId],
-      !isDemoMode && !!selectedSchoolId,
-    );
-  const academicYears = isDemoMode
-    ? DEMO_ACADEMIC_YEARS
-    : (academicYearsData ?? []);
+  const [searchGuardians, setSearchGuardians] = React.useState("");
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  // Mutation loading state (for form submit buttons — used in event handlers, NOT effects)
-  const [isLoading, setIsLoading] = React.useState(false);
-
-  // Fetch school members via hook
-  const { data: membersData, refetch: refetchMembers } = useFetchData(
+  // Fetch Detailed School Info
+  const {
+    data: schoolDetailsData,
+    isLoading: isLoadingSchool,
+    refetch: refetchSchoolDetails,
+  } = useFetchData(
     () =>
       schoolsApi
-        .getMembers(selectedSchoolId)
-        .then((res) => (Array.isArray(res.data) ? res.data : [])),
+        .findOne(selectedSchoolId)
+        .then((res) => (res.data ? (res.data as SchoolWithCount) : null)),
     [selectedSchoolId],
     !isDemoMode && !!selectedSchoolId,
   );
-  const schoolMembers = (membersData ?? []) as SchoolMember[];
+  const schoolDetails = schoolDetailsData ?? (schools.find((s) => s.id === selectedSchoolId) as SchoolWithCount | undefined);
 
-  // Fetch users via hook
-  const { data: usersData } = useFetchData(
+  // Fetch Parent-Student Links
+  const {
+    data: parentLinksData,
+    isLoading: isLoadingLinks,
+    refetch: refetchLinks,
+  } = useFetchData(
     () =>
-      usersApi
-        .findAll({ limit: 100 })
+      parentStudentsApi
+        .findAll()
         .then((res) => (Array.isArray(res.data) ? res.data : [])),
     [],
     !isDemoMode,
   );
-  const usersList = usersData ?? [];
+  const parentStudentLinks = (parentLinksData ?? []) as ParentStudent[];
+
+  // Fetch Users for Dropdowns
+  const { data: usersData, isLoading: isLoadingUsers } = useFetchData(
+    () =>
+      usersApi
+        .findAll({ limit: 200 })
+        .then((res) => {
+          if (Array.isArray(res.data)) return res.data;
+          if (res.data && Array.isArray((res.data as any).items)) return (res.data as any).items;
+          return [];
+        }),
+    [],
+    !isDemoMode,
+  );
+  const usersList = (usersData ?? []) as User[];
+
+  const parentsList = React.useMemo(
+    () => usersList.filter((u) => u.role === "PARENT"),
+    [usersList],
+  );
+
+  const studentsList = React.useMemo(
+    () => usersList.filter((u) => u.role === "STUDENT"),
+    [usersList],
+  );
+
+  // Filtered Guardian Links
+  const filteredLinks = React.useMemo(() => {
+    if (!searchGuardians.trim()) return parentStudentLinks;
+    const q = searchGuardians.toLowerCase();
+    return parentStudentLinks.filter(
+      (link) =>
+        link.parent?.name?.toLowerCase().includes(q) ||
+        link.parent?.email?.toLowerCase().includes(q) ||
+        link.student?.name?.toLowerCase().includes(q) ||
+        link.student?.email?.toLowerCase().includes(q) ||
+        link.relationship.toLowerCase().includes(q),
+    );
+  }, [parentStudentLinks, searchGuardians]);
 
   // Handlers
   const handleCreateSchool = async (e: React.FormEvent) => {
@@ -109,91 +123,19 @@ export function useAdminPage() {
     if (!schoolName.trim()) return;
     try {
       setFeedback(null);
-      setIsLoading(true);
-      if (isDemoMode) {
-        setSchoolName("");
-        setFeedback({ type: "success", message: "School created (Demo Mode)" }); // i18n: TODO
-        return;
-      }
-      await schoolsApi.create({ name: schoolName });
+      setIsSubmitting(true);
+      await schoolsApi.create({ name: schoolName.trim() });
       setSchoolName("");
-      setFeedback({ type: "success", message: "School created successfully!" }); // i18n: TODO
+      setShowCreateSchoolModal(false);
+      setFeedback({ type: "success", message: "New school branch created successfully!" });
       refetchSchools();
     } catch (error) {
       setFeedback({
         type: "error",
-        message: getErrorMessage(error, "Failed to create school"), // i18n: TODO
+        message: getErrorMessage(error, "Failed to create school"),
       });
     } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleCreateAcademicYear = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedSchoolId || !ayName.trim() || !ayStartsAt || !ayEndsAt) return;
-    try {
-      setFeedback(null);
-      setIsLoading(true);
-      if (isDemoMode) {
-        setAyName("");
-        setFeedback({
-          type: "success",
-          message: "Academic Year created (Demo Mode)", // i18n: TODO
-        });
-        return;
-      }
-      await academicYearsApi.create({
-        schoolId: selectedSchoolId,
-        name: ayName,
-        startsAt: ayStartsAt,
-        endsAt: ayEndsAt,
-      });
-      setAyName("");
-      setAyStartsAt("");
-      setAyEndsAt("");
-      setFeedback({
-        type: "success",
-        message: "Academic year created successfully!", // i18n: TODO
-      });
-      refetchAcademicYears();
-    } catch (error) {
-      setFeedback({
-        type: "error",
-        message: getErrorMessage(error, "Failed to create academic year"), // i18n: TODO
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleAddMember = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedSchoolId || !memberUserId) return;
-    try {
-      setFeedback(null);
-      setIsLoading(true);
-      if (isDemoMode) {
-        setFeedback({
-          type: "success",
-          message: "User added to school (Demo Mode)", // i18n: TODO
-        });
-        return;
-      }
-      await schoolsApi.addMember(selectedSchoolId, { userId: memberUserId });
-      setMemberUserId("");
-      setFeedback({
-        type: "success",
-        message: "School member added successfully!", // i18n: TODO
-      });
-      refetchMembers();
-    } catch (error) {
-      setFeedback({
-        type: "error",
-        message: getErrorMessage(error, "Failed to add school member"), // i18n: TODO
-      });
-    } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -202,14 +144,7 @@ export function useAdminPage() {
     if (!linkParentId || !linkStudentId) return;
     try {
       setFeedback(null);
-      setIsLoading(true);
-      if (isDemoMode) {
-        setFeedback({
-          type: "success",
-          message: "Parent linked to student (Demo Mode)", // i18n: TODO
-        });
-        return;
-      }
+      setIsSubmitting(true);
       await parentStudentsApi.link({
         parentId: linkParentId,
         studentId: linkStudentId,
@@ -217,51 +152,71 @@ export function useAdminPage() {
       });
       setLinkParentId("");
       setLinkStudentId("");
-      setFeedback({
-        type: "success",
-        message: "Parent successfully linked to student!", // i18n: TODO
-      });
+      setShowLinkModal(false);
+      setFeedback({ type: "success", message: "Parent successfully linked to student!" });
+      refetchLinks();
     } catch (error) {
       setFeedback({
         type: "error",
-        message: getErrorMessage(error, "Failed to link parent and student"), // i18n: TODO
+        message: getErrorMessage(error, "Failed to link parent and student"),
       });
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleUnlinkParentStudent = async (parentId: string, studentId: string) => {
+    if (!confirm("Are you sure you want to remove this parent-student link?")) return;
+    try {
+      setFeedback(null);
+      setIsSubmitting(true);
+      await parentStudentsApi.unlink(parentId, studentId);
+      setFeedback({ type: "success", message: "Parent-student link removed successfully." });
+      refetchLinks();
+    } catch (error) {
+      setFeedback({
+        type: "error",
+        message: getErrorMessage(error, "Failed to unlink parent and student"),
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return {
+    user,
     isDemoMode,
     activeTab,
     setActiveTab,
     schools,
     selectedSchoolId,
     setSelectedSchoolId,
-    feedback,
+    schoolDetails,
+    isLoadingSchool,
+    parentStudentLinks,
+    filteredLinks,
+    isLoadingLinks,
+    parentsList,
+    studentsList,
+    searchGuardians,
+    setSearchGuardians,
+    showCreateSchoolModal,
+    setShowCreateSchoolModal,
     schoolName,
     setSchoolName,
-    ayName,
-    setAyName,
-    ayStartsAt,
-    setAyStartsAt,
-    ayEndsAt,
-    setAyEndsAt,
-    memberUserId,
-    setMemberUserId,
+    showLinkModal,
+    setShowLinkModal,
     linkParentId,
     setLinkParentId,
     linkStudentId,
     setLinkStudentId,
     linkRelationship,
     setLinkRelationship,
-    academicYears,
-    isLoading,
-    schoolMembers,
-    usersList,
+    feedback,
+    setFeedback,
+    isSubmitting,
     handleCreateSchool,
-    handleCreateAcademicYear,
-    handleAddMember,
     handleLinkParentStudent,
+    handleUnlinkParentStudent,
   };
 }

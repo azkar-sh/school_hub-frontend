@@ -54,15 +54,21 @@ export function Sidebar({
       roles: ["SCHOOL_ADMIN"],
     },
     {
-      label: t("nav.school"),
-      href: "/school",
-      icon: School,
-      roles: ["SCHOOL_ADMIN"],
-    },
-    {
       label: t("nav.academicYears"),
       href: "/academic-years",
       icon: CalendarDays,
+      roles: ["SCHOOL_ADMIN"],
+    },
+    {
+      label: t("nav.classes"),
+      href: "/classes",
+      icon: School,
+      roles: ["TEACHER", "PARENT", "SCHOOL_ADMIN"],
+    },
+    {
+      label: t("nav.teachingAssignments"),
+      href: "/teaching-assignments",
+      icon: ClipboardList,
       roles: ["SCHOOL_ADMIN"],
     },
     {
@@ -72,34 +78,22 @@ export function Sidebar({
       roles: ["SCHOOL_ADMIN"],
     },
     {
-      label: t("nav.teachingAssignments"),
-      href: "/teaching-assignments",
-      icon: ClipboardList,
-      roles: ["SCHOOL_ADMIN"],
+      label: t("nav.subjectsTopics"),
+      href: "/subjects",
+      icon: BookOpen,
+      roles: ["TEACHER", "STUDENT", "PARENT", "SCHOOL_ADMIN"],
     },
     {
       label: t("nav.assessments"),
       href: "/assessments",
       icon: FileCheck2,
-      roles: ["TEACHER", "STUDENT", "PARENT", "SCHOOL_ADMIN"],
+      roles: ["TEACHER", "STUDENT"],
     },
     {
       label: t("nav.submissions"),
       href: "/submissions",
       icon: FileSpreadsheet,
-      roles: ["TEACHER", "STUDENT", "PARENT", "SCHOOL_ADMIN"],
-    },
-    {
-      label: t("nav.classes"),
-      href: "/classes",
-      icon: School,
-      roles: ["TEACHER", "PARENT", "SCHOOL_ADMIN"],
-    },
-    {
-      label: t("nav.subjectsTopics"),
-      href: "/subjects",
-      icon: BookOpen,
-      roles: ["TEACHER", "STUDENT", "PARENT", "SCHOOL_ADMIN"],
+      roles: ["TEACHER", "STUDENT", "PARENT"],
     },
     {
       label: t("nav.results"),
