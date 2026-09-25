@@ -45,7 +45,9 @@ export function useClassesPage() {
   React.useEffect(() => {
     if (isDemoMode) return;
     usersApi.findAll({ limit: 100 }).then((res) => {
-      setUsersList(Array.isArray(res.data) ? res.data : []);
+      const data = res.data as unknown as User[] | { items: User[] };
+      const list = Array.isArray(data) ? data : data?.items ?? [];
+      setUsersList(list);
     });
   }, [isDemoMode]);
 

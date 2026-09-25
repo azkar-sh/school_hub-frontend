@@ -110,7 +110,7 @@ export const authApi = {
 export const usersApi = {
   getMe: () => apiClient.get<User>("/users/me"),
   findAll: (params?: { page?: number; limit?: number; search?: string }) =>
-    apiClient.get<User[]>("/users", { params }),
+    apiClient.get<PaginatedResponse<User> | User[]>("/users", { params }),
   findOne: (id: string) => apiClient.get<User>(`/users/${id}`),
 };
 
