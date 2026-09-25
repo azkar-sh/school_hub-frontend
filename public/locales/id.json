@@ -8,6 +8,7 @@
     "password": "Kata Sandi",
     "passwordPlaceholder": "••••••••",
     "orQuickDemoLogin": "Atau Masuk Demo Cepat",
+    "quickDemoSubtitle": "Uji coba 1-klik langsung tanpa kredensial",
     "student": "Siswa",
     "teacher": "Guru",
     "parent": "Orang Tua",
@@ -15,7 +16,8 @@
     "noAccount": "Belum punya akun?",
     "createAccount": "Buat sekarang",
     "invalidCredentials": "Email atau kata sandi salah",
-    "validUserInfoRequired": "Respons tidak berisi informasi pengguna atau peran yang valid."
+    "validUserInfoRequired": "Respons tidak berisi informasi pengguna atau peran yang valid.",
+    "backToHome": "Kembali ke Beranda"
   },
   "RegisterPage": {
     "title": "Buat Akun",
@@ -28,14 +30,25 @@
     "emailPlaceholder": "jane.doe@schoolhub.edu",
     "password": "Kata Sandi",
     "passwordPlaceholder": "••••••••",
+    "confirmPassword": "Konfirmasi Kata Sandi",
+    "confirmPasswordPlaceholder": "••••••••",
     "selectRole": "Pilih Peran",
     "studentRoleOption": "Siswa (Ikuti kuis & lihat nilai)",
     "teacherRoleOption": "Guru (Buat penilaian & beri nilai)",
     "parentRoleOption": "Orang Tua (Pantau perkembangan anak)",
+    "roleStudentTitle": "Siswa",
+    "roleStudentDesc": "Ikuti penilaian, lihat evaluasi nilai, dan pantau kemajuan belajar.",
+    "roleTeacherTitle": "Guru",
+    "roleTeacherDesc": "Rancang kurikulum, buat ujian nilai otomatis, dan evaluasi hasil siswa.",
+    "roleParentTitle": "Orang Tua",
+    "roleParentDesc": "Pantau perkembangan akademik, nilai ujian, dan catatan guru untuk anak.",
+    "passwordHint": "Minimal 6 karakter",
+    "passwordsDoNotMatch": "Kata sandi tidak cocok",
     "createAccount": "Buat Akun",
     "alreadyHaveAccount": "Sudah punya akun?",
     "signIn": "Masuk",
-    "registrationFailed": "Pendaftaran gagal. Periksa informasi Anda."
+    "registrationFailed": "Pendaftaran gagal. Periksa informasi Anda.",
+    "backToHome": "Kembali ke Beranda"
   },
   "LandingPage": {
     "title": "School Hub",
@@ -825,6 +838,8 @@
     "studentDescription": "Penilaian mendatang, percobaan, dan nilai.",
     "parentTitle": "Orang Tua",
     "parentDescription": "Anak dan kemajuan penilaian.",
+    "adminTitle": "Admin Sekolah",
+    "adminDescription": "Profil sekolah, tahun ajaran, daftar anggota, dan relasi orang tua-siswa.",
     "demoTitle": "Demo Learn Hub",
     "chooseRole": "Pilih peran untuk dijelajahi",
     "demoDataInfo": "Setiap pratinjau menggunakan data sekolah Garuda Hope yang sama.",

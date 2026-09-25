@@ -8,6 +8,7 @@
     "password": "Password",
     "passwordPlaceholder": "••••••••",
     "orQuickDemoLogin": "Or Quick Demo Login",
+    "quickDemoSubtitle": "1-click test drive without credentials",
     "student": "Student",
     "teacher": "Teacher",
     "parent": "Parent",
@@ -15,7 +16,8 @@
     "noAccount": "Don't have an account?",
     "createAccount": "Create one now",
     "invalidCredentials": "Invalid email or password",
-    "validUserInfoRequired": "Response did not contain valid user information or role."
+    "validUserInfoRequired": "Response did not contain valid user information or role.",
+    "backToHome": "Back to Home"
   },
   "RegisterPage": {
     "title": "Create an Account",
@@ -28,14 +30,25 @@
     "emailPlaceholder": "jane.doe@schoolhub.edu",
     "password": "Password",
     "passwordPlaceholder": "••••••••",
+    "confirmPassword": "Confirm Password",
+    "confirmPasswordPlaceholder": "••••••••",
     "selectRole": "Select Role",
     "studentRoleOption": "Student (Take quizzes & view scores)",
     "teacherRoleOption": "Teacher (Create assessments & grade)",
     "parentRoleOption": "Parent (Monitor child progress)",
+    "roleStudentTitle": "Student",
+    "roleStudentDesc": "Take assessments, view instant results, and track learning progress.",
+    "roleTeacherTitle": "Teacher",
+    "roleTeacherDesc": "Create assessments, auto-grade exams, and evaluate student work.",
+    "roleParentTitle": "Parent",
+    "roleParentDesc": "Monitor children's academic standing, exam grades, and progress.",
+    "passwordHint": "Must be at least 6 characters",
+    "passwordsDoNotMatch": "Passwords do not match",
     "createAccount": "Create Account",
     "alreadyHaveAccount": "Already have an account?",
     "signIn": "Sign in",
-    "registrationFailed": "Registration failed. Please check your information."
+    "registrationFailed": "Registration failed. Please check your information.",
+    "backToHome": "Back to Home"
   },
   "LandingPage": {
     "title": "School Hub",
@@ -825,6 +838,8 @@
     "studentDescription": "Upcoming assessments, attempts, and scores.",
     "parentTitle": "Parent",
     "parentDescription": "Children and assessment progress.",
+    "adminTitle": "School Admin",
+    "adminDescription": "School profile, academic terms, roster, and parent-student links.",
     "demoTitle": "Learn Hub Demo",
     "chooseRole": "Choose a role to explore",
     "demoDataInfo": "Every preview uses the same seeded Garuda Hope school data.",
