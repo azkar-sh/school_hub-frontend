@@ -17,8 +17,10 @@ import {
   CreateTeachingAssignmentDto,
   CreateTopicDto,
   EnrollStudentDto,
+  FindParentStudentsQuery,
   GradeSubmissionDto,
   ParentStudent,
+  ParentStudentOverviewResponse,
   ParentChildLink,
   Question,
   SaveAnswersDto,
@@ -244,8 +246,12 @@ export const submissionsApi = {
 export const parentStudentsApi = {
   link: (data: CreateParentStudentDto) =>
     apiClient.post<ParentStudent>("/parent-students", data),
-  findAll: () =>
-    apiClient.get<ParentStudent[]>("/parent-students"),
+  findAll: (params?: FindParentStudentsQuery) =>
+    apiClient.get<ParentStudent[]>("/parent-students", { params }),
+  getOverview: (schoolId?: string) =>
+    apiClient.get<ParentStudentOverviewResponse>("/parent-students/overview", {
+      params: schoolId ? { schoolId } : undefined,
+    }),
   getChildren: (parentId?: string) =>
     apiClient.get<ParentChildLink[]>("/parent-students/children", {
       params: parentId ? { parentId } : undefined,

@@ -3,12 +3,20 @@ import { useAuthStore } from "@/stores/use-auth-store";
 import {
   schoolsApi,
   usersApi,
+  classesApi,
   parentStudentsApi,
 } from "@/lib/api-client";
 import { useFetchData } from "@/lib/use-fetch-data";
 import { useSchoolSelection } from "@/lib/use-school-selection";
 import { getErrorMessage } from "@/lib/errors";
-import { ParentRelationship, ParentStudent, School, User } from "@/types";
+import {
+  Class,
+  ParentRelationship,
+  ParentStudent,
+  ParentStudentOverviewResponse,
+  School,
+  User,
+} from "@/types";
 
 export type AdminTab = "institution" | "guardianship" | "operations";
 
@@ -21,7 +29,13 @@ interface SchoolWithCount extends School {
 
 export function useAdminPage() {
   const { user, isDemoMode } = useAuthStore();
-  const [activeTab, setActiveTab] = React.useState<AdminTab>("institution");
+  const [activeTab, setActiveTab] = React.useState<AdminTab>(() => {
+    if (typeof window !== "undefined") {
+      const tabParam = new URLSearchParams(window.location.search).get("tab");
+      if (tabParam === "guardianship" || tabParam === "operations") return tabParam;
+    }
+    return "institution";
+  });
 
   const {
     schools,
@@ -45,7 +59,13 @@ export function useAdminPage() {
   const [linkRelationship, setLinkRelationship] =
     React.useState<ParentRelationship>("FATHER");
 
+  // Guardianship Filtering & View State
   const [searchGuardians, setSearchGuardians] = React.useState("");
+  const [selectedClassFilter, setSelectedClassFilter] = React.useState("all");
+  const [relationshipFilter, setRelationshipFilter] = React.useState<string>("all");
+  const [statusFilter, setStatusFilter] = React.useState<"all" | "linked" | "unlinked">("all");
+  const [viewMode, setViewMode] = React.useState<"accordion" | "flat">("accordion");
+
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   // Fetch Detailed School Info
@@ -63,7 +83,33 @@ export function useAdminPage() {
   );
   const schoolDetails = schoolDetailsData ?? (schools.find((s) => s.id === selectedSchoolId) as SchoolWithCount | undefined);
 
-  // Fetch Parent-Student Links
+  // Fetch Classes for the selected school
+  const { data: classesData, isLoading: isLoadingClasses } = useFetchData(
+    () =>
+      classesApi
+        .findBySchool(selectedSchoolId)
+        .then((res) => (Array.isArray(res.data) ? res.data : [])),
+    [selectedSchoolId],
+    !isDemoMode && !!selectedSchoolId,
+  );
+  const classesList = (classesData ?? []) as Class[];
+
+  // Fetch Parent-Student Overview (by-class hierarchy & statistics)
+  const {
+    data: overviewData,
+    isLoading: isLoadingOverview,
+    refetch: refetchOverview,
+  } = useFetchData(
+    () =>
+      parentStudentsApi
+        .getOverview(selectedSchoolId)
+        .then((res) => res.data),
+    [selectedSchoolId],
+    !isDemoMode && !!selectedSchoolId,
+  );
+  const parentStudentOverview = (overviewData ?? null) as ParentStudentOverviewResponse | null;
+
+  // Fetch Flat Parent-Student Links
   const {
     data: parentLinksData,
     isLoading: isLoadingLinks,
@@ -71,9 +117,16 @@ export function useAdminPage() {
   } = useFetchData(
     () =>
       parentStudentsApi
-        .findAll()
+        .findAll({
+          schoolId: selectedSchoolId,
+          classId: selectedClassFilter !== "all" ? selectedClassFilter : undefined,
+          relationship:
+            relationshipFilter !== "all"
+              ? (relationshipFilter as ParentRelationship)
+              : undefined,
+        })
         .then((res) => (Array.isArray(res.data) ? res.data : [])),
-    [],
+    [selectedSchoolId, selectedClassFilter, relationshipFilter],
     !isDemoMode,
   );
   const parentStudentLinks = (parentLinksData ?? []) as ParentStudent[];
@@ -82,7 +135,7 @@ export function useAdminPage() {
   const { data: usersData, isLoading: isLoadingUsers } = useFetchData(
     () =>
       usersApi
-        .findAll({ limit: 200 })
+        .findAll({ limit: 300 })
         .then((res) => {
           if (Array.isArray(res.data)) return res.data;
           if (res.data && Array.isArray((res.data as any).items)) return (res.data as any).items;
@@ -103,19 +156,42 @@ export function useAdminPage() {
     [usersList],
   );
 
-  // Filtered Guardian Links
+  // Filtered Guardian Links (for Flat View)
   const filteredLinks = React.useMemo(() => {
-    if (!searchGuardians.trim()) return parentStudentLinks;
-    const q = searchGuardians.toLowerCase();
-    return parentStudentLinks.filter(
-      (link) =>
-        link.parent?.name?.toLowerCase().includes(q) ||
-        link.parent?.email?.toLowerCase().includes(q) ||
-        link.student?.name?.toLowerCase().includes(q) ||
-        link.student?.email?.toLowerCase().includes(q) ||
-        link.relationship.toLowerCase().includes(q),
-    );
-  }, [parentStudentLinks, searchGuardians]);
+    let result = parentStudentLinks;
+
+    if (searchGuardians.trim()) {
+      const q = searchGuardians.toLowerCase();
+      result = result.filter(
+        (link) =>
+          link.parent?.name?.toLowerCase().includes(q) ||
+          link.parent?.email?.toLowerCase().includes(q) ||
+          link.student?.name?.toLowerCase().includes(q) ||
+          link.student?.email?.toLowerCase().includes(q) ||
+          link.relationship.toLowerCase().includes(q),
+      );
+    }
+
+    if (relationshipFilter !== "all") {
+      result = result.filter((link) => link.relationship === relationshipFilter);
+    }
+
+    if (selectedClassFilter !== "all") {
+      result = result.filter((link) =>
+        link.student?.enrollments?.some(
+          (enr) => enr.class?.id === selectedClassFilter,
+        ),
+      );
+    }
+
+    return result;
+  }, [parentStudentLinks, searchGuardians, relationshipFilter, selectedClassFilter]);
+
+  // Open modal with pre-selected student
+  const handleOpenLinkForStudent = (studentId: string) => {
+    setLinkStudentId(studentId);
+    setShowLinkModal(true);
+  };
 
   // Handlers
   const handleCreateSchool = async (e: React.FormEvent) => {
@@ -155,6 +231,7 @@ export function useAdminPage() {
       setShowLinkModal(false);
       setFeedback({ type: "success", message: "Parent successfully linked to student!" });
       refetchLinks();
+      refetchOverview();
     } catch (error) {
       setFeedback({
         type: "error",
@@ -173,6 +250,7 @@ export function useAdminPage() {
       await parentStudentsApi.unlink(parentId, studentId);
       setFeedback({ type: "success", message: "Parent-student link removed successfully." });
       refetchLinks();
+      refetchOverview();
     } catch (error) {
       setFeedback({
         type: "error",
@@ -193,6 +271,10 @@ export function useAdminPage() {
     setSelectedSchoolId,
     schoolDetails,
     isLoadingSchool,
+    classesList,
+    isLoadingClasses,
+    parentStudentOverview,
+    isLoadingOverview,
     parentStudentLinks,
     filteredLinks,
     isLoadingLinks,
@@ -200,6 +282,14 @@ export function useAdminPage() {
     studentsList,
     searchGuardians,
     setSearchGuardians,
+    selectedClassFilter,
+    setSelectedClassFilter,
+    relationshipFilter,
+    setRelationshipFilter,
+    statusFilter,
+    setStatusFilter,
+    viewMode,
+    setViewMode,
     showCreateSchoolModal,
     setShowCreateSchoolModal,
     schoolName,
@@ -218,5 +308,6 @@ export function useAdminPage() {
     handleCreateSchool,
     handleLinkParentStudent,
     handleUnlinkParentStudent,
+    handleOpenLinkForStudent,
   };
 }

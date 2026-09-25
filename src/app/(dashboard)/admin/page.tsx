@@ -20,13 +20,24 @@ export default function AdminPage() {
     selectedSchoolId,
     setSelectedSchoolId,
     schoolDetails,
+    classesList,
+    parentStudentOverview,
     parentStudentLinks,
     filteredLinks,
     isLoadingLinks,
+    isLoadingOverview,
     parentsList,
     studentsList,
     searchGuardians,
     setSearchGuardians,
+    selectedClassFilter,
+    setSelectedClassFilter,
+    relationshipFilter,
+    setRelationshipFilter,
+    statusFilter,
+    setStatusFilter,
+    viewMode,
+    setViewMode,
     showCreateSchoolModal,
     setShowCreateSchoolModal,
     schoolName,
@@ -44,6 +55,7 @@ export default function AdminPage() {
     handleCreateSchool,
     handleLinkParentStudent,
     handleUnlinkParentStudent,
+    handleOpenLinkForStudent,
   } = useAdminPage();
 
   const activeSchool =
@@ -56,7 +68,10 @@ export default function AdminPage() {
       <AdminHeader
         activeTab={activeTab}
         onOpenCreateSchool={() => setShowCreateSchoolModal(true)}
-        onOpenLinkGuardian={() => setShowLinkModal(true)}
+        onOpenLinkGuardian={() => {
+          setLinkStudentId("");
+          setShowLinkModal(true);
+        }}
       />
 
       {/* Global Feedback Banner */}
@@ -77,7 +92,7 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* Modern Non-Redundant Navigation Tabs */}
+      {/* Modern Navigation Tabs */}
       <AdminTabs
         activeTab={activeTab}
         onChangeTab={setActiveTab}
@@ -104,9 +119,23 @@ export default function AdminPage() {
           totalStudents={studentsList.length}
           search={searchGuardians}
           onSearchChange={setSearchGuardians}
-          onOpenLinkModal={() => setShowLinkModal(true)}
+          onOpenLinkModal={() => {
+            setLinkStudentId("");
+            setShowLinkModal(true);
+          }}
           onUnlink={handleUnlinkParentStudent}
-          isLoading={isLoadingLinks}
+          isLoading={isLoadingLinks || isLoadingOverview}
+          overview={parentStudentOverview}
+          classesList={classesList}
+          selectedClassFilter={selectedClassFilter}
+          onClassFilterChange={setSelectedClassFilter}
+          relationshipFilter={relationshipFilter}
+          onRelationshipFilterChange={setRelationshipFilter}
+          statusFilter={statusFilter}
+          onStatusFilterChange={setStatusFilter}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+          onQuickLinkStudent={handleOpenLinkForStudent}
         />
       )}
 
@@ -138,6 +167,7 @@ export default function AdminPage() {
         <LinkGuardianModal
           parents={parentsList}
           students={studentsList}
+          classes={classesList}
           linkParentId={linkParentId}
           onChangeLinkParentId={setLinkParentId}
           linkStudentId={linkStudentId}
@@ -145,7 +175,10 @@ export default function AdminPage() {
           linkRelationship={linkRelationship}
           onChangeLinkRelationship={setLinkRelationship}
           onSubmit={handleLinkParentStudent}
-          onClose={() => setShowLinkModal(false)}
+          onClose={() => {
+            setShowLinkModal(false);
+            setLinkStudentId("");
+          }}
           isSubmitting={isSubmitting}
         />
       )}
