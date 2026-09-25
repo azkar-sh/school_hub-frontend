@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import {
   Card,
   CardContent,
@@ -21,11 +22,11 @@ import { cn } from "@/lib/utils";
 import { Submission } from "@/types";
 
 const FEEDBACK_PRESETS = [
-  { label: "👍 Sangat Baik", text: "Penjelasan sangat baik dan tepat." },
-  { label: "🔍 Rincikan Langkah", text: "Langkah pengerjaan perlu ditulis lebih rinci." },
-  { label: "⚠️ Periksa Rumus", text: "Periksa kembali rumus dan hitungan akhir." },
-  { label: "💡 Teliti Hitungan", text: "Konsep sudah benar, namun kurang teliti saat menghitung." },
-];
+  { labelKey: "feedbackGreat", textKey: "feedbackGreatText" },
+  { labelKey: "feedbackSteps", textKey: "feedbackStepsText" },
+  { labelKey: "feedbackFormula", textKey: "feedbackFormulaText" },
+  { labelKey: "feedbackCalculate", textKey: "feedbackCalculateText" },
+] as const;
 
 interface SubmissionDetailCardProps {
   submission: Submission;
@@ -52,16 +53,19 @@ function optionMatches(
 }
 
 const QUICK_GRADE_RATIOS = [
-  { ratio: 0, label: "No credit" },
-  { ratio: 0.5, label: "Half credit" },
-  { ratio: 1, label: "Full credit" },
+  { ratio: 0, labelKey: "noCredit" },
+  { ratio: 0.5, labelKey: "halfCredit" },
+  { ratio: 1, labelKey: "fullCredit" },
 ] as const;
 
-function buildQuickGradePresets(maxPoints: number) {
+function buildQuickGradePresets(
+  maxPoints: number,
+  t: (key: string) => string,
+) {
   const safeMax = Number.isFinite(maxPoints) && maxPoints > 0 ? maxPoints : 1;
   const byPoints = new Map<number, string>();
-  for (const { ratio, label } of QUICK_GRADE_RATIOS) {
-    byPoints.set(Number((safeMax * ratio).toFixed(2)), label);
+  for (const { ratio, labelKey } of QUICK_GRADE_RATIOS) {
+    byPoints.set(Number((safeMax * ratio).toFixed(2)), t(labelKey));
   }
 
   return Array.from(byPoints.entries())
@@ -89,6 +93,7 @@ export function SubmissionDetailCard({
   autoGrading,
   highlightAnswerId,
 }: SubmissionDetailCardProps) {
+  const t = useTranslations("Submissions");
   const answers = submission.answers ?? [];
   const isTeacher = currentRole === "TEACHER" || currentRole === "SCHOOL_ADMIN";
   const autoGradableAnswers = answers.filter(
@@ -129,13 +134,16 @@ export function SubmissionDetailCard({
             {isTeacher && totalGradable > 0 && (
               <Badge variant={allGraded ? "success" : "warning"}>
                 {allGraded
-                  ? "Fully graded"
-                  : `${gradedCount}/${totalGradable} graded`}
+                  ? t("fullyGraded")
+                  : t("gradedCountBadge", {
+                      graded: gradedCount,
+                      total: totalGradable,
+                    })}
               </Badge>
             )}
           </div>
           <CardTitle className="text-base sm:text-xl truncate">
-            {submission.assessment?.title || "Assessment Submission"}
+            {submission.assessment?.title || t("assessmentSubmissionFallback")}
           </CardTitle>
           <CardDescription className="text-xs mt-0.5 truncate">
             <span className="font-semibold text-foreground">
@@ -151,7 +159,7 @@ export function SubmissionDetailCard({
         </div>
         <div className="text-right shrink-0">
           <span className="text-[10px] uppercase font-semibold text-muted-foreground block">
-            Score
+            {t("scoreOutOf")}
           </span>
           <span className="text-2xl sm:text-3xl font-black text-success">
             {submission.scorePercentage !== undefined &&
@@ -184,13 +192,16 @@ export function SubmissionDetailCard({
                 )}
                 <span>
                   {allGraded
-                    ? "All questions graded"
-                    : `${gradedCount}/${totalGradable} questions graded`}
+                    ? t("allQuestionsGraded")
+                    : t("questionsGraded", {
+                        graded: gradedCount,
+                        total: totalGradable,
+                      })}
                 </span>
               </div>
               {!allGraded && (
                 <span className="text-[11px] font-semibold text-muted-foreground shrink-0">
-                  {totalPending} pending
+                  {t("pendingCount", { count: totalPending })}
                 </span>
               )}
             </div>
@@ -215,16 +226,16 @@ export function SubmissionDetailCard({
               >
                 {!autoGrading && <Wand2 className="w-4 h-4" />}
                 {autoGrading
-                  ? "Auto-grading…"
-                  : `Auto-grade ${pendingAuto.length} MCQ / True-False`}
+                  ? t("autoGradingLoading")
+                  : t("autoGradeCount", { count: pendingAuto.length })}
               </Button>
             )}
 
             {pendingManual.length > 0 && (
               <p className="flex items-center gap-1.5 text-xs text-warning font-medium">
                 <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                {pendingManual.length} short-answer response
-                {pendingManual.length > 1 ? "s" : ""} need manual review below.
+                {pendingManual.length} {t("shortAnswerResponse")}
+                {pendingManual.length > 1 ? "s" : ""} {t("shortAnswerManualReview")}
               </p>
             )}
           </div>
@@ -233,7 +244,7 @@ export function SubmissionDetailCard({
         <div className="space-y-3 sm:space-y-4">
           {answers.length === 0 && (
             <p className="text-sm text-muted-foreground py-6 text-center">
-              No answers were recorded for this submission.
+              {t("noAnswersRecorded")}
             </p>
           )}
 
@@ -248,7 +259,7 @@ export function SubmissionDetailCard({
             const isShortAnswer = q?.type === "SHORT_ANSWER";
             const isAutoGradable =
               q?.type === "MCQ" || q?.type === "TRUE_FALSE";
-            const quickGradePresets = buildQuickGradePresets(maxPts);
+            const quickGradePresets = buildQuickGradePresets(maxPts, t);
             const selectedOption = q?.options?.find((o) =>
               optionMatches(ans.answer, o),
             );
@@ -283,7 +294,7 @@ export function SubmissionDetailCard({
                       </Badge>
                     )}
                     <Badge variant="outline" className="text-[10px] px-1.5">
-                      {maxPts} pts
+                      {maxPts} {t("pts")}
                     </Badge>
                     {!isPending && (
                       <span
@@ -305,10 +316,10 @@ export function SubmissionDetailCard({
                   <div className="space-y-2.5">
                     <div className="p-3 rounded-xl border border-border bg-muted/40">
                       <span className="text-[10px] uppercase font-bold text-muted-foreground block mb-1 tracking-wider">
-                        Student answer
+                        {t("studentAnswer")}
                       </span>
                       <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
-                        {ans.answer?.trim() ? ans.answer : "No response"}
+                        {ans.answer?.trim() ? ans.answer : t("noResponse")}
                       </p>
                     </div>
 
@@ -316,7 +327,7 @@ export function SubmissionDetailCard({
                       <div className="rounded-xl bg-muted/50 border border-border/60 p-2.5 sm:p-3.5">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-xs font-bold text-muted-foreground">
-                            Grade
+                            {t("grade")}
                           </span>
                           <span
                             className={`text-sm font-black ${
@@ -329,7 +340,7 @@ export function SubmissionDetailCard({
                           >
                             {isPending ? (
                               <span className="inline-flex items-center gap-1">
-                                <Clock className="w-3.5 h-3.5" /> Ungraded
+                                <Clock className="w-3.5 h-3.5" /> {t("ungraded")}
                               </span>
                             ) : (
                               `${earned} / ${maxPts}`
@@ -358,7 +369,7 @@ export function SubmissionDetailCard({
                                 className="min-h-[48px] flex-col gap-0 text-xs font-bold"
                                 onClick={() => onQuickGrade?.(ans.id, points)}
                               >
-                                <span>{formatPresetPoints(points)} pts</span>
+                                <span>{formatPresetPoints(points)} {t("pts")}</span>
                                 <span className="text-[10px] font-medium opacity-70">
                                   {label}
                                 </span>
@@ -377,25 +388,27 @@ export function SubmissionDetailCard({
                           }
                         >
                           <Edit3 className="w-3.5 h-3.5 mr-1.5" />
-                          Custom points
+                          {t("customPoints")}
                         </Button>
 
                         <div className="mt-2.5 pt-2.5 border-t border-border/50">
                           <span className="text-[10px] uppercase font-bold text-muted-foreground block mb-1.5 tracking-wider">
-                            Komentar Cepat (Quick Feedback):
+                            {t("quickFeedback")}
                           </span>
                           <div className="flex flex-wrap gap-1.5">
                             {FEEDBACK_PRESETS.map((preset) => {
+                              const label = t(preset.labelKey);
+                              const text = t(preset.textKey);
                               const isCopied =
-                                copiedPresetKey === `${ans.id}-${preset.label}`;
+                                copiedPresetKey === `${ans.id}-${label}`;
                               return (
                                 <button
-                                  key={preset.label}
+                                  key={preset.labelKey}
                                   type="button"
                                   onClick={() =>
                                     handleCopyPreset(
-                                      `${ans.id}-${preset.label}`,
-                                      preset.text,
+                                      `${ans.id}-${label}`,
+                                      text,
                                     )
                                   }
                                   className={cn(
@@ -404,15 +417,15 @@ export function SubmissionDetailCard({
                                       ? "bg-success/15 border-success/40 text-success font-bold"
                                       : "bg-background/80 border-border/70 hover:border-primary/50 text-foreground",
                                   )}
-                                  title={`Salin komentar: "${preset.text}"`}
+                                  title={t("copyFeedbackTitle", { text })}
                                 >
                                   {isCopied ? (
                                     <>
                                       <CheckCircle2 className="w-3 h-3 text-success" />
-                                      <span>Tersalin!</span>
+                                      <span>{t("copied")}</span>
                                     </>
                                   ) : (
-                                    <span>{preset.label}</span>
+                                    <span>{label}</span>
                                   )}
                                 </button>
                               );
@@ -422,15 +435,15 @@ export function SubmissionDetailCard({
                       </div>
                     ) : (
                       <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">Status</span>
+                        <span className="text-muted-foreground">{t("status")}</span>
                         <span className="font-semibold">
                           {isPending ? (
                             <span className="text-warning inline-flex items-center gap-1">
-                              <Clock className="w-3.5 h-3.5" /> Pending review
+                              <Clock className="w-3.5 h-3.5" /> {t("pendingReview")}
                             </span>
                           ) : (
                             <span className="text-success">
-                              {earned} / {maxPts} pts
+                              {earned} / {maxPts} {t("pts")}
                             </span>
                           )}
                         </span>
@@ -473,7 +486,7 @@ export function SubmissionDetailCard({
                           <span className="flex items-center gap-2 shrink-0">
                             {selected && (
                               <span className="text-[10px] uppercase font-bold opacity-80 hidden sm:inline">
-                                Pick
+                                {t("pick")}
                               </span>
                             )}
                             {icon}
@@ -484,9 +497,9 @@ export function SubmissionDetailCard({
                     <div className="flex items-center justify-between pt-1.5 text-xs">
                       <span className="text-muted-foreground font-medium">
                         {selectedOption?.isCorrect === true
-                          ? "Correct"
-                          : "Incorrect"}
-                        {isPending ? " • ungraded" : ""}
+                          ? t("correct")
+                          : t("incorrect")}
+                        {isPending ? ` • ${t("ungraded").toLowerCase()}` : ""}
                       </span>
 
                       <div className="flex items-center gap-2">
@@ -499,7 +512,7 @@ export function SubmissionDetailCard({
                             disabled={autoGrading}
                           >
                             <Wand2 className="w-3.5 h-3.5" />
-                            Auto-grade
+                            {t("autoGrade")}
                           </Button>
                         )}
                         {!isPending && (
@@ -524,7 +537,7 @@ export function SubmissionDetailCard({
                     className="mt-3 p-3 sm:p-4 rounded-xl bg-muted/70 border border-primary/30 space-y-3"
                   >
                     <h5 className="font-bold text-xs text-foreground">
-                      Custom points — Q{idx + 1} (max {maxPts})
+                      {t("customPointsPrompt", { num: idx + 1, max: maxPts })}
                     </h5>
                     <div className="flex items-center gap-2">
                       <Input
@@ -547,7 +560,7 @@ export function SubmissionDetailCard({
                         size="sm"
                         className="min-h-[44px] px-5 font-bold"
                       >
-                        Save
+                        {t("save")}
                       </Button>
                     </div>
                     <Button
@@ -557,7 +570,7 @@ export function SubmissionDetailCard({
                       className="w-full min-h-[44px]"
                       onClick={onCancelGrading}
                     >
-                      Cancel
+                      {t("cancel")}
                     </Button>
                   </form>
                 )}

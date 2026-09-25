@@ -105,15 +105,15 @@ export function TeacherDashboardContent({
               <Clock className="w-5 h-5" />
             </div>
             <div>
-              <CardTitle className="text-lg">Submissions Awaiting Grading</CardTitle>
+              <CardTitle className="text-lg">{t("submissionsAwaitingGrading")}</CardTitle>
               <CardDescription className="text-xs">
-                Assessments with student work requiring manual review
+                {t("submissionsAwaitingGradingDesc")}
               </CardDescription>
             </div>
           </div>
           <Link href="/submissions?status=SUBMITTED">
             <Button variant="ghost" size="sm" className="gap-1 text-warning hover:text-warning text-xs font-semibold">
-              <span>View Queue</span>
+              <span>{t("viewQueue")}</span>
               <ArrowRight className="w-4 h-4" />
             </Button>
           </Link>
@@ -138,7 +138,7 @@ export function TeacherDashboardContent({
                     <span>{item.className}</span>
                     <span>•</span>
                     <span className="text-warning font-medium">
-                      {item.pendingCount} submissions pending
+                      {t("submissionsPending", { count: item.pendingCount })}
                     </span>
                   </div>
                 </div>
@@ -150,7 +150,7 @@ export function TeacherDashboardContent({
                     className="w-full sm:w-auto h-8 text-xs font-bold gap-1.5 shrink-0"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>Grade Submissions</span>
+                    <span>{t("gradeSubmissions")}</span>
                   </Button>
                 </Link>
               </div>
@@ -160,19 +160,19 @@ export function TeacherDashboardContent({
               <div className="w-10 h-10 rounded-2xl bg-success/15 text-success flex items-center justify-center">
                 <CheckCircle2 className="w-5 h-5" />
               </div>
-              <span className="font-bold text-foreground text-sm">Semua Tugas Sudah Selesai Dinilai</span>
+              <span className="font-bold text-foreground text-sm">{t("allGradedSuccessTitle")}</span>
               <span className="text-muted-foreground max-w-sm">
-                Tidak ada pengumpulan siswa yang menunggu koreksi saat ini. Semua submission aktif telah dinilai.
+                {t("allGradedSuccessDesc")}
               </span>
               <div className="flex gap-2 pt-2">
                 <Link href="/submissions">
                   <Button variant="outline" size="sm" className="rounded-xl text-xs">
-                    Lihat Semua Pengumpulan
+                    {t("viewAllSubmissions")}
                   </Button>
                 </Link>
                 <Link href="/results">
                   <Button variant="role" size="sm" className="rounded-xl text-xs">
-                    Buka Buku Nilai
+                    {t("openGradebook")}
                   </Button>
                 </Link>
               </div>

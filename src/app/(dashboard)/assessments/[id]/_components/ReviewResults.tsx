@@ -178,7 +178,7 @@ export function ReviewResults({
                         </span>
                       ) : (
                         <span className="flex items-center gap-1 font-medium">
-                          {earned} / {q.points ?? 1} pts
+                          {earned} / {q.points ?? 1} {t("pointsUnit")}
                         </span>
                       )}
                     </div>
@@ -242,12 +242,12 @@ export function ReviewResults({
                   ) : isCorrect ? (
                     <span className="flex items-center gap-1 text-success font-semibold">
                       <CheckCircle2 className="w-3.5 h-3.5" />
-                      {earned} / {q.points ?? 1} pts
+                      {earned} / {q.points ?? 1} {t("pointsUnit")}
                     </span>
                   ) : (
                     <span className="flex items-center gap-1 text-destructive font-semibold">
                       <XCircle className="w-3.5 h-3.5" />
-                      {earned ?? 0} / {q.points ?? 1} pts
+                      {earned ?? 0} / {q.points ?? 1} {t("pointsUnit")}
                     </span>
                   )}
                 </div>

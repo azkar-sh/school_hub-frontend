@@ -77,7 +77,7 @@ export function QuestionCreatorCard({
     const letter = OPTION_LETTERS[options.length] || `Option ${options.length + 1}`;
     onChangeOptions([
       ...options,
-      { text: `Pilihan ${letter}`, isCorrect: false },
+      { text: `${t("optionPlaceholder", { letter }).replace(/\.+$/, "")}`, isCorrect: false },
     ]);
   };
 
@@ -102,14 +102,14 @@ export function QuestionCreatorCard({
           </CardTitle>
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted-foreground hidden sm:inline">
-              Tipe:
+              {t("questionType")}
             </span>
             <Badge variant="outline" className="font-semibold text-xs">
               {qType === "MCQ"
-                ? "Pilihan Ganda"
+                ? t("optionMCQ")
                 : qType === "TRUE_FALSE"
-                  ? "Benar / Salah"
-                  : "Esai Singkat"}
+                  ? t("optionTrueFalse")
+                  : t("optionShortAnswer")}
             </Badge>
           </div>
         </div>
@@ -143,7 +143,7 @@ export function QuestionCreatorCard({
               {t("questionPrompt")}
             </label>
             <span className="text-[11px] text-muted-foreground">
-              Mendukung teks deskripsi & instruksi soal
+              {t("supportDescInstructions")}
             </span>
           </div>
           <Input
@@ -186,7 +186,7 @@ export function QuestionCreatorCard({
                 {t("pointsWeight")}
               </label>
               <div className="flex items-center gap-1">
-                <span className="text-[10px] text-muted-foreground mr-1">Preset:</span>
+                <span className="text-[10px] text-muted-foreground mr-1">{t("preset")}</span>
                 {POINT_PRESETS.map((pts) => (
                   <button
                     key={pts}
@@ -220,14 +220,14 @@ export function QuestionCreatorCard({
             <div className="flex items-center justify-between">
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Pilihan Jawaban & Kunci Jawaban
+                  {t("optionsAnswersKey")}
                 </label>
                 <p className="text-[11px] text-muted-foreground mt-0.5">
-                  Klik huruf lingkaran atau tanda centang untuk menandai kunci jawaban yang benar.
+                  {t("clickToMarkKey")}
                 </p>
               </div>
               <span className="text-[11px] font-medium text-muted-foreground bg-muted/60 px-2 py-1 rounded-md">
-                {options.length} Opsi (Standar SMA 5 Opsi)
+                {options.length} {t("highSchoolStandardOptions")}
               </span>
             </div>
 
@@ -249,7 +249,7 @@ export function QuestionCreatorCard({
                     <button
                       type="button"
                       onClick={() => handleSelectCorrect(idx)}
-                      title="Klik untuk jadikan kunci jawaban"
+                      title={t("clickToSetKey")}
                       className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm shrink-0 transition-transform active:scale-95 ${
                         isSelected
                           ? "bg-emerald-600 text-white shadow-sm"
@@ -269,7 +269,7 @@ export function QuestionCreatorCard({
                           ),
                         )
                       }
-                      placeholder={`Pilihan ${letter}...`}
+                      placeholder={t("optionPlaceholder", { letter })}
                       className={`text-sm rounded-lg flex-1 h-9 ${
                         isSelected ? "border-emerald-500/40 font-medium" : ""
                       }`}
@@ -279,7 +279,7 @@ export function QuestionCreatorCard({
                     {isSelected ? (
                       <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 text-xs font-bold px-2.5 py-1 rounded-md bg-emerald-500/10 shrink-0">
                         <Check className="w-3.5 h-3.5" />
-                        <span className="hidden sm:inline">Kunci Jawaban</span>
+                        <span className="hidden sm:inline">{t("answerKey")}</span>
                       </div>
                     ) : (
                       <Button
@@ -289,7 +289,7 @@ export function QuestionCreatorCard({
                         onClick={() => handleSelectCorrect(idx)}
                         className="text-xs text-muted-foreground hover:text-emerald-600 hover:bg-emerald-500/10 shrink-0 h-8 px-2"
                       >
-                        Pilih Kunci
+                        {t("selectKey")}
                       </Button>
                     )}
 
@@ -300,7 +300,7 @@ export function QuestionCreatorCard({
                         variant="ghost"
                         size="icon"
                         onClick={() => handleRemoveOption(idx)}
-                        title="Hapus opsi ini"
+                        title={t("removeOptionTooltip")}
                         className="w-8 h-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0 rounded-lg"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -322,15 +322,15 @@ export function QuestionCreatorCard({
                   className="rounded-lg text-xs font-semibold text-primary border-primary/30 hover:bg-primary/5"
                 >
                   <Plus className="w-3.5 h-3.5 mr-1.5" />
-                  Tambah Pilihan ({OPTION_LETTERS[options.length]})
+                  {t("addOption")} ({OPTION_LETTERS[options.length]})
                 </Button>
               ) : (
                 <span className="text-[11px] text-muted-foreground">
-                  Maksimal 5 pilihan (A-E) untuk standar ujian SMA/SMK.
+                  {t("max5OptionsNotice")}
                 </span>
               )}
               <span className="text-[11px] text-muted-foreground">
-                Kunci aktif:{" "}
+                {t("activeKey")}{" "}
                 <strong className="text-emerald-600">
                   {OPTION_LETTERS[options.findIndex((o) => o.isCorrect)] || "A"}
                 </strong>
@@ -371,7 +371,7 @@ export function QuestionCreatorCard({
                     <span>{opt.text}</span>
                     {isSelected && (
                       <Badge variant="outline" className="text-[10px] ml-1 bg-background/80">
-                        Kunci
+                        {t("key")}
                       </Badge>
                     )}
                   </button>
@@ -386,9 +386,9 @@ export function QuestionCreatorCard({
           <div className="p-3.5 rounded-xl bg-muted/40 border border-border/60 text-xs text-muted-foreground flex items-start gap-2.5">
             <HelpCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
             <div>
-              <span className="font-semibold text-foreground">Esai Singkat (Jawaban Siswa):</span>
+              <span className="font-semibold text-foreground">{t("shortAnswerStudent")}</span>
               <p className="mt-0.5">
-                Siswa akan mengetik jawaban secara bebas. Anda dapat memberikan nilai dan umpan balik secara langsung melalui SpeedGrader.
+                {t("shortAnswerNotice")}
               </p>
             </div>
           </div>

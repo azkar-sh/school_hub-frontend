@@ -21,6 +21,7 @@ import {
 import { cn } from "@/lib/utils";
 import { classesApi, submissionsApi } from "@/lib/api-client";
 import { Assessment, Submission } from "@/types";
+import { useTranslations } from "next-intl";
 
 interface ClassSubmissionsRosterProps {
   assessment: Assessment | null;
@@ -50,6 +51,7 @@ export function ClassSubmissionsRoster({
   assessment,
   isDemoMode,
 }: ClassSubmissionsRosterProps) {
+  const t = useTranslations("Assessments");
   const [roster, setRoster] = React.useState<RosterStudent[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [search, setSearch] = React.useState("");
@@ -165,7 +167,7 @@ export function ClassSubmissionsRoster({
     return (
       <div className="flex items-center justify-center py-16 text-muted-foreground gap-2">
         <Loader2 className="w-5 h-5 animate-spin text-primary" />
-        <span className="text-sm font-medium">Memuat data pengumpulan kelas...</span>
+        <span className="text-sm font-medium">{t("loadingRoster")}</span>
       </div>
     );
   }
@@ -177,7 +179,7 @@ export function ClassSubmissionsRoster({
         {/* Total Students */}
         <Card className="p-4 rounded-2xl bg-card border-border/70 shadow-xs">
           <div className="flex items-center justify-between text-xs text-muted-foreground font-semibold uppercase">
-            <span>Total Siswa</span>
+            <span>{t("totalStudents")}</span>
             <Users className="w-4 h-4 text-primary" />
           </div>
           <div className="text-2xl sm:text-3xl font-black mt-2 text-foreground">
@@ -191,42 +193,42 @@ export function ClassSubmissionsRoster({
         {/* Graded */}
         <Card className="p-4 rounded-2xl bg-emerald-500/5 border-emerald-500/20 shadow-xs">
           <div className="flex items-center justify-between text-xs text-emerald-700 dark:text-emerald-400 font-semibold uppercase">
-            <span>Selesai Dinilai</span>
+            <span>{t("completedGrading")}</span>
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
           </div>
           <div className="text-2xl sm:text-3xl font-black mt-2 text-emerald-700 dark:text-emerald-300">
             {gradedCount}
           </div>
           <p className="text-[11px] text-emerald-600/80 mt-0.5">
-            {totalCount > 0 ? Math.round((gradedCount / totalCount) * 100) : 0}% tuntas
+            {totalCount > 0 ? Math.round((gradedCount / totalCount) * 100) : 0}{t("percentComplete")}
           </p>
         </Card>
 
         {/* Pending Review */}
         <Card className="p-4 rounded-2xl bg-amber-500/5 border-amber-500/20 shadow-xs">
           <div className="flex items-center justify-between text-xs text-amber-700 dark:text-amber-400 font-semibold uppercase">
-            <span>Menunggu Koreksi</span>
+            <span>{t("awaitingReview")}</span>
             <Clock className="w-4 h-4 text-amber-600" />
           </div>
           <div className="text-2xl sm:text-3xl font-black mt-2 text-amber-700 dark:text-amber-300">
             {submittedCount}
           </div>
           <p className="text-[11px] text-amber-600/80 mt-0.5">
-            Perlu penilaian manual
+            {t("needsManualReview")}
           </p>
         </Card>
 
         {/* Class Average */}
         <Card className="p-4 rounded-2xl bg-card border-border/70 shadow-xs">
           <div className="flex items-center justify-between text-xs text-muted-foreground font-semibold uppercase">
-            <span>Rata-rata Nilai</span>
+            <span>{t("averageGrade")}</span>
             <BarChart3 className="w-4 h-4 text-primary" />
           </div>
           <div className="text-2xl sm:text-3xl font-black mt-2 text-foreground">
             {classAvg !== null ? `${classAvg}%` : "-"}
           </div>
           <p className="text-[11px] text-muted-foreground mt-0.5">
-            {notStartedCount} siswa belum mengerjakan
+            {notStartedCount} {t("studentsNotStarted")}
           </p>
         </Card>
       </div>
@@ -236,7 +238,7 @@ export function ClassSubmissionsRoster({
         <div className="relative flex-1">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Cari nama siswa atau email..."
+            placeholder={t("searchStudentsPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9 h-10 rounded-xl border-border/80 text-sm"
@@ -246,10 +248,10 @@ export function ClassSubmissionsRoster({
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
           {(
             [
-              { key: "ALL", label: "Semua" },
-              { key: "GRADED", label: "Dinilai" },
-              { key: "SUBMITTED", label: "Menunggu" },
-              { key: "NOT_STARTED", label: "Belum" },
+              { key: "ALL", label: t("filterAll") },
+              { key: "GRADED", label: t("filterGraded") },
+              { key: "SUBMITTED", label: t("filterWaiting") },
+              { key: "NOT_STARTED", label: t("filterNotStarted") },
             ] as const
           ).map((tab) => (
             <button
@@ -276,11 +278,11 @@ export function ClassSubmissionsRoster({
             <thead className="bg-muted/40 text-muted-foreground text-xs uppercase font-semibold border-b border-border/60">
               <tr>
                 <th className="py-3 px-4 w-12 text-center">#</th>
-                <th className="py-3 px-4">Nama Siswa</th>
-                <th className="py-3 px-4">Status Pengumpulan</th>
-                <th className="py-3 px-4">Tanggal Pengumpulan</th>
-                <th className="py-3 px-4 text-center">Nilai</th>
-                <th className="py-3 px-4 text-right">Aksi</th>
+                <th className="py-3 px-4">{t("colStudentName")}</th>
+                <th className="py-3 px-4">{t("colSubmissionStatus")}</th>
+                <th className="py-3 px-4">{t("colSubmittedAt")}</th>
+                <th className="py-3 px-4 text-center">{t("colGrade")}</th>
+                <th className="py-3 px-4 text-right">{t("colAction")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/40">
@@ -314,19 +316,19 @@ export function ClassSubmissionsRoster({
                       {item.status === "GRADED" && (
                         <Badge variant="success" className="gap-1 font-semibold">
                           <CheckCircle2 className="w-3.5 h-3.5" />
-                          <span>Selesai Dinilai</span>
+                          <span>{t("completedGrading")}</span>
                         </Badge>
                       )}
                       {item.status === "SUBMITTED" && (
                         <Badge variant="warning" className="gap-1 font-semibold">
                           <Clock className="w-3.5 h-3.5" />
-                          <span>Menunggu Koreksi</span>
+                          <span>{t("awaitingReview")}</span>
                         </Badge>
                       )}
                       {item.status === "NOT_STARTED" && (
                         <Badge variant="secondary" className="gap-1 font-normal opacity-70">
                           <AlertCircle className="w-3.5 h-3.5" />
-                          <span>Belum Mengerjakan</span>
+                          <span>{t("notStartedYet")}</span>
                         </Badge>
                       )}
                     </td>
@@ -363,12 +365,12 @@ export function ClassSubmissionsRoster({
                             {item.status === "SUBMITTED" ? (
                               <>
                                 <Sparkles className="w-3.5 h-3.5" />
-                                <span>Beri Nilai</span>
+                                <span>{t("gradeAction")}</span>
                               </>
                             ) : (
                               <>
                                 <Eye className="w-3.5 h-3.5" />
-                                <span>Tinjau</span>
+                                <span>{t("reviewAction")}</span>
                               </>
                             )}
                           </Button>
@@ -380,7 +382,7 @@ export function ClassSubmissionsRoster({
                           disabled
                           className="rounded-xl text-xs h-8 text-muted-foreground"
                         >
-                          Belum Ada
+                          {t("noneYet")}
                         </Button>
                       )}
                     </td>
@@ -392,7 +394,7 @@ export function ClassSubmissionsRoster({
                     colSpan={6}
                     className="py-12 text-center text-xs text-muted-foreground"
                   >
-                    Tidak ada siswa yang cocok dengan filter atau pencarian.
+                    {t("noStudentsMatch")}
                   </td>
                 </tr>
               )}

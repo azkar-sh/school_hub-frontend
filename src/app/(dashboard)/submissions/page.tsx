@@ -11,13 +11,10 @@ import { useSubmissionsPage, STATUS_FILTERS } from "./hooks";
 import { SubmissionCard } from "./_components/SubmissionCard";
 import { GroupedSubmissionsView } from "./_components/GroupedSubmissionsView";
 import { SubmissionRow } from "@/lib/mock-data";
-
-const STATUS_OPTIONS = STATUS_FILTERS.filter((s) => s !== "ALL").map((s) => ({
-  value: s,
-  label: s === "SUBMITTED" ? "Pending Review" : "Graded",
-}));
+import { useTranslations } from "next-intl";
 
 export default function SubmissionsPage() {
+  const t = useTranslations("Submissions");
   const {
     currentRole,
     isDemoMode,
@@ -58,6 +55,15 @@ export default function SubmissionsPage() {
     ? "Search student or assessment title…"
     : "Search assessment title or subject…";
 
+  const statusOptions = React.useMemo(
+    () =>
+      STATUS_FILTERS.filter((s) => s !== "ALL").map((s) => ({
+        value: s,
+        label: s === "SUBMITTED" ? t("pendingReview") : t("graded"),
+      })),
+    [t],
+  );
+
   const renderCard = React.useCallback(
     (item: SubmissionRow) => (
       <SubmissionCard currentRole={currentRole} item={item} />
@@ -67,14 +73,14 @@ export default function SubmissionsPage() {
 
   const renderTableHeaders = React.useCallback(
     () => [
-      { key: isTeacher ? "student" : "assessment", label: isTeacher ? "Student" : "Assessment" },
-      { key: isTeacher ? "assessment" : "subject", label: isTeacher ? "Assessment Title" : "Subject" },
-      { key: "submittedAt", label: "Submitted At" },
-      { key: "status", label: "Status" },
-      { key: "score", label: "Score", className: "text-right" },
+      { key: isTeacher ? "student" : "assessment", label: isTeacher ? t("student") : t("groupByAssessment") },
+      { key: isTeacher ? "assessment" : "subject", label: isTeacher ? t("groupByAssessment") : t("allSubjects") },
+      { key: "submittedAt", label: t("submittedAt") },
+      { key: "status", label: t("status") },
+      { key: "score", label: t("score"), className: "text-right" },
       { key: "action", label: "", className: "w-8" },
     ],
-    [isTeacher],
+    [isTeacher, t],
   );
 
   const renderTableRow = React.useCallback(
@@ -103,7 +109,7 @@ export default function SubmissionsPage() {
               className="bg-success/15 text-success gap-1"
             >
               <CheckCircle2 className="w-3 h-3" />
-              Graded
+              {t("graded")}
             </Badge>
           ) : (
             <Badge
@@ -111,7 +117,7 @@ export default function SubmissionsPage() {
               className="text-warning border-warning/30 gap-1"
             >
               <Clock className="w-3 h-3" />
-              Pending Review
+              {t("pendingReview")}
             </Badge>
           )}
         </Link>
@@ -130,7 +136,7 @@ export default function SubmissionsPage() {
         </Link>
       </td>,
     ],
-    [isTeacher],
+    [isTeacher, t],
   );
 
   const filterGroups = React.useMemo<FilterGroup[]>(
@@ -139,10 +145,10 @@ export default function SubmissionsPage() {
         id: "status",
         mode: "multi",
         variant: "dropdown",
-        options: STATUS_OPTIONS.map((s) => ({ value: s.value, label: s.label })),
+        options: statusOptions,
         value: filterStatus,
         onChange: (v) => handleFilterStatusChange(v),
-        placeholder: "All Statuses",
+        placeholder: t("allStatuses"),
       },
       {
         id: "subject",
@@ -152,7 +158,7 @@ export default function SubmissionsPage() {
         options: subjectOptions,
         value: filterSubject,
         onChange: (v: string | string[]) => handleFilterSubjectChange(v),
-        placeholder: "All Subjects",
+        placeholder: t("allSubjects"),
         searchable: subjectOptions.length > 6,
       },
       ...(isTeacher
@@ -167,7 +173,7 @@ export default function SubmissionsPage() {
               options: classOptions,
               value: filterClass,
               onChange: (v: string | string[]) => handleFilterClassChange(v),
-              placeholder: "All Classes",
+              placeholder: t("allClasses"),
               searchable: classOptions.length > 6,
             },
           ]
@@ -178,11 +184,13 @@ export default function SubmissionsPage() {
       filterStatus,
       filterSubject,
       filterClass,
+      statusOptions,
       subjectOptions,
       classOptions,
       handleFilterStatusChange,
       handleFilterSubjectChange,
       handleFilterClassChange,
+      t,
     ],
   );
 
@@ -191,7 +199,7 @@ export default function SubmissionsPage() {
     return (
       <div className="flex items-center gap-1 bg-muted/60 p-1 rounded-xl border border-border/60 w-full sm:w-auto">
         <span className="text-[11px] font-bold text-muted-foreground px-2 uppercase tracking-wider hidden sm:inline shrink-0">
-          Kelompok:
+          {t("groupLabel")}
         </span>
         <button
           type="button"
@@ -203,7 +211,7 @@ export default function SubmissionsPage() {
               : "text-muted-foreground hover:text-foreground",
           )}
         >
-          Semua
+          {t("groupAll")}
         </button>
         <button
           type="button"
@@ -216,7 +224,7 @@ export default function SubmissionsPage() {
           )}
         >
           <Users className="w-3.5 h-3.5 shrink-0" />
-          <span>Kelas</span>
+          <span>{t("groupByClass")}</span>
         </button>
         <button
           type="button"
@@ -229,11 +237,11 @@ export default function SubmissionsPage() {
           )}
         >
           <FileText className="w-3.5 h-3.5 shrink-0" />
-          <span>Asesmen</span>
+          <span>{t("groupByAssessment")}</span>
         </button>
       </div>
     );
-  }, [isTeacher, groupBy]);
+  }, [isTeacher, groupBy, t]);
 
   return (
     <div className="space-y-6">
@@ -269,7 +277,7 @@ export default function SubmissionsPage() {
             <Link href={startGradingHref}>
               <Button variant="role" className="shadow-md">
                 <Sparkles className="w-4 h-4 mr-2" />
-                Start Grading ({pendingCount} Pending)
+                {t("startGrading", { count: pendingCount })}
               </Button>
             </Link>
           ) : undefined

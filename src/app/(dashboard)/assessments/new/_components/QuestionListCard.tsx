@@ -71,7 +71,7 @@ export function QuestionListCard({
               {t("questionListTitle", { count: questions.length })}
             </CardTitle>
             <Badge variant="outline" className="font-bold text-xs">
-              Total {totalPoints} Poin
+              {t("totalPointsLabel")} {totalPoints} {t("pointsUnit")}
             </Badge>
           </div>
           <CardDescription className="mt-1">
@@ -114,17 +114,17 @@ export function QuestionListCard({
               <div>
                 <span className="font-bold">
                   {isExact100
-                    ? "Skala 100 Poin Tercapai"
+                    ? t("scale100Reached")
                     : isLessThan100
-                      ? `Target Skala 100 Poin (${totalPoints}/100 pts)`
-                      : `Total Bobot: ${totalPoints} Poin`}
+                      ? t("scale100Target", { current: totalPoints })
+                      : t("totalPointsWeight", { points: totalPoints })}
                 </span>
                 <p className="text-[11px] opacity-90 mt-0.5">
                   {isExact100
-                    ? "Total bobot soal sudah genap 100 poin. Penilaian siap dipublikasikan ke siswa."
+                    ? t("scale100ReachedDesc")
                     : isLessThan100
-                      ? `Masih kurang ${100 - totalPoints} poin untuk mencapai bobot standar ujian skala 100.`
-                      : "Total poin melebihi skala 100. Sistem tetap dapat menghitung persentase secara proporsional."}
+                      ? t("scale100RemainingDesc", { count: 100 - totalPoints })
+                      : t("scale100ExceededDesc")}
                 </p>
               </div>
             </div>
@@ -160,7 +160,7 @@ export function QuestionListCard({
               {t("noQuestionsAdded")}
             </p>
             <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-              Gunakan formulir pembuat soal di atas atau import template Excel (.xlsx) untuk menambahkan pertanyaan.
+              {t("emptyQuestionsGuide")}
             </p>
           </div>
         ) : (
@@ -182,7 +182,7 @@ export function QuestionListCard({
                     size="icon"
                     onClick={() => onMoveQuestionUp?.(idx)}
                     disabled={idx === 0}
-                    title="Pindahkan ke atas"
+                    title={t("moveUp")}
                     className="w-7 h-7 rounded-lg text-muted-foreground hover:text-foreground disabled:opacity-25"
                   >
                     <ArrowUp className="w-3.5 h-3.5" />
@@ -196,7 +196,7 @@ export function QuestionListCard({
                     size="icon"
                     onClick={() => onMoveQuestionDown?.(idx)}
                     disabled={idx === questions.length - 1}
-                    title="Pindahkan ke bawah"
+                    title={t("moveDown")}
                     className="w-7 h-7 rounded-lg text-muted-foreground hover:text-foreground disabled:opacity-25"
                   >
                     <ArrowDown className="w-3.5 h-3.5" />
@@ -208,16 +208,16 @@ export function QuestionListCard({
                   <div className="flex items-center gap-2 flex-wrap">
                     <Badge variant="outline" className="text-[11px] font-semibold">
                       {q.type === "MCQ"
-                        ? "Pilihan Ganda"
+                        ? t("optionMCQ")
                         : q.type === "TRUE_FALSE"
-                          ? "Benar / Salah"
-                          : "Esai Singkat"}
+                          ? t("optionTrueFalse")
+                          : t("optionShortAnswer")}
                     </Badge>
                     <Badge
                       variant="secondary"
                       className="text-[11px] font-bold text-primary"
                     >
-                      {q.points} Poin
+                      {q.points} {t("pointsUnit")}
                     </Badge>
                     {editingIndex === idx && (
                       <Badge className="text-[10px]" variant="role">
@@ -273,7 +273,7 @@ export function QuestionListCard({
                     variant="ghost"
                     size="icon"
                     onClick={() => onEditQuestion(idx)}
-                    title="Edit pertanyaan"
+                    title={t("editQuestion")}
                     className="w-8 h-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted"
                   >
                     <Edit2 className="w-3.5 h-3.5" />
@@ -283,7 +283,7 @@ export function QuestionListCard({
                     variant="ghost"
                     size="icon"
                     onClick={() => onRemoveQuestion(idx)}
-                    title="Hapus pertanyaan"
+                    title={t("deleteQuestion")}
                     className="w-8 h-8 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                   >
                     <Trash2 className="w-3.5 h-3.5" />

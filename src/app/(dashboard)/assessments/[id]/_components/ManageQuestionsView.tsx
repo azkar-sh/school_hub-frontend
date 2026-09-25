@@ -163,7 +163,7 @@ export function ManageQuestionsView({
           )}
         >
           <HelpCircle className="w-4 h-4" />
-          <span>Soal & Bank Soal ({questions.length})</span>
+          <span>{t("questionsAndBank", { count: questions.length })}</span>
         </button>
 
         <button
@@ -177,7 +177,7 @@ export function ManageQuestionsView({
           )}
         >
           <Users className="w-4 h-4" />
-          <span>Progres Pengumpulan Kelas</span>
+          <span>{t("classSubmissionsProgress")}</span>
         </button>
       </div>
 
@@ -217,7 +217,7 @@ export function ManageQuestionsView({
                       Q{idx + 1}.
                     </span>
                     <Badge variant="outline" className="text-[10px]">
-                      {q.type} ({q.points} pts)
+                      {q.type} ({q.points} {t("pointsUnit")})
                     </Badge>
                   </div>
                   {!isDemoMode && (

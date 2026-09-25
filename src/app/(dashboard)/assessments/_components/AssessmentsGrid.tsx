@@ -1,5 +1,6 @@
 import { MockAssessment } from "@/lib/mock-data";
 import { AssessmentCard } from "./AssessmentCard";
+import { useTranslations } from "next-intl";
 
 interface AssessmentsGridProps {
   currentRole: string;
@@ -12,10 +13,12 @@ export function AssessmentsGrid({
   items,
   actionLabel,
 }: AssessmentsGridProps) {
+  const t = useTranslations("Assessments");
+
   if (items.length === 0) {
     return (
       <div className="col-span-2 py-14 text-center text-muted-foreground text-sm">
-        No assessments match your search.
+        {t("noAssessmentsMatch")}
       </div>
     );
   }

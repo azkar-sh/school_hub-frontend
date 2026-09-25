@@ -164,10 +164,10 @@ export default function NewAssessmentPage() {
               </div>
               <div>
                 <span className="text-xs font-semibold text-foreground block">
-                  Opsi Import Cepat Excel
+                  {t("excelQuickImportOption")}
                 </span>
                 <span className="text-[11px] text-muted-foreground">
-                  {downloadDisabledReason || "Download template lalu upload untuk membuat penilaian sekaligus."}
+                  {downloadDisabledReason || t("quickImportExcelDesc")}
                 </span>
               </div>
             </div>
@@ -221,10 +221,10 @@ export default function NewAssessmentPage() {
               <div className="flex items-center gap-2 flex-wrap">
                 <Badge variant="role" className="font-semibold text-xs">
                   {draft.type === "QUIZ"
-                    ? "Kuis"
+                    ? t("typeQuiz")
                     : draft.type === "EXAM"
-                      ? "Ujian"
-                      : "Tugas"}
+                      ? t("typeExam")
+                      : t("typeAssignment")}
                 </Badge>
                 {currentAssignment?.subject?.name && (
                   <Badge variant="outline" className="text-xs font-medium">
@@ -239,13 +239,13 @@ export default function NewAssessmentPage() {
                 {draft.dueAt && (
                   <span className="text-xs text-muted-foreground flex items-center gap-1 font-medium">
                     <Calendar className="w-3.5 h-3.5" />
-                    Tenggat: {draft.dueAt}
+                    {t("dueColon")} {draft.dueAt}
                   </span>
                 )}
               </div>
 
               <h2 className="text-lg font-bold text-foreground truncate">
-                {draft.title || "Penilaian Tanpa Judul"}
+                {draft.title || t("untitledAssessment")}
               </h2>
 
               {draft.description && (
@@ -264,7 +264,7 @@ export default function NewAssessmentPage() {
                 className="rounded-xl text-xs"
               >
                 <Edit className="w-3.5 h-3.5 mr-1.5" />
-                Ubah Detail
+                {t("editDetails")}
               </Button>
               <Button
                 variant="outline"

@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 import {
   Select,
   SelectContent,
@@ -206,6 +207,7 @@ function FilterDropdown({
   group: FilterGroup;
   className?: string;
 }) {
+  const t = useTranslations("Common.DataDisplay");
   const selected = (group.value as string[]) || [];
   const label =
     selected.length === 0
@@ -213,7 +215,7 @@ function FilterDropdown({
       : selected.length === 1
         ? (group.options.find((o) => o.value === selected[0])?.label ??
           selected[0])
-        : `${selected.length} dipilih`;
+        : `${selected.length} ${t("selected")}`;
 
   return (
     <DropdownMenu>
@@ -274,7 +276,7 @@ function FilterDropdown({
                 className="w-full h-7 text-xs rounded-lg text-muted-foreground hover:text-destructive"
                 onClick={() => group.onChange([])}
               >
-                Reset Pilihan
+                {t("resetSelection")}
               </Button>
             </div>
           </>
@@ -291,6 +293,7 @@ function FilterCombobox({
   group: FilterGroup;
   className?: string;
 }) {
+  const t = useTranslations("Common.DataDisplay");
   const selected = (group.value as string[]) || [];
   const placeholder =
     group.placeholder ?? `Cari ${group.label?.toLowerCase() ?? ""}…`;
@@ -334,7 +337,7 @@ function FilterCombobox({
           <CommandInput placeholder={placeholder} className="text-xs" />
           <CommandList>
             <CommandEmpty className="text-xs p-3 text-muted-foreground">
-              Tidak ditemukan.
+              {t("notFound")}
             </CommandEmpty>
             <CommandGroup>
               {group.options.map((opt) => {
@@ -362,7 +365,7 @@ function FilterCombobox({
           {selected.length > 0 && (
             <div className="flex items-center justify-between border-t p-2">
               <span className="text-xs text-muted-foreground">
-                {selected.length} dipilih
+                {selected.length} {t("selected")}
               </span>
               <Button
                 variant="ghost"
@@ -370,7 +373,7 @@ function FilterCombobox({
                 className="h-6 text-xs text-muted-foreground hover:text-destructive"
                 onClick={() => group.onChange([])}
               >
-                Bersihkan
+                {t("clear")}
               </Button>
             </div>
           )}
@@ -464,6 +467,7 @@ export function DataDisplay<TItem>({
 }: DataDisplayProps<TItem>) {
   const { isDemoMode: storeIsDemoMode } = useAuthStore();
   const demoMode = isDemoMode ?? storeIsDemoMode;
+  const t = useTranslations("Common.DataDisplay");
 
   const [isMobileFilterOpen, setIsMobileFilterOpen] = React.useState(false);
 
@@ -488,7 +492,7 @@ export function DataDisplay<TItem>({
     if (search && search.trim().length > 0) {
       list.push({
         id: "search",
-        label: "Pencarian",
+        label: t("search"),
         valueLabel: `"${search.trim()}"`,
         onClear: () => onSearchChange(""),
       });
@@ -504,7 +508,7 @@ export function DataDisplay<TItem>({
       const matched = filters.find((f) => f.value === activeFilter);
       list.push({
         id: "flat-filter",
-        label: "Kategori",
+        label: t("category"),
         valueLabel: matched?.label || activeFilter,
         onClear: () => onFilterChange?.(filters[0]?.value || "ALL"),
       });
@@ -622,9 +626,9 @@ export function DataDisplay<TItem>({
         <div className="flex items-center justify-between gap-3 rounded-2xl border border-warning/30 bg-warning/8 px-4 py-3 text-sm">
           <div className="flex items-center gap-2.5 text-warning min-w-0">
             <Sparkles className="w-4 h-4 shrink-0 animate-pulse" />
-            <span className="font-semibold shrink-0">Mode Pratinjau Demo</span>
+            <span className="font-semibold shrink-0">{t("demoMode")}</span>
             <span className="text-warning/80 text-xs truncate hidden sm:block">
-              — Anda sedang melihat data simulasi demo. Masuk dengan akun riil untuk data nyata.
+              {t("demoDesc")}
             </span>
           </div>
           <Link href="/login">
@@ -633,7 +637,7 @@ export function DataDisplay<TItem>({
               size="sm"
               className="border-warning/40 text-warning hover:bg-warning/15 hover:border-warning/60 text-xs gap-1 h-8 rounded-xl"
             >
-              Masuk
+              {t("signIn")}
               <ArrowRight className="w-3 h-3" />
             </Button>
           </Link>
@@ -659,12 +663,7 @@ export function DataDisplay<TItem>({
               pagination.total > 0 &&
               !showToolbar && (
                 <p className="text-xs text-muted-foreground pt-1">
-                  Menampilkan {(pagination.page - 1) * pagination.limit + 1}–
-                  {Math.min(
-                    pagination.page * pagination.limit,
-                    pagination.total,
-                  )}{" "}
-                  dari {pagination.total} data
+                  {t("showing")} {(pagination.page - 1) * pagination.limit + 1}–{Math.min(pagination.page * pagination.limit, pagination.total)} {t("of")} {pagination.total} {t("records")}
                 </p>
               )}
           </div>
@@ -695,7 +694,7 @@ export function DataDisplay<TItem>({
                       <button
                         type="button"
                         onClick={() => onSearchChange("")}
-                        aria-label="Hapus kata kunci"
+                        aria-label={t("clearKeyword")}
                         className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5 rounded-full"
                       >
                         <X className="w-3.5 h-3.5" />
@@ -716,7 +715,7 @@ export function DataDisplay<TItem>({
                         className="h-8 gap-1.5 text-xs rounded-xl flex-1 justify-center min-w-0"
                       >
                         <SlidersHorizontal className="w-3.5 h-3.5 shrink-0" />
-                        <span className="truncate">Filter & Urutkan</span>
+                        <span className="truncate">{t("filterAndSort")}</span>
                         {activeFiltersCount > 0 && (
                           <Badge
                             variant="secondary"
@@ -732,8 +731,8 @@ export function DataDisplay<TItem>({
                       <div className="inline-flex items-center rounded-xl border border-border/80 bg-muted/40 p-0.5 gap-0.5 shrink-0 ml-auto">
                         <button
                           type="button"
-                          aria-label="Tampilan Kartu"
-                          title="Tampilan Kartu"
+                          aria-label={t("cardView")}
+                          title={t("cardView")}
                           aria-pressed={viewMode === "cards"}
                           onClick={() => onViewToggle("cards")}
                           className={cn(
@@ -747,8 +746,8 @@ export function DataDisplay<TItem>({
                         </button>
                         <button
                           type="button"
-                          aria-label="Tampilan Tabel"
-                          title="Tampilan Tabel"
+                          aria-label={t("tableView")}
+                          title={t("tableView")}
                           aria-pressed={viewMode === "table"}
                           onClick={() => onViewToggle("table")}
                           className={cn(
@@ -780,8 +779,7 @@ export function DataDisplay<TItem>({
                     pagination.total > 0 && (
                       <span className="text-xs text-muted-foreground whitespace-nowrap text-right">
                         <span>
-                          {pagination.total} data · Hal {pagination.page} dari{" "}
-                          {pagination.totalPages}
+                          {pagination.total} {t("records")} · {t("page")} {pagination.page} {t("of")} {pagination.totalPages}
                         </span>
                       </span>
                     )}
@@ -790,8 +788,8 @@ export function DataDisplay<TItem>({
                     <div className="inline-flex items-center rounded-xl border border-border/80 bg-muted/40 p-0.5 gap-0.5 shrink-0">
                       <button
                         type="button"
-                        aria-label="Tampilan Kartu"
-                        title="Tampilan Kartu"
+                        aria-label={t("cardView")}
+                        title={t("cardView")}
                         aria-pressed={viewMode === "cards"}
                         onClick={() => onViewToggle("cards")}
                         className={cn(
@@ -802,12 +800,12 @@ export function DataDisplay<TItem>({
                         )}
                       >
                         <LayoutGrid className="h-3.5 w-3.5" />
-                        <span className="hidden md:inline">Kartu</span>
+                        <span className="hidden md:inline">{t("cardView")}</span>
                       </button>
                       <button
                         type="button"
-                        aria-label="Tampilan Tabel"
-                        title="Tampilan Tabel"
+                        aria-label={t("tableView")}
+                        title={t("tableView")}
                         aria-pressed={viewMode === "table"}
                         onClick={() => onViewToggle("table")}
                         className={cn(
@@ -818,7 +816,7 @@ export function DataDisplay<TItem>({
                         )}
                       >
                         <List className="h-3.5 w-3.5" />
-                        <span className="hidden md:inline">Tabel</span>
+                        <span className="hidden md:inline">{t("tableView")}</span>
                       </button>
                     </div>
                   )}
@@ -916,7 +914,7 @@ export function DataDisplay<TItem>({
                 <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-border/60">
                   <div className="flex items-center gap-1 text-[11px] font-semibold text-muted-foreground mr-1">
                     <Filter className="w-3 h-3 text-primary" />
-                    <span>Aktif:</span>
+                    <span>{t("active")}</span>
                   </div>
 
                   {activeFiltersList.map((chip) => (
@@ -950,7 +948,7 @@ export function DataDisplay<TItem>({
                     className="h-6 text-[11px] text-muted-foreground hover:text-destructive px-2 ml-auto"
                   >
                     <RotateCcw className="w-3 h-3 mr-1" />
-                    Reset Semua
+                    {t("resetAll")}
                   </Button>
                 </div>
               )}
@@ -968,10 +966,10 @@ export function DataDisplay<TItem>({
           <SheetHeader className="p-4 border-b border-border/60">
             <SheetTitle className="text-base font-bold flex items-center gap-2">
               <SlidersHorizontal className="w-4 h-4 text-primary" />
-              <span>Filter & Urutkan</span>
+              <span>{t("filterAndSort")}</span>
             </SheetTitle>
             <SheetDescription className="text-xs text-muted-foreground">
-              Sesuaikan filter data untuk mempersempit hasil pencarian Anda.
+              {t("filterDesc")}
             </SheetDescription>
           </SheetHeader>
 
@@ -1003,7 +1001,7 @@ export function DataDisplay<TItem>({
             {hasFilters && (
               <div className="space-y-2">
                 <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Kategori
+                  {t("category")}
                 </label>
                 <div className="flex flex-wrap gap-1.5">
                   {filters.map((filter) => (
@@ -1033,7 +1031,7 @@ export function DataDisplay<TItem>({
               className="flex-1 rounded-xl text-xs"
             >
               <RotateCcw className="w-3.5 h-3.5 mr-1" />
-              Reset
+              {t("reset")}
             </Button>
             <Button
               type="button"
@@ -1042,7 +1040,7 @@ export function DataDisplay<TItem>({
               onClick={() => setIsMobileFilterOpen(false)}
               className="flex-1 rounded-xl text-xs font-semibold shadow-xs"
             >
-              Terapkan
+              {t("apply")}
             </Button>
           </SheetFooter>
         </SheetContent>
@@ -1052,7 +1050,7 @@ export function DataDisplay<TItem>({
       {isLoading && !demoMode && (
         <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-3">
           <Loader2 className="w-6 h-6 animate-spin text-primary" />
-          <span className="text-xs font-medium">Memuat data…</span>
+          <span className="text-xs font-medium">{t("loadingData")}</span>
         </div>
       )}
 
@@ -1097,7 +1095,7 @@ export function DataDisplay<TItem>({
                   className="rounded-xl text-xs"
                 >
                   <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
-                  Reset Filter & Pencarian
+                  {t("resetFiltersAndSearch")}
                 </Button>
               )}
             </div>
@@ -1135,7 +1133,7 @@ export function DataDisplay<TItem>({
                   className="rounded-xl text-xs"
                 >
                   <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
-                  Reset Filter & Pencarian
+                  {t("resetFiltersAndSearch")}
                 </Button>
               )}
             </div>
@@ -1170,7 +1168,7 @@ export function DataDisplay<TItem>({
                       )}
                     </div>
                     <span className="text-[11px] text-muted-foreground block sm:hidden">
-                      Geser untuk kolom lengkap →
+                      {t("scrollHint")}
                     </span>
                   </div>
                 </CardHeader>
@@ -1240,12 +1238,7 @@ export function DataDisplay<TItem>({
         pagination.totalPages > 1 && (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-border/40">
             <span className="text-xs text-muted-foreground order-2 sm:order-1">
-              Menampilkan {(pagination.page - 1) * pagination.limit + 1}–
-              {Math.min(
-                pagination.page * pagination.limit,
-                pagination.total,
-              )}{" "}
-              dari {pagination.total} data
+              {t("showing")} {(pagination.page - 1) * pagination.limit + 1}–{Math.min(pagination.page * pagination.limit, pagination.total)} {t("of")} {pagination.total} {t("records")}
             </span>
 
             <div className="flex items-center gap-1.5 order-1 sm:order-2">
@@ -1254,11 +1247,11 @@ export function DataDisplay<TItem>({
                 size="sm"
                 disabled={pagination.page <= 1}
                 onClick={goToPrev}
-                aria-label="Halaman sebelumnya"
+                aria-label={t("previousPage")}
                 className="h-8 px-2.5 rounded-xl text-xs gap-1 disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 <ChevronLeft className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Sebelumnya</span>
+                <span className="hidden sm:inline">{t("previous")}</span>
               </Button>
 
               {/* Direct Page Numbers */}
@@ -1302,10 +1295,10 @@ export function DataDisplay<TItem>({
                 size="sm"
                 disabled={pagination.page >= pagination.totalPages}
                 onClick={goToNext}
-                aria-label="Halaman berikutnya"
+                aria-label={t("nextPage")}
                 className="h-8 px-2.5 rounded-xl text-xs gap-1 disabled:opacity-30 disabled:cursor-not-allowed"
               >
-                <span className="hidden sm:inline">Berikutnya</span>
+                <span className="hidden sm:inline">{t("next")}</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </Button>
             </div>

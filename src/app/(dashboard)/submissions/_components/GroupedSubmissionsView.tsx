@@ -15,6 +15,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { SubmissionCard } from "./SubmissionCard";
+import { useTranslations } from "next-intl";
 
 interface GroupedSubmissionsViewProps {
   items: SubmissionRow[];
@@ -38,6 +39,7 @@ export function GroupedSubmissionsView({
   groupBy,
   currentRole,
 }: GroupedSubmissionsViewProps) {
+  const t = useTranslations("Submissions");
   // Compute groups
   const groups = React.useMemo<GroupData[]>(() => {
     const map = new Map<string, GroupData>();
@@ -103,7 +105,7 @@ export function GroupedSubmissionsView({
   if (groups.length === 0) {
     return (
       <div className="py-12 text-center text-sm text-muted-foreground bg-card rounded-2xl border border-border/50">
-        Tidak ada data pengumpulan yang cocok dengan filter.
+        {t("noSubmissionsMatch")}
       </div>
     );
   }
@@ -112,9 +114,11 @@ export function GroupedSubmissionsView({
     <div className="space-y-4">
       <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
         <span>
-          Menampilkan {groups.length}{" "}
-          {groupBy === "class" ? "kelompok kelas" : "asesmen"} • Total{" "}
-          {items.length} pengumpulan
+          {t("showingGrouped", {
+            displayed: groups.length,
+            total: groups.length,
+            submissions: items.length,
+          })}
         </span>
         <div className="flex items-center gap-2">
           <Button
@@ -123,7 +127,7 @@ export function GroupedSubmissionsView({
             className="h-7 text-xs px-2"
             onClick={expandAll}
           >
-            Buka Semua
+            {t("openAll")}
           </Button>
           <span className="text-border">|</span>
           <Button
@@ -132,7 +136,7 @@ export function GroupedSubmissionsView({
             className="h-7 text-xs px-2"
             onClick={collapseAll}
           >
-            Tutup Semua
+            {t("closeAll")}
           </Button>
         </div>
       </div>
@@ -174,17 +178,17 @@ export function GroupedSubmissionsView({
                       )}
                     </div>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5 flex-wrap">
-                      <span>{group.total} siswa mengumpulkan</span>
+                      <span>{t("studentsSubmitted", { count: group.total })}</span>
                       <span>•</span>
                       {group.pending > 0 ? (
                         <span className="text-warning font-semibold inline-flex items-center gap-1">
                           <Clock className="w-3 h-3" />
-                          {group.pending} belum dinilai
+                          {t("ungradedCount", { count: group.pending })}
                         </span>
                       ) : (
                         <span className="text-success font-semibold inline-flex items-center gap-1">
                           <CheckCircle2 className="w-3 h-3" />
-                          Semua dinilai
+                          {t("allGraded")}
                         </span>
                       )}
                       {group.avgScore !== null && (
@@ -192,7 +196,7 @@ export function GroupedSubmissionsView({
                           <span>•</span>
                           <span className="inline-flex items-center gap-1 text-foreground font-semibold">
                             <TrendingUp className="w-3 h-3 text-primary" />
-                            Rata-rata: {group.avgScore}%
+                            {t("averagePrefix")} {group.avgScore}%
                           </span>
                         </>
                       )}
@@ -203,7 +207,7 @@ export function GroupedSubmissionsView({
                 <div className="flex items-center gap-3 self-end sm:self-center">
                   <div className="w-32 hidden md:block">
                     <div className="flex items-center justify-between text-[11px] font-semibold text-muted-foreground mb-1">
-                      <span>Progres</span>
+                      <span>{t("progress")}</span>
                       <span>{progressPct}%</span>
                     </div>
                     <div className="h-1.5 w-full bg-border/50 rounded-full overflow-hidden">

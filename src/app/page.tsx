@@ -232,14 +232,14 @@ export default function LandingPage() {
                   <span className="ml-2 text-xs font-mono text-muted-foreground">schoolhub.app/portal/{activeStage.toLowerCase()}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="hidden sm:inline-block text-[11px] text-muted-foreground font-medium">Demo School: SMA Garuda Hope</span>
+                  <span className="hidden sm:inline-block text-[11px] text-muted-foreground font-medium">{t('demoSchool')}</span>
                   <Button
                     size="sm"
                     variant="outline"
                     className="h-7 text-xs rounded-lg gap-1 border-border/60"
                     onClick={() => handlePortalEnter(activeStage === 'ADMIN' ? 'SCHOOL_ADMIN' : activeStage)}
                   >
-                    <span>Launch Live</span>
+                    <span>{t('launchLive')}</span>
                     <ExternalLink className="w-3 h-3" />
                   </Button>
                 </div>
@@ -253,7 +253,7 @@ export default function LandingPage() {
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                            TEACHER PORTAL
+                            {t('stageBadgeTeacher')}
                           </span>
                           <span className="text-xs text-muted-foreground">{t('stagePreviews.teacher.badge')}</span>
                         </div>
@@ -275,7 +275,7 @@ export default function LandingPage() {
                     <div className="p-5 rounded-xl border border-border/60 bg-muted/20 space-y-4">
                       <div className="flex items-center justify-between text-xs font-semibold">
                         <span className="text-emerald-600 dark:text-emerald-400">{t('stagePreviews.teacher.qType')}</span>
-                        <span className="text-muted-foreground">Points: 10 • Sub-Topic: Triangles & Trigonometric Ratios</span>
+                        <span className="text-muted-foreground">{t('mathQuestionPoints')}</span>
                       </div>
                       <p className="text-sm sm:text-base font-medium text-foreground">
                         {t('stagePreviews.teacher.questionPreview')}
@@ -292,13 +292,13 @@ export default function LandingPage() {
                     </div>
 
                     <div className="flex items-center justify-between text-xs text-muted-foreground pt-2">
-                      <span>Curriculum Hierarchy: Mathematics (MATH) ➔ Trigonometry ➔ Sine & Cosine</span>
+                      <span>{t('curriculumHierarchy')}</span>
                       <Button
                         size="sm"
                         className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold"
                         onClick={() => handlePortalEnter('TEACHER')}
                       >
-                        Enter Teacher Mode
+                        {t('enterTeacherMode')}
                       </Button>
                     </div>
                   </div>
@@ -310,7 +310,7 @@ export default function LandingPage() {
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
-                            STUDENT PORTAL
+                            {t('stageBadgeStudent')}
                           </span>
                           <span className="text-xs text-muted-foreground">{t('stagePreviews.student.studentName')}</span>
                         </div>
@@ -350,14 +350,14 @@ export default function LandingPage() {
                     <div className="flex items-center justify-between text-xs text-muted-foreground pt-2">
                       <div className="flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-indigo-500 inline-block" />
-                        <span>Questions Answered: 3 of 10</span>
+                        <span>{t('questionsAnswered')}</span>
                       </div>
                       <Button
                         size="sm"
                         className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold"
                         onClick={() => handlePortalEnter('STUDENT')}
                       >
-                        Enter Student Mode
+                        {t('enterStudentMode')}
                       </Button>
                     </div>
                   </div>
@@ -369,7 +369,7 @@ export default function LandingPage() {
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-                            PARENT PORTAL
+                            {t('stageBadgeParent')}
                           </span>
                           <span className="text-xs text-muted-foreground">{t('stagePreviews.parent.childName')}</span>
                         </div>
@@ -384,19 +384,19 @@ export default function LandingPage() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div className="p-4 rounded-xl border border-border/60 bg-muted/20">
-                        <span className="text-xs text-muted-foreground">Cumulative Average</span>
+                        <span className="text-xs text-muted-foreground">{t('cumulativeAverage')}</span>
                         <div className="text-3xl font-extrabold text-foreground mt-1">{t('stagePreviews.parent.overallGpa')}</div>
-                        <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">Top 5% in Grade 8A</span>
+                        <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">{t('topRank')}</span>
                       </div>
                       <div className="p-4 rounded-xl border border-border/60 bg-muted/20">
-                        <span className="text-xs text-muted-foreground">Latest Graded Exam</span>
+                        <span className="text-xs text-muted-foreground">{t('latestGradedExam')}</span>
                         <div className="text-sm font-bold text-foreground mt-1 truncate">{t('stagePreviews.parent.recentExam')}</div>
                         <span className="text-xs font-extrabold text-primary">{t('stagePreviews.parent.score')}</span>
                       </div>
                       <div className="p-4 rounded-xl border border-border/60 bg-muted/20">
-                        <span className="text-xs text-muted-foreground">Alert Channel</span>
-                        <div className="text-xs font-medium text-foreground mt-1">Real-time Grade Notification</div>
-                        <span className="text-[11px] text-muted-foreground">Zero semester-end surprises</span>
+                        <span className="text-xs text-muted-foreground">{t('alertChannel')}</span>
+                        <div className="text-xs font-medium text-foreground mt-1">{t('realtimeGradeNotification')}</div>
+                        <span className="text-[11px] text-muted-foreground">{t('zeroSemesterEndSurprises')}</span>
                       </div>
                     </div>
 
@@ -407,13 +407,13 @@ export default function LandingPage() {
                     </div>
 
                     <div className="flex items-center justify-between text-xs text-muted-foreground pt-2">
-                      <span>Monitored Child: Siti Nurhaliza • Relationship: Mother</span>
+                      <span>{t('monitoredChild')}</span>
                       <Button
                         size="sm"
                         className="bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold"
                         onClick={() => handlePortalEnter('PARENT')}
                       >
-                        Enter Parent Mode
+                        {t('enterParentMode')}
                       </Button>
                     </div>
                   </div>
@@ -425,7 +425,7 @@ export default function LandingPage() {
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
-                            ADMIN PORTAL
+                            {t('stageBadgeAdmin')}
                           </span>
                           <span className="text-xs text-muted-foreground">{t('stagePreviews.admin.schoolName')}</span>
                         </div>
@@ -434,7 +434,7 @@ export default function LandingPage() {
                       </div>
                       <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
                         <ShieldCheck className="w-3.5 h-3.5" />
-                        <span>System Governance</span>
+                        <span>{t('systemGovernance')}</span>
                       </div>
                     </div>
 
@@ -442,24 +442,24 @@ export default function LandingPage() {
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
                         <div className="p-3 rounded-lg bg-card border border-border/50">
                           <div className="text-2xl font-bold text-foreground">6</div>
-                          <div className="text-[11px] text-muted-foreground">Teachers</div>
+                          <div className="text-[11px] text-muted-foreground">{t('teachersCount')}</div>
                         </div>
                         <div className="p-3 rounded-lg bg-card border border-border/50">
                           <div className="text-2xl font-bold text-foreground">16</div>
-                          <div className="text-[11px] text-muted-foreground">Students</div>
+                          <div className="text-[11px] text-muted-foreground">{t('studentsCount')}</div>
                         </div>
                         <div className="p-3 rounded-lg bg-card border border-border/50">
                           <div className="text-2xl font-bold text-foreground">2</div>
-                          <div className="text-[11px] text-muted-foreground">Classes (8A, 8B)</div>
+                          <div className="text-[11px] text-muted-foreground">{t('classesCount')}</div>
                         </div>
                         <div className="p-3 rounded-lg bg-card border border-border/50">
                           <div className="text-2xl font-bold text-foreground">6</div>
-                          <div className="text-[11px] text-muted-foreground">Subjects</div>
+                          <div className="text-[11px] text-muted-foreground">{t('subjectsCount')}</div>
                         </div>
                       </div>
 
                       <div className="p-3 rounded-lg bg-card border border-border/50 flex flex-col sm:flex-row sm:items-center justify-between text-xs gap-2">
-                        <span className="font-semibold text-foreground">Homeroom Allocations (Wali Kelas):</span>
+                        <span className="font-semibold text-foreground">{t('homeroomAllocations')}</span>
                         <span className="text-muted-foreground">{t('stagePreviews.admin.homeroom')}</span>
                       </div>
                     </div>
@@ -471,7 +471,7 @@ export default function LandingPage() {
                         className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-semibold"
                         onClick={() => handlePortalEnter('SCHOOL_ADMIN')}
                       >
-                        Enter Admin Mode
+                        {t('enterAdminMode')}
                       </Button>
                     </div>
                   </div>
@@ -506,7 +506,7 @@ export default function LandingPage() {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-foreground">{t('problemSolution.beforeTitle')}</h3>
-                    <p className="text-xs text-muted-foreground">Disconnected, manual, and stressful</p>
+                    <p className="text-xs text-muted-foreground">{t('disconnectedTraditional')}</p>
                   </div>
                 </div>
 
@@ -541,7 +541,7 @@ export default function LandingPage() {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-foreground">{t('problemSolution.afterTitle')}</h3>
-                    <p className="text-xs text-muted-foreground">Unified, automated, and continuous</p>
+                    <p className="text-xs text-muted-foreground">{t('unifiedContinuous')}</p>
                   </div>
                 </div>
 
@@ -589,7 +589,7 @@ export default function LandingPage() {
                 className="rounded-xl font-semibold gap-2 shadow-md shadow-primary/25"
                 onClick={() => handlePortalEnter('TEACHER')}
               >
-                <span>Demo SMA Garuda Hope</span>
+                <span>{t('demoSmaGarudaHope')}</span>
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </div>
@@ -603,10 +603,10 @@ export default function LandingPage() {
               {t('selectRolePreview')}
             </span>
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-              One Unified Core, Four Tailored Viewports
+              {t('oneUnifiedCore')}
             </h2>
             <p className="mt-4 text-base sm:text-lg text-muted-foreground">
-              Every participant operates within an interface designed specifically for their responsibilities and permissions.
+              {t('oneUnifiedDesc')}
             </p>
           </div>
 
@@ -946,23 +946,23 @@ export default function LandingPage() {
               <GraduationCap className="h-5 w-5" />
             </div>
             <div className="flex flex-col">
-              <span className="font-bold text-foreground text-sm">SchoolHub OS</span>
-              <span>Modern K-12 Academic Assessment System</span>
+              <span className="font-bold text-foreground text-sm">{t('schoolHubOs')}</span>
+              <span>{t('schoolHubOsSubtitle')}</span>
             </div>
           </div>
 
           <div className="flex items-center gap-6">
             <button type="button" onClick={() => handlePortalEnter('TEACHER')} className="hover:text-foreground transition-colors cursor-pointer">
-              Teacher Demo
+              {t('teacherDemo')}
             </button>
             <button type="button" onClick={() => handlePortalEnter('STUDENT')} className="hover:text-foreground transition-colors cursor-pointer">
-              Student Demo
+              {t('studentDemo')}
             </button>
             <button type="button" onClick={() => handlePortalEnter('PARENT')} className="hover:text-foreground transition-colors cursor-pointer">
-              Parent Demo
+              {t('parentDemo')}
             </button>
             <button type="button" onClick={() => handlePortalEnter('SCHOOL_ADMIN')} className="hover:text-foreground transition-colors cursor-pointer">
-              Admin Demo
+              {t('adminDemo')}
             </button>
           </div>
 

@@ -116,7 +116,7 @@ export function SubmitConfirmModal({
           <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-800 dark:text-amber-300 space-y-1">
             <p className="font-semibold flex items-center gap-1.5">
               <AlertTriangle className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
-              <span>Perhatian Sebelum Mengumpulkan:</span>
+              <span>{t("attentionBeforeSubmit")}</span>
             </p>
             {unansweredCount > 0 && (
               <p className="pl-5 text-muted-foreground dark:text-amber-200/80">
