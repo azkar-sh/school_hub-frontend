@@ -31,6 +31,7 @@ export default function DashboardPage() {
     teacherClassAverage,
     teacherIsLoading,
     teacherHasError,
+    teacherSubmissionsError,
     submissions,
     studentClass,
     studentQuizzesTaken,
@@ -39,6 +40,7 @@ export default function DashboardPage() {
     studentRecentResults,
     studentIsLoading,
     studentHasError,
+    studentResultsHasError,
     parentChildren,
     parentAvgScore,
     parentCompletedCount,
@@ -112,6 +114,7 @@ export default function DashboardPage() {
           teacherClasses={teacherClasses}
           isLoading={teacherIsLoading}
           hasError={teacherHasError}
+          submissionsError={teacherSubmissionsError}
           isLoadingLive={isLoadingLive}
           liveFetchError={liveFetchError}
           displayAssessments={displayAssessments}
@@ -125,6 +128,7 @@ export default function DashboardPage() {
           studentClass={studentClass}
           isLoading={studentIsLoading}
           hasError={studentHasError}
+          resultsHasError={studentResultsHasError}
           isLoadingLive={isLoadingLive}
           liveFetchError={liveFetchError}
           displayAssessments={displayAssessments}

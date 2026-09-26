@@ -698,6 +698,9 @@ if (isStudent) {
     studentRecentResults,
     studentIsLoading,
     studentHasError,
+    studentResultsHasError: !isDemoMode && !!submissionsError,
+    // teacher submissions error
+    teacherSubmissionsError: !isDemoMode && !!submissionsError,
     // parent
     parentChildren,
     parentAvgScore,

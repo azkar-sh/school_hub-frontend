@@ -23,6 +23,7 @@ interface StudentDashboardContentProps {
   studentClass: MockStudentClassInfo | null;
   isLoading: boolean;
   hasError?: boolean;
+  resultsHasError?: boolean;
   isLoadingLive: boolean;
   liveFetchError: unknown;
   displayAssessments: DisplayAssessment[];
@@ -34,6 +35,7 @@ export function StudentDashboardContent({
   studentClass,
   isLoading,
   hasError,
+  resultsHasError,
   isLoadingLive,
   liveFetchError,
   displayAssessments,
@@ -107,7 +109,7 @@ export function StudentDashboardContent({
         description={t("recentResultsDesc")}
         results={studentRecentResults}
         isLoading={!isDemoMode && isLoading}
-        hasError={hasError}
+        hasError={resultsHasError ?? hasError}
       />
     </div>
   );
