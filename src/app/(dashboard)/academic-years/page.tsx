@@ -51,6 +51,7 @@ export default function AcademicYearsPage() {
   const {
     data: academicYearsData,
     isLoading,
+    error: isError,
     refetch,
   } = useFetchData(
     () =>
@@ -193,6 +194,30 @@ export default function AcademicYearsPage() {
           <Loader2 className="w-6 h-6 animate-spin text-primary" />
           <span className="text-sm font-medium">Loading academic years...</span>
         </div>
+      ) : isError && !isDemoMode ? (
+        <Card className="rounded-2xl border-destructive/20 bg-destructive/5 py-12 text-center">
+          <CardContent className="flex flex-col items-center justify-center space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-destructive/10 text-destructive flex items-center justify-center">
+              <AlertCircle className="w-6 h-6" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-base font-semibold text-destructive">
+                Failed to load academic years
+              </h3>
+              <p className="text-xs text-muted-foreground max-w-sm">
+                An error occurred while fetching academic years. Please try again.
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={refetch}
+              className="mt-2 rounded-xl text-xs"
+            >
+              Try Again
+            </Button>
+          </CardContent>
+        </Card>
       ) : filteredYears.length === 0 ? (
         <Card className="rounded-2xl border-dashed border-border/80 bg-card/40 py-16 text-center">
           <CardContent className="flex flex-col items-center justify-center space-y-3">

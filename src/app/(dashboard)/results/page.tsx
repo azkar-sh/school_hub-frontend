@@ -10,6 +10,8 @@ export default function ResultsPage() {
     isDemoMode,
     currentRole,
     isLoading,
+    isError,
+    refetch,
     studentSubjects,
     teacherSubjects,
     parentChildrenResults,
@@ -20,6 +22,8 @@ export default function ResultsPage() {
       <TeacherResultsView
         isDemoMode={isDemoMode}
         isLoading={isLoading}
+        isError={isError}
+        onRetry={refetch}
         teacherSubjects={teacherSubjects}
       />
     );
@@ -30,6 +34,8 @@ export default function ResultsPage() {
       <StudentResultsView
         isDemoMode={isDemoMode}
         isLoading={isLoading}
+        isError={isError}
+        onRetry={refetch}
         studentSubjects={studentSubjects}
       />
     );
@@ -39,6 +45,8 @@ export default function ResultsPage() {
     <ParentResultsView
       isDemoMode={isDemoMode}
       isLoading={isLoading}
+      isError={isError}
+      onRetry={refetch}
       parentChildrenResults={parentChildrenResults}
     />
   );

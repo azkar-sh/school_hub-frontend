@@ -29,6 +29,8 @@ import { useTranslations } from "next-intl";
 interface ParentResultsViewProps {
   isDemoMode: boolean;
   isLoading: boolean;
+  isError?: boolean;
+  onRetry?: () => void;
   parentChildrenResults: ParentChildSummary[];
 }
 
@@ -83,6 +85,8 @@ interface ChildBlock {
 export function ParentResultsView({
   isDemoMode,
   isLoading,
+  isError,
+  onRetry,
   parentChildrenResults,
 }: ParentResultsViewProps) {
   const t = useTranslations("Results");
@@ -152,7 +156,19 @@ export function ParentResultsView({
         </div>
       )}
 
-      {(!isLoading || isDemoMode) && (
+      {/* Error state */}
+      {!isDemoMode && !isLoading && isError && (
+        <Card className="py-14 text-center text-sm border-destructive/20 bg-destructive/5 space-y-3">
+          <div className="text-destructive font-medium">Failed to load results</div>
+          {onRetry && (
+            <Button variant="outline" size="sm" onClick={onRetry} className="h-8 text-xs">
+              Try Again
+            </Button>
+          )}
+        </Card>
+      )}
+
+      {(!isLoading || isDemoMode) && !isError && (
         <>
           {children.length === 0 ? (
             <Card className="py-14 text-center text-sm text-muted-foreground">

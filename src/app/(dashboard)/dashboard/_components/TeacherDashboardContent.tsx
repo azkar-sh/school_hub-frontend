@@ -34,6 +34,7 @@ interface TeacherDashboardContentProps {
   isDemoMode: boolean;
   teacherClasses: MockTeacherDashboardClass[];
   isLoading: boolean;
+  hasError?: boolean;
   isLoadingLive: boolean;
   liveFetchError: unknown;
   displayAssessments: DisplayAssessment[];
@@ -44,6 +45,7 @@ export function TeacherDashboardContent({
   isDemoMode,
   teacherClasses,
   isLoading,
+  hasError,
   isLoadingLive,
   liveFetchError,
   displayAssessments,
@@ -200,6 +202,10 @@ export function TeacherDashboardContent({
             <div className="flex items-center justify-center py-10 text-muted-foreground gap-2">
               <Loader2 className="w-5 h-5 animate-spin" />
               <span className="text-sm">{t("loadingClasses")}</span>
+            </div>
+          ) : hasError && !isDemoMode ? (
+            <div className="py-6 text-center text-xs text-destructive">
+              Failed to load classes
             </div>
           ) : teacherClasses.length === 0 ? (
             <div className="py-6 text-center text-xs text-muted-foreground">

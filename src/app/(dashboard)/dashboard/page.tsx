@@ -25,10 +25,12 @@ export default function DashboardPage() {
     schoolAdminAcademicYear,
     schoolAdminActivity,
     adminIsLoading,
+    adminHasError,
     teacherClasses,
     teacherPendingResults,
     teacherClassAverage,
     teacherIsLoading,
+    teacherHasError,
     submissions,
     studentClass,
     studentQuizzesTaken,
@@ -36,12 +38,14 @@ export default function DashboardPage() {
     studentPendingDue,
     studentRecentResults,
     studentIsLoading,
+    studentHasError,
     parentChildren,
     parentAvgScore,
     parentCompletedCount,
     parentRecentResults,
     parentFirstChildGrade,
     parentIsLoading,
+    parentHasError,
   } = useDashboardPage();
 
   return (
@@ -98,6 +102,7 @@ export default function DashboardPage() {
           academicYear={schoolAdminAcademicYear}
           recentActivity={schoolAdminActivity}
           isLoading={adminIsLoading}
+          hasError={adminHasError}
         />
       )}
 
@@ -106,6 +111,7 @@ export default function DashboardPage() {
           isDemoMode={isDemoMode}
           teacherClasses={teacherClasses}
           isLoading={teacherIsLoading}
+          hasError={teacherHasError}
           isLoadingLive={isLoadingLive}
           liveFetchError={liveFetchError}
           displayAssessments={displayAssessments}
@@ -118,6 +124,7 @@ export default function DashboardPage() {
           isDemoMode={isDemoMode}
           studentClass={studentClass}
           isLoading={studentIsLoading}
+          hasError={studentHasError}
           isLoadingLive={isLoadingLive}
           liveFetchError={liveFetchError}
           displayAssessments={displayAssessments}
@@ -131,6 +138,7 @@ export default function DashboardPage() {
           parentChildren={parentChildren}
           parentRecentResults={parentRecentResults}
           isLoading={parentIsLoading}
+          hasError={parentHasError}
         />
       )}
     </div>

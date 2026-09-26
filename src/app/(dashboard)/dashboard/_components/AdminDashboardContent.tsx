@@ -26,12 +26,14 @@ interface AdminDashboardContentProps {
   academicYear: MockSchoolAdminAcademicYear | null;
   recentActivity: MockRecentActivity[];
   isLoading?: boolean;
+  hasError?: boolean;
 }
 
 export function AdminDashboardContent({
   academicYear,
   recentActivity,
   isLoading,
+  hasError,
 }: AdminDashboardContentProps) {
   const t = useTranslations("Dashboard.adminContent");
   const tCommon = useTranslations("Common");
@@ -98,6 +100,10 @@ export function AdminDashboardContent({
                 </div>
               </div>
             </>
+          ) : hasError ? (
+            <div className="py-10 text-center text-sm text-destructive">
+              Failed to load academic year data
+            </div>
           ) : (
             <div className="py-10 text-center text-sm text-muted-foreground">
               {t("noAcademicYear")}
@@ -120,6 +126,10 @@ export function AdminDashboardContent({
             <div className="flex items-center justify-center py-10 text-muted-foreground gap-2">
               <Loader2 className="w-5 h-5 animate-spin" />
               <span className="text-sm">{t("loadingActivity")}</span>
+            </div>
+          ) : hasError ? (
+            <div className="py-6 text-center text-xs text-destructive">
+              Failed to load recent activity
             </div>
           ) : recentActivity.length === 0 ? (
             <div className="py-6 text-center text-xs text-muted-foreground">

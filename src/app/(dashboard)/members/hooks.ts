@@ -67,6 +67,7 @@ export function useMembersPage() {
   const {
     data: membersData,
     isLoading: isLoadingMembers,
+    error: isMembersError,
     refetch: refetchMembers,
   } = useFetchData(
     () =>
@@ -321,6 +322,8 @@ export function useMembersPage() {
     selectedSchoolId,
     setSelectedSchoolId,
     isLoading: isLoadingMembers || isLoadingSchools,
+    isError: !!isMembersError,
+    refetchMembers,
     usersList,
     feedbackMsg,
     setFeedbackMsg,

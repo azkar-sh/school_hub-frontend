@@ -40,6 +40,7 @@ export function useSubjectsPage() {
   const {
     data: subjectsData,
     isLoading,
+    error: isSubjectsError,
     refetch: refetchSubjects,
   } = useFetchData(
     () =>
@@ -231,6 +232,8 @@ export function useSubjectsPage() {
     newSubTopicDesc,
     setNewSubTopicDesc,
     isLoading,
+    isError: !!isSubjectsError,
+    refetch: refetchSubjects,
     subjectsList,
     assignedSubjects,
     otherSubjects,

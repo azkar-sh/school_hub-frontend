@@ -51,9 +51,12 @@ export function useParentChildren() {
   const { user, isDemoMode } = useAuthStore();
   const enabled = !isDemoMode && user?.role === "PARENT";
 
-  const { data: childrenLinks, isLoading: childrenLoading } = useFetchData<
-    ParentChildLink[]
-  >(
+  const {
+    data: childrenLinks,
+    isLoading: childrenLoading,
+    error: childrenError,
+    refetch: refetchChildren,
+  } = useFetchData<ParentChildLink[]>(
     () =>
       parentStudentsApi
         .getChildren(user?.id)
@@ -64,17 +67,21 @@ export function useParentChildren() {
     enabled,
   );
 
-  const { data: submissionsData, isLoading: submissionsLoading } =
-    useFetchData<LiveSubmission[]>(
-      () =>
-        submissionsApi
-          .findAll({ limit: 1000 })
-          .then((res) =>
-            Array.isArray(res.data) ? res.data : (res.data?.submissions ?? []),
-          ),
-      [user?.id],
-      enabled,
-    );
+  const {
+    data: submissionsData,
+    isLoading: submissionsLoading,
+    error: submissionsError,
+    refetch: refetchSubmissions,
+  } = useFetchData<LiveSubmission[]>(
+    () =>
+      submissionsApi
+        .findAll({ limit: 1000 })
+        .then((res) =>
+          Array.isArray(res.data) ? res.data : (res.data?.submissions ?? []),
+        ),
+    [user?.id],
+    enabled,
+  );
 
   const children: ParentChildSummary[] = React.useMemo(() => {
     if (!enabled) return [];
@@ -114,9 +121,17 @@ export function useParentChildren() {
     });
   }, [childrenLinks, submissionsData, enabled]);
 
+  const isError = !!(childrenError || submissionsError);
+  const refetch = React.useCallback(() => {
+    refetchChildren();
+    refetchSubmissions();
+  }, [refetchChildren, refetchSubmissions]);
+
   return {
     isDemoMode,
     isLoading: childrenLoading || submissionsLoading,
+    isError,
+    refetch,
     children,
   };
 }

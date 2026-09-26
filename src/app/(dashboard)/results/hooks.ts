@@ -62,7 +62,12 @@ export function useResultsPage() {
   const shouldFetch =
     !isDemoMode && (currentRole === "TEACHER" || currentRole === "STUDENT");
 
-  const { data: submissionsData, isLoading } = useFetchData<LiveSubmission[]>(
+  const {
+    data: submissionsData,
+    isLoading,
+    error: submissionsError,
+    refetch: refetchSubmissions,
+  } = useFetchData<LiveSubmission[]>(
     () =>
       submissionsApi
         .findAll({ limit: 1000 })
@@ -174,6 +179,10 @@ export function useResultsPage() {
     currentRole,
     isLoading:
       currentRole === "PARENT" ? parentFetch.isLoading : isLoading,
+    isError:
+      currentRole === "PARENT" ? parentFetch.isError : !!submissionsError,
+    refetch:
+      currentRole === "PARENT" ? parentFetch.refetch : refetchSubmissions,
     studentSubjects,
     teacherSubjects,
     parentChildrenResults,

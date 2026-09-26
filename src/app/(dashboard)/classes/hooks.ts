@@ -65,6 +65,7 @@ export function useClassesPage() {
   const {
     data: classesData,
     isLoading,
+    error: isClassesError,
     refetch: refetchClasses,
   } = useFetchData(
     () =>
@@ -223,6 +224,8 @@ export function useClassesPage() {
     viewStudentsList,
     isLoadingViewStudents,
     isLoading,
+    isError: !!isClassesError,
+    refetchClasses,
     classesList,
     registeredStudentsList,
     isLoadingRegisteredStudents,

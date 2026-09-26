@@ -18,6 +18,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
   GraduationCap,
@@ -80,7 +81,8 @@ interface ChildDetail {
 export default function ChildDetailPage() {
   const params = useParams();
   const studentId = params.studentId as string;
-  const { isDemoMode, isLoading, children } = useParentChildren();
+  const { isDemoMode, isLoading, isError, refetch, children } =
+    useParentChildren();
   const t = useTranslations("Children");
 
   const child: ChildDetail | null = React.useMemo(() => {
@@ -139,14 +141,24 @@ export default function ChildDetailPage() {
         </div>
       )}
 
+      {/* Error state */}
+      {!isDemoMode && !isLoading && isError && (
+        <Card className="py-14 text-center text-sm border-destructive/20 bg-destructive/5 space-y-3">
+          <div className="text-destructive font-medium">Failed to load child details</div>
+          <Button variant="outline" size="sm" onClick={refetch} className="h-8 text-xs">
+            Try Again
+          </Button>
+        </Card>
+      )}
+
       {/* Not found (live mode, finished loading, no matching child) */}
-      {(!isDemoMode && !isLoading && !child) && (
+      {!isDemoMode && !isLoading && !isError && !child && (
         <Card className="py-14 text-center text-sm text-muted-foreground">
           {t("childNotFound")}
         </Card>
       )}
 
-      {(!isLoading || isDemoMode) && child && (
+      {(!isLoading || isDemoMode) && !isError && child && (
         <>
           {/* Child Header — Tree: Name, Class */}
           <Card className="border-primary/20 bg-primary/5">

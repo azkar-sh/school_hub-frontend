@@ -22,6 +22,7 @@ interface ParentDashboardContentProps {
   parentChildren: MockParentChild[];
   parentRecentResults: MockRecentResult[];
   isLoading: boolean;
+  hasError?: boolean;
 }
 
 export function ParentDashboardContent({
@@ -29,6 +30,7 @@ export function ParentDashboardContent({
   parentChildren,
   parentRecentResults,
   isLoading,
+  hasError,
 }: ParentDashboardContentProps) {
   const t = useTranslations("Dashboard.parentContent");
   return (
@@ -52,6 +54,10 @@ export function ParentDashboardContent({
             <div className="flex items-center justify-center py-10 text-muted-foreground gap-2">
               <Loader2 className="w-5 h-5 animate-spin" />
               <span className="text-sm">{t("loadingChildren")}</span>
+            </div>
+          ) : hasError && !isDemoMode ? (
+            <div className="py-6 text-center text-xs text-destructive">
+              Failed to load children data
             </div>
           ) : parentChildren.length === 0 ? (
             <div className="py-6 text-center text-xs text-muted-foreground">
@@ -88,6 +94,7 @@ export function ParentDashboardContent({
         description={t("recentResultsDesc")}
         results={parentRecentResults}
         isLoading={!isDemoMode && isLoading}
+        hasError={hasError}
       />
     </div>
   );

@@ -21,6 +21,8 @@ import { useTranslations } from "next-intl";
 
 interface SubjectsListProps {
   isLoading: boolean;
+  isError?: boolean;
+  onRetry?: () => void;
   subjects: Subject[];
   canEditCurriculum: boolean;
   onAddTopic: (subjectId: string) => void;
@@ -48,7 +50,6 @@ function SubjectCard({
   teacherNames?: string[];
 }) {
   const t = useTranslations("Subjects");
-  const tCommon = useTranslations("Common.info");
   return (
     <Card className="border-border/60">
       <CardHeader className="flex flex-row items-center justify-between border-b border-border/40 pb-4">
@@ -161,6 +162,8 @@ function SubjectCard({
 
 export function SubjectsList({
   isLoading,
+  isError,
+  onRetry,
   subjects,
   canEditCurriculum,
   onAddTopic,
@@ -179,6 +182,19 @@ export function SubjectsList({
         <Loader2 className="w-5 h-5 animate-spin" />
         <span className="text-sm">{tCommon("loadingSubjects")}</span>
       </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Card className="py-12 text-center text-sm border-destructive/20 bg-destructive/5 space-y-3">
+        <div className="text-destructive font-medium">Failed to load subjects</div>
+        {onRetry && (
+          <Button variant="outline" size="sm" onClick={onRetry} className="h-8 text-xs">
+            Try Again
+          </Button>
+        )}
+      </Card>
     );
   }
 
