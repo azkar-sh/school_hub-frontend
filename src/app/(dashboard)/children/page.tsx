@@ -35,7 +35,8 @@ interface ChildCard {
 }
 
 export default function ChildrenPage() {
-  const { isDemoMode, isLoading, children } = useParentChildren();
+  const { isDemoMode, isLoading, isError, refetch, children } =
+    useParentChildren();
   const t = useTranslations("Children");
 
   const mockChildren = getMockParentChildrenDetail();
@@ -81,8 +82,18 @@ export default function ChildrenPage() {
         </div>
       )}
 
+      {/* Error state */}
+      {!isDemoMode && !isLoading && isError && (
+        <Card className="py-12 text-center text-sm border-destructive/20 bg-destructive/5 space-y-3">
+          <div className="text-destructive font-medium">Failed to load children data</div>
+          <Button variant="outline" size="sm" onClick={refetch} className="h-8 text-xs">
+            Try Again
+          </Button>
+        </Card>
+      )}
+
       {/* Children List */}
-      {(!isLoading || isDemoMode) && (
+      {(!isLoading || isDemoMode) && !isError && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {displayChildren.length === 0 ? (
             <Card className="col-span-2 py-14 text-center text-sm text-muted-foreground">

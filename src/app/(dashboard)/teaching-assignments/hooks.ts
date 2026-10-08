@@ -42,6 +42,7 @@ export function useTeachingAssignmentsPage() {
   const {
     data: assignmentsData,
     isLoading,
+    error: isAssignmentsError,
     refetch: refetchAssignments,
   } = useFetchData(
     () =>
@@ -189,6 +190,8 @@ export function useTeachingAssignmentsPage() {
     feedbackMsg,
     setFeedbackMsg,
     isLoading,
+    isError: !!isAssignmentsError,
+    refetch: refetchAssignments,
     assignmentsList,
     filteredAssignments,
     teachersList,

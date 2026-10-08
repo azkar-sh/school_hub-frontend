@@ -23,12 +23,14 @@ interface RecentResultsCardProps {
   description: string;
   results: RecentResultItem[];
   isLoading?: boolean;
+  hasError?: boolean;
 }
 
 export function RecentResultsCard({
   description,
   results,
   isLoading,
+  hasError,
 }: RecentResultsCardProps) {
   const t = useTranslations("Dashboard.recentResults");
   return (
@@ -50,6 +52,10 @@ export function RecentResultsCard({
           <div className="flex items-center justify-center py-10 text-muted-foreground gap-2">
             <Loader2 className="w-5 h-5 animate-spin" />
             <span className="text-sm">{t("loadingResults")}</span>
+          </div>
+        ) : hasError ? (
+          <div className="py-6 text-center text-xs text-destructive">
+            Failed to load results
           </div>
         ) : results.length > 0 ? (
           results.map((result) => (

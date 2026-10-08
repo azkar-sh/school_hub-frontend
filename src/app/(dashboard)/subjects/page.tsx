@@ -41,6 +41,8 @@ export default function SubjectsPage() {
     newSubTopicDesc,
     setNewSubTopicDesc,
     isLoading,
+    isError,
+    refetch,
     subjectsList,
     assignedSubjects,
     otherSubjects,
@@ -90,6 +92,8 @@ export default function SubjectsPage() {
       {!isDemoMode && (
         <SubjectsList
           isLoading={isLoading}
+          isError={isError}
+          onRetry={refetch}
           subjects={subjectsList}
           canEditCurriculum={canEditCurriculum}
           onAddTopic={setActiveTopicSubjectId}

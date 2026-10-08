@@ -145,6 +145,7 @@ interface DataDisplayProps<TItem> {
   emptyStateTitle?: string;
   emptyStateDescription?: string;
   onResetFilters?: () => void;
+  onRetry?: () => void;
 }
 
 const gridColsClass: Record<string, string> = {
@@ -464,6 +465,7 @@ export function DataDisplay<TItem>({
   emptyStateTitle,
   emptyStateDescription,
   onResetFilters,
+  onRetry,
 }: DataDisplayProps<TItem>) {
   const { isDemoMode: storeIsDemoMode } = useAuthStore();
   const demoMode = isDemoMode ?? storeIsDemoMode;
@@ -472,7 +474,7 @@ export function DataDisplay<TItem>({
   const [isMobileFilterOpen, setIsMobileFilterOpen] = React.useState(false);
 
   const hasItems = items.length > 0;
-  const isBlocked = isLoading && !demoMode;
+  const isBlocked = (isLoading || !!error) && !demoMode;
   const hasFilters = showFilters && filters.length > 0;
   const hasFilterGroups = showFilters && filterGroups.length > 0;
   const hasAnyFilters = hasFilters || hasFilterGroups;
@@ -1056,8 +1058,21 @@ export function DataDisplay<TItem>({
 
       {/* Error Banner */}
       {error && !isLoading && !demoMode && (
-        <div className="p-4 text-xs font-medium text-destructive text-center border rounded-2xl border-destructive/20 bg-destructive/5 shadow-xs">
-          {error}
+        <div className="p-4 text-xs font-medium text-destructive text-center border rounded-2xl border-destructive/20 bg-destructive/5 shadow-xs space-y-2">
+          <div>{error}</div>
+          {onRetry && (
+            <div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onRetry}
+                className="h-7 text-xs rounded-xl"
+              >
+                <RotateCcw className="w-3.5 h-3.5 mr-1" />
+                Try Again
+              </Button>
+            </div>
+          )}
         </div>
       )}
 

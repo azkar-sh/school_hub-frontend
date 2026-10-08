@@ -18,15 +18,7 @@ import {
   AlertCircle,
   Wand2,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Submission } from "@/types";
-
-const FEEDBACK_PRESETS = [
-  { labelKey: "feedbackGreat", textKey: "feedbackGreatText" },
-  { labelKey: "feedbackSteps", textKey: "feedbackStepsText" },
-  { labelKey: "feedbackFormula", textKey: "feedbackFormulaText" },
-  { labelKey: "feedbackCalculate", textKey: "feedbackCalculateText" },
-] as const;
 
 interface SubmissionDetailCardProps {
   submission: Submission;
@@ -114,16 +106,6 @@ export function SubmissionDetailCard({
   const allGraded = totalGradable > 0 && totalPending === 0;
   const progressPct =
     totalGradable > 0 ? Math.round((gradedCount / totalGradable) * 100) : 100;
-
-  const [copiedPresetKey, setCopiedPresetKey] = React.useState<string | null>(null);
-
-  const handleCopyPreset = (key: string, text: string) => {
-    if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
-      navigator.clipboard.writeText(text).catch(() => {});
-    }
-    setCopiedPresetKey(key);
-    setTimeout(() => setCopiedPresetKey(null), 2000);
-  };
 
   return (
     <Card className="border-primary/40 bg-primary/5 overflow-hidden">
@@ -390,48 +372,6 @@ export function SubmissionDetailCard({
                           <Edit3 className="w-3.5 h-3.5 mr-1.5" />
                           {t("customPoints")}
                         </Button>
-
-                        <div className="mt-2.5 pt-2.5 border-t border-border/50">
-                          <span className="text-[10px] uppercase font-bold text-muted-foreground block mb-1.5 tracking-wider">
-                            {t("quickFeedback")}
-                          </span>
-                          <div className="flex flex-wrap gap-1.5">
-                            {FEEDBACK_PRESETS.map((preset) => {
-                              const label = t(preset.labelKey);
-                              const text = t(preset.textKey);
-                              const isCopied =
-                                copiedPresetKey === `${ans.id}-${label}`;
-                              return (
-                                <button
-                                  key={preset.labelKey}
-                                  type="button"
-                                  onClick={() =>
-                                    handleCopyPreset(
-                                      `${ans.id}-${label}`,
-                                      text,
-                                    )
-                                  }
-                                  className={cn(
-                                    "text-[11px] px-2.5 py-1 rounded-lg border transition-all inline-flex items-center gap-1",
-                                    isCopied
-                                      ? "bg-success/15 border-success/40 text-success font-bold"
-                                      : "bg-background/80 border-border/70 hover:border-primary/50 text-foreground",
-                                  )}
-                                  title={t("copyFeedbackTitle", { text })}
-                                >
-                                  {isCopied ? (
-                                    <>
-                                      <CheckCircle2 className="w-3 h-3 text-success" />
-                                      <span>{t("copied")}</span>
-                                    </>
-                                  ) : (
-                                    <span>{label}</span>
-                                  )}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
                       </div>
                     ) : (
                       <div className="flex items-center justify-between text-xs">
@@ -454,27 +394,32 @@ export function SubmissionDetailCard({
                   <div className="space-y-2">
                     {q?.options?.map((opt) => {
                       const selected = optionMatches(ans.answer, opt);
+                      const isCorrectDefined = opt.isCorrect !== undefined;
                       const correct = !!opt.isCorrect;
                       let cls =
                         "border-border/80 bg-background/50 text-foreground";
                       let icon = null;
 
-                      if (selected && correct) {
-                        cls = "border-success/50 bg-success/10 text-success";
-                        icon = (
-                          <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
-                        );
-                      } else if (selected && !correct) {
-                        cls =
-                          "border-destructive/50 bg-destructive/10 text-destructive";
-                        icon = (
-                          <XCircle className="w-4 h-4 text-destructive shrink-0" />
-                        );
-                      } else if (!selected && correct) {
-                        cls = "border-success/40 bg-success/5 text-success";
-                        icon = (
-                          <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
-                        );
+                      if (isCorrectDefined) {
+                        if (selected && correct) {
+                          cls = "border-success/50 bg-success/10 text-success";
+                          icon = (
+                            <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
+                          );
+                        } else if (selected && !correct) {
+                          cls =
+                            "border-destructive/50 bg-destructive/10 text-destructive";
+                          icon = (
+                            <XCircle className="w-4 h-4 text-destructive shrink-0" />
+                          );
+                        } else if (!selected && correct) {
+                          cls = "border-success/40 bg-success/5 text-success";
+                          icon = (
+                            <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
+                          );
+                        }
+                      } else if (selected) {
+                        cls = "border-primary/50 bg-primary/10 text-foreground";
                       }
 
                       return (
@@ -496,9 +441,15 @@ export function SubmissionDetailCard({
                     })}
                     <div className="flex items-center justify-between pt-1.5 text-xs">
                       <span className="text-muted-foreground font-medium">
-                        {selectedOption?.isCorrect === true
-                          ? t("correct")
-                          : t("incorrect")}
+                        {selectedOption?.isCorrect !== undefined
+                          ? selectedOption.isCorrect
+                            ? t("correct")
+                            : t("incorrect")
+                          : !isPending
+                            ? (earned ?? 0) > 0
+                              ? t("correct")
+                              : t("incorrect")
+                            : ""}
                         {isPending ? ` • ${t("ungraded").toLowerCase()}` : ""}
                       </span>
 

@@ -162,14 +162,15 @@ export function useDashboardPage() {
   // Academic years (shared by admin / teacher / student to pick the
   // active term for all term-scoped queries).
   // ------------------------------------------------------------------
-  const { data: academicYearsData } = useFetchData<LiveAcademicYear[]>(
-    () =>
-      academicYearsApi
-        .findBySchool(selectedSchoolId)
-        .then((res) => (Array.isArray(res.data) ? res.data : [])),
-    [selectedSchoolId],
-    goLive && (isAdmin || isTeacher || isStudent),
-  );
+  const { data: academicYearsData, error: academicYearsError } =
+    useFetchData<LiveAcademicYear[]>(
+      () =>
+        academicYearsApi
+          .findBySchool(selectedSchoolId)
+          .then((res) => (Array.isArray(res.data) ? res.data : [])),
+      [selectedSchoolId],
+      goLive && (isAdmin || isTeacher || isStudent),
+    );
 
   const activeAcademicYear = React.useMemo<LiveAcademicYear | null>(() => {
     const ays = academicYearsData ?? [];
@@ -226,17 +227,20 @@ export function useDashboardPage() {
   // Submissions — role-aware (teacher sees their assessments', student
   // sees their own, parent sees their wards', admin sees all).
   // ------------------------------------------------------------------
-  const { data: submissionsData, isLoading: isLoadingSubmissions } =
-    useFetchData<LiveSubmission[]>(
-      () =>
-        submissionsApi
-          .findAll({ limit: 1000 })
-          .then((res) =>
-            Array.isArray(res.data) ? res.data : (res.data?.submissions ?? []),
-          ),
-      [currentRole],
-      !isDemoMode && (isTeacher || isStudent || isParent || isAdmin),
-    );
+  const {
+    data: submissionsData,
+    isLoading: isLoadingSubmissions,
+    error: submissionsError,
+  } = useFetchData<LiveSubmission[]>(
+    () =>
+      submissionsApi
+        .findAll({ limit: 1000 })
+        .then((res) =>
+          Array.isArray(res.data) ? res.data : (res.data?.submissions ?? []),
+        ),
+    [currentRole],
+    !isDemoMode && (isTeacher || isStudent || isParent || isAdmin),
+  );
   const submissions = React.useMemo(
     () => submissionsData ?? [],
     [submissionsData],
@@ -245,31 +249,37 @@ export function useDashboardPage() {
   // ------------------------------------------------------------------
   // Teaching assignments — teacher (for "My Classes")
   // ------------------------------------------------------------------
-  const { data: teachingAssignmentsData, isLoading: isLoadingTeachingAssignments } =
-    useFetchData<LiveTeachingAssignment[]>(
-      () =>
-        teachingAssignmentsApi
-          .findByTeacher()
-          .then((res) => (Array.isArray(res.data) ? res.data : [])),
-      [currentRole],
-      !isDemoMode && isTeacher,
-    );
+  const {
+    data: teachingAssignmentsData,
+    isLoading: isLoadingTeachingAssignments,
+    error: teachingAssignmentsError,
+  } = useFetchData<LiveTeachingAssignment[]>(
+    () =>
+      teachingAssignmentsApi
+        .findByTeacher()
+        .then((res) => (Array.isArray(res.data) ? res.data : [])),
+    [currentRole],
+    !isDemoMode && isTeacher,
+  );
 
   // ------------------------------------------------------------------
   // Classes — admin (overview count), teacher (student counts per
   // class), student (their homeroom class).
   // ------------------------------------------------------------------
-  const { data: roleClassesData, isLoading: isLoadingRoleClasses } =
-    useFetchData<LiveClass[]>(
-      () =>
-        classesApi
-          .findBySchool(selectedSchoolId, activeAyId)
-          .then((res) =>
-            (Array.isArray(res.data) ? res.data : []) as unknown as LiveClass[],
-          ),
-      [selectedSchoolId, activeAyId],
-      goLive && !!activeAyId && (isAdmin || isTeacher || isStudent),
-    );
+  const {
+    data: roleClassesData,
+    isLoading: isLoadingRoleClasses,
+    error: roleClassesError,
+  } = useFetchData<LiveClass[]>(
+    () =>
+      classesApi
+        .findBySchool(selectedSchoolId, activeAyId)
+        .then((res) =>
+          (Array.isArray(res.data) ? res.data : []) as unknown as LiveClass[],
+        ),
+    [selectedSchoolId, activeAyId],
+    goLive && !!activeAyId && (isAdmin || isTeacher || isStudent),
+  );
 
   // Student class detail (homeroom teacher name) — depends on class id
   const studentClassRaw = React.useMemo(
@@ -291,23 +301,28 @@ export function useDashboardPage() {
   // ------------------------------------------------------------------
   // Admin: school members + subjects (for overview counts)
   // ------------------------------------------------------------------
-  const { data: schoolMembersData, isLoading: isLoadingSchoolMembers } =
-    useFetchData<LiveSchoolMember[]>(
-      () =>
-        schoolsApi
-          .getMembers(selectedSchoolId)
-          .then((res) =>
-            Array.isArray(res.data)
-              ? res.data
-              : (res.data as any)?.items || [],
-          ),
-      [selectedSchoolId],
-      goLive && isAdmin,
-    );
+  const {
+    data: schoolMembersData,
+    isLoading: isLoadingSchoolMembers,
+    error: schoolMembersError,
+  } = useFetchData<LiveSchoolMember[]>(
+    () =>
+      schoolsApi
+        .getMembers(selectedSchoolId)
+        .then((res) =>
+          Array.isArray(res.data)
+            ? res.data
+            : (res.data as any)?.items || [],
+        ),
+    [selectedSchoolId],
+    goLive && isAdmin,
+  );
 
-  const { data: subjectsData, isLoading: isLoadingSubjects } = useFetchData<
-    LiveSubject[]
-  >(
+  const {
+    data: subjectsData,
+    isLoading: isLoadingSubjects,
+    error: subjectsError,
+  } = useFetchData<LiveSubject[]>(
     () =>
       subjectsApi
         .findSubjectsBySchool(selectedSchoolId)
@@ -319,17 +334,20 @@ export function useDashboardPage() {
   // ------------------------------------------------------------------
   // Parent: children links
   // ------------------------------------------------------------------
-  const { data: parentChildrenData, isLoading: isLoadingParentChildren } =
-    useFetchData<LiveParentChild[]>(
-      () =>
-        parentStudentsApi
-          .getChildren(user?.id)
-          .then((res) =>
-            (Array.isArray(res.data) ? res.data : []) as unknown as LiveParentChild[],
-          ),
-      [user?.id],
-      !isDemoMode && isParent,
-    );
+  const {
+    data: parentChildrenData,
+    isLoading: isLoadingParentChildren,
+    error: parentChildrenError,
+  } = useFetchData<LiveParentChild[]>(
+    () =>
+      parentStudentsApi
+        .getChildren(user?.id)
+        .then((res) =>
+          (Array.isArray(res.data) ? res.data : []) as unknown as LiveParentChild[],
+        ),
+    [user?.id],
+    !isDemoMode && isParent,
+  );
 
   // ==================================================================
   // Derived dashboard values
@@ -636,6 +654,20 @@ if (isStudent) {
       ? studentAssessmentsError
       : false;
 
+  const adminHasError =
+    !isDemoMode &&
+    !!(
+      academicYearsError ||
+      schoolMembersError ||
+      subjectsError ||
+      submissionsError
+    );
+  const teacherHasError =
+    !isDemoMode && !!(teachingAssignmentsError || roleClassesError);
+  const studentHasError = !isDemoMode && !!roleClassesError;
+  const parentHasError =
+    !isDemoMode && !!(parentChildrenError || submissionsError);
+
   return {
     user,
     isDemoMode,
@@ -650,11 +682,13 @@ if (isStudent) {
     schoolAdminAcademicYear,
     schoolAdminActivity,
     adminIsLoading,
+    adminHasError,
     // teacher
     teacherClasses,
     teacherPendingResults,
     teacherClassAverage,
     teacherIsLoading,
+    teacherHasError,
     submissions,
     // student
     studentClass,
@@ -663,6 +697,10 @@ if (isStudent) {
     studentPendingDue,
     studentRecentResults,
     studentIsLoading,
+    studentHasError,
+    studentResultsHasError: !isDemoMode && !!submissionsError,
+    // teacher submissions error
+    teacherSubmissionsError: !isDemoMode && !!submissionsError,
     // parent
     parentChildren,
     parentAvgScore,
@@ -670,5 +708,6 @@ if (isStudent) {
     parentRecentResults,
     parentFirstChildGrade,
     parentIsLoading,
+    parentHasError,
   };
 }

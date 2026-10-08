@@ -22,6 +22,8 @@ interface StudentDashboardContentProps {
   isDemoMode: boolean;
   studentClass: MockStudentClassInfo | null;
   isLoading: boolean;
+  hasError?: boolean;
+  resultsHasError?: boolean;
   isLoadingLive: boolean;
   liveFetchError: unknown;
   displayAssessments: DisplayAssessment[];
@@ -32,6 +34,8 @@ export function StudentDashboardContent({
   isDemoMode,
   studentClass,
   isLoading,
+  hasError,
+  resultsHasError,
   isLoadingLive,
   liveFetchError,
   displayAssessments,
@@ -53,6 +57,10 @@ export function StudentDashboardContent({
             <div className="flex items-center justify-center py-8 text-muted-foreground gap-2">
               <Loader2 className="w-5 h-5 animate-spin" />
               <span className="text-sm">{t("loadingClass")}</span>
+            </div>
+          ) : hasError && !isDemoMode ? (
+            <div className="py-8 text-center text-sm text-destructive">
+              Failed to load class information
             </div>
           ) : studentClass ? (
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -101,6 +109,7 @@ export function StudentDashboardContent({
         description={t("recentResultsDesc")}
         results={studentRecentResults}
         isLoading={!isDemoMode && isLoading}
+        hasError={resultsHasError ?? hasError}
       />
     </div>
   );

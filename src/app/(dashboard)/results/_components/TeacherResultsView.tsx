@@ -9,6 +9,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   BookOpen,
   UserRound,
@@ -27,6 +28,8 @@ import { useTranslations } from "next-intl";
 interface TeacherResultsViewProps {
   isDemoMode: boolean;
   isLoading: boolean;
+  isError?: boolean;
+  onRetry?: () => void;
   teacherSubjects: TeacherSubjectResult[];
 }
 
@@ -60,6 +63,8 @@ function avg(values: number[]): number {
 export function TeacherResultsView({
   isDemoMode,
   isLoading,
+  isError,
+  onRetry,
   teacherSubjects,
 }: TeacherResultsViewProps) {
   const t = useTranslations("Results");
@@ -203,8 +208,20 @@ export function TeacherResultsView({
         </div>
       )}
 
+      {/* Error state */}
+      {!isDemoMode && !isLoading && isError && (
+        <Card className="py-14 text-center text-sm border-destructive/20 bg-destructive/5 space-y-3">
+          <div className="text-destructive font-medium">Failed to load results</div>
+          {onRetry && (
+            <Button variant="outline" size="sm" onClick={onRetry} className="h-8 text-xs">
+              Try Again
+            </Button>
+          )}
+        </Card>
+      )}
+
       {/* Subject grouping — Tree: Subject (avg) -> Students (avg) */}
-      {(!isLoading || isDemoMode) && (
+      {(!isLoading || isDemoMode) && !isError && (
         <>
           {filteredSubjects.length === 0 ? (
             <Card className="py-14 text-center text-sm text-muted-foreground">

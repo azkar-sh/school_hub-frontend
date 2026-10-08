@@ -35,6 +35,8 @@ export default function MembersPage() {
     selectedSchoolId,
     setSelectedSchoolId,
     isLoading,
+    isError,
+    refetchMembers,
     usersList,
     feedbackMsg,
     setFeedbackMsg,
@@ -328,6 +330,8 @@ export default function MembersPage() {
         renderTableHeaders={renderTableHeaders}
         renderTableRow={renderTableRow}
         isLoading={isLoading}
+        error={isError ? "Failed to load school members" : undefined}
+        onRetry={refetchMembers}
         showSearch
         showFilters
         showViewToggle

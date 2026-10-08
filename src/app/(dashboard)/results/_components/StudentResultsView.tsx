@@ -28,6 +28,8 @@ import { useTranslations } from "next-intl";
 interface StudentResultsViewProps {
   isDemoMode: boolean;
   isLoading: boolean;
+  isError?: boolean;
+  onRetry?: () => void;
   studentSubjects: StudentSubjectResult[];
 }
 
@@ -56,6 +58,8 @@ function formatDate(value?: string) {
 export function StudentResultsView({
   isDemoMode,
   isLoading,
+  isError,
+  onRetry,
   studentSubjects,
 }: StudentResultsViewProps) {
   const t = useTranslations("Results");
@@ -92,8 +96,20 @@ export function StudentResultsView({
         </div>
       )}
 
+      {/* Error state */}
+      {!isDemoMode && !isLoading && isError && (
+        <Card className="py-14 text-center text-sm border-destructive/20 bg-destructive/5 space-y-3">
+          <div className="text-destructive font-medium">Failed to load results</div>
+          {onRetry && (
+            <Button variant="outline" size="sm" onClick={onRetry} className="h-8 text-xs">
+              Try Again
+            </Button>
+          )}
+        </Card>
+      )}
+
       {/* Subject Cards — Tree: Subject, Average Score */}
-      {(!isLoading || isDemoMode) && !selectedSubject && (
+      {(!isLoading || isDemoMode) && !isError && !selectedSubject && (
         <>
           {subjects.length === 0 ? (
             <Card className="py-14 text-center text-sm text-muted-foreground">

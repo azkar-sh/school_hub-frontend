@@ -43,6 +43,8 @@ export default function ClassesPage() {
     viewStudentsList,
     isLoadingViewStudents,
     isLoading,
+    isError: isClassesError,
+    refetchClasses,
     classesList,
     mockClasses,
     isLoadingRegisteredStudents,
@@ -87,6 +89,8 @@ export default function ClassesPage() {
       {!isDemoMode && (
         <ClassesGrid
           isLoading={isLoading}
+          isError={isClassesError}
+          onRetry={refetchClasses}
           classes={classesList}
           selectedAyId={selectedAyId}
           currentRole={currentRole}

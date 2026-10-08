@@ -20,6 +20,8 @@ import { Class } from "@/types";
 
 interface ClassesGridProps {
   isLoading: boolean;
+  isError?: boolean;
+  onRetry?: () => void;
   classes: Class[];
   selectedAyId: string;
   currentRole: string;
@@ -32,6 +34,8 @@ interface ClassesGridProps {
 
 export function ClassesGrid({
   isLoading,
+  isError,
+  onRetry,
   classes,
   selectedAyId,
   currentRole,
@@ -49,6 +53,19 @@ export function ClassesGrid({
         <Loader2 className="w-5 h-5 animate-spin" />
         <span className="text-sm">{t("loadingClasses")}</span>
       </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Card className="py-12 text-center text-sm border-destructive/20 bg-destructive/5 space-y-3">
+        <div className="text-destructive font-medium">Failed to load classes</div>
+        {onRetry && (
+          <Button variant="outline" size="sm" onClick={onRetry} className="h-8 text-xs">
+            Try Again
+          </Button>
+        )}
+      </Card>
     );
   }
 

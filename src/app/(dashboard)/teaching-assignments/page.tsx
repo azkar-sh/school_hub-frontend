@@ -31,6 +31,8 @@ export default function TeachingAssignmentsPage() {
     isSubmitting,
     feedbackMsg,
     isLoading,
+    isError,
+    refetch,
     filteredAssignments,
     teachersList,
     subjectsList,
@@ -72,6 +74,8 @@ export default function TeachingAssignmentsPage() {
       {/* Grid / List of Teaching Assignments */}
       <TeachingAssignmentsGrid
         isLoading={isLoading}
+        isError={isError}
+        onRetry={refetch}
         assignments={filteredAssignments}
         subjects={subjectsList}
         classes={classesList}

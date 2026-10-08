@@ -7,6 +7,7 @@ import { useSchoolSelection } from "@/lib/use-school-selection";
 import { getErrorMessage } from "@/lib/errors";
 import {
   SchoolMember,
+  User,
   UserRole,
   PaginatedResponse,
 } from "@/types";
@@ -42,7 +43,10 @@ export function useMembersPage() {
     () =>
       usersApi
         .findAll({ limit: 100 })
-        .then((res) => (Array.isArray(res.data) ? res.data : [])),
+        .then((res) => {
+          const data = res.data as unknown as User[] | { items: User[] };
+          return Array.isArray(data) ? data : data?.items ?? [];
+        }),
     [],
     !isDemoMode,
   );
@@ -63,6 +67,7 @@ export function useMembersPage() {
   const {
     data: membersData,
     isLoading: isLoadingMembers,
+    error: isMembersError,
     refetch: refetchMembers,
   } = useFetchData(
     () =>
@@ -317,6 +322,8 @@ export function useMembersPage() {
     selectedSchoolId,
     setSelectedSchoolId,
     isLoading: isLoadingMembers || isLoadingSchools,
+    isError: !!isMembersError,
+    refetchMembers,
     usersList,
     feedbackMsg,
     setFeedbackMsg,
