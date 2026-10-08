@@ -19,14 +19,16 @@ import { Badge } from "@/components/ui/badge";
 import { DemoModeBanner } from "@/components/ui/DemoModeBanner";
 import { useSubmissionDetailPage } from "./hooks";
 import { SubmissionDetailCard } from "../_components/SubmissionDetailCard";
+import { useTranslations } from "next-intl";
 
 export default function SubmissionDetailPage() {
+  const t = useTranslations("Submissions");
   return (
     <React.Suspense
       fallback={
         <div className="flex items-center justify-center py-16 text-muted-foreground gap-2">
           <Loader2 className="w-5 h-5 animate-spin" />
-          <span className="text-sm">Loading submission…</span>
+          <span className="text-sm">{t("loadingSubmission")}</span>
         </div>
       }
     >
@@ -36,6 +38,7 @@ export default function SubmissionDetailPage() {
 }
 
 function SubmissionDetailContent() {
+  const t = useTranslations("Submissions");
   const router = useRouter();
   const params = useParams();
   const submissionId = params?.id as string;
@@ -141,20 +144,19 @@ function SubmissionDetailContent() {
   const continueGrading = React.useMemo(() => {
     if (firstPendingAnswerId) {
       return {
-        label: "Next Ungraded",
-        shortLabel: "Next",
+        label: t("nextUngraded"),
+        shortLabel: t("nextUngraded"),
         icon: <ArrowDown className="w-3.5 h-3.5" />,
-        title: "Scroll to the next ungraded question in this submission",
+        title: t("nextUngradedTooltip"),
         action: scrollToNextUngraded,
       };
     }
     if (nextPendingSubmissionId) {
       return {
-        label: "Next Student to Grade",
-        shortLabel: "Next Student",
+        label: t("nextStudentToGrade"),
+        shortLabel: t("nextStudentToGrade"),
         icon: <Sparkles className="w-3.5 h-3.5" />,
-        title:
-          "This submission is fully graded — go to the next student awaiting grading",
+        title: t("nextStudentTooltip"),
         action: () =>
           router.push(
             `/submissions/${nextPendingSubmissionId}${navQueryString}`,
@@ -168,15 +170,14 @@ function SubmissionDetailContent() {
     navQueryString,
     router,
     scrollToNextUngraded,
+    t,
   ]);
 
   const bottomPad = isTeacher
     ? hasPendingAuto
-      ? "pb-36 sm:pb-6"
-      : totalSubmissions > 0
-        ? "pb-24 sm:pb-6"
-        : "pb-6"
-    : "pb-6";
+    : totalSubmissions > 0
+      ? "pb-24 sm:pb-6"
+      : "pb-6";
 
   return (
     <div className={`space-y-4 sm:space-y-6 ${bottomPad}`}>
@@ -190,19 +191,20 @@ function SubmissionDetailContent() {
             className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors shrink-0"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">Back to Submissions</span>
+            <span className="hidden sm:inline">{t("backToSubmissions")}</span>
           </Link>
 
           {isTeacher && totalSubmissions > 0 && (
             <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
               <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap hidden md:inline">
-                Student {currentIndex >= 0 ? currentIndex + 1 : 1}/
+                {t("student")} {currentIndex >= 0 ? currentIndex + 1 : 1}/
                 {totalSubmissions}
               </span>
 
               <Button
                 variant="outline"
-                size="icon-sm"
+                size="sm"
+                className="h-8 px-2 text-xs gap-1"
                 disabled={!prevSubmissionId}
                 onClick={() =>
                   prevSubmissionId &&
@@ -210,14 +212,18 @@ function SubmissionDetailContent() {
                     `/submissions/${prevSubmissionId}${navQueryString}`,
                   )
                 }
-                title="Previous student (Shortcut: [)"
+                title={t("prevStudent")}
               >
                 <ChevronLeft className="w-4 h-4" />
+                <kbd className="hidden lg:inline-block px-1 py-0.5 text-[10px] font-mono font-bold bg-muted border border-border/80 rounded text-muted-foreground leading-none">
+                  [
+                </kbd>
               </Button>
 
               <Button
                 variant="outline"
-                size="icon-sm"
+                size="sm"
+                className="h-8 px-2 text-xs gap-1"
                 disabled={!nextSubmissionId}
                 onClick={() =>
                   nextSubmissionId &&
@@ -225,8 +231,11 @@ function SubmissionDetailContent() {
                     `/submissions/${nextSubmissionId}${navQueryString}`,
                   )
                 }
-                title="Next student (Shortcut: ])"
+                title={t("nextStudent")}
               >
+                <kbd className="hidden lg:inline-block px-1 py-0.5 text-[10px] font-mono font-bold bg-muted border border-border/80 rounded text-muted-foreground leading-none">
+                  ]
+                </kbd>
                 <ChevronRight className="w-4 h-4" />
               </Button>
 
@@ -250,7 +259,7 @@ function SubmissionDetailContent() {
                 totalGradableCount > 0 && (
                   <Badge variant="success" className="gap-1 whitespace-nowrap">
                     <CheckCircle2 className="w-3 h-3" />
-                    <span className="hidden sm:inline">All graded</span>
+                    <span className="hidden sm:inline">{t("allGraded")}</span>
                   </Badge>
                 )
               )}
@@ -269,7 +278,10 @@ function SubmissionDetailContent() {
               />
             </div>
             <span className="text-[11px] font-semibold text-muted-foreground whitespace-nowrap">
-              {gradedCount}/{totalGradableCount} graded
+              {t("gradedCountBadge", {
+                graded: gradedCount,
+                total: totalGradableCount,
+              })}
             </span>
           </div>
         )}
@@ -290,13 +302,13 @@ function SubmissionDetailContent() {
       {!isDemoMode && isLoading && (
         <div className="flex items-center justify-center py-16 text-muted-foreground gap-2">
           <Loader2 className="w-5 h-5 animate-spin" />
-          <span className="text-sm">Loading submission…</span>
+          <span className="text-sm">{t("loadingSubmission")}</span>
         </div>
       )}
 
       {!isLoading && !submission && (
         <div className="py-16 text-center text-sm text-muted-foreground bg-card rounded-2xl border border-border/50">
-          Submission not found or you are not authorized to view it.
+          {t("submissionNotFound")}
         </div>
       )}
 
@@ -329,7 +341,7 @@ function SubmissionDetailContent() {
             isLoading={autoGrading}
           >
             <Wand2 className="w-4 h-4" />
-            Auto-grade {pendingAutoCount} MCQ / TF
+            {t("autoGradeCount", { count: pendingAutoCount })}
           </Button>
         </div>
       )}

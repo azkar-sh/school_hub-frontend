@@ -197,8 +197,7 @@ export function useSubjectsPage() {
   // Mock data conversion for demo mode display
   const displaySubjects = isDemoMode ? getMockSubjects(currentRole) : [];
 
-  const canEditCurriculum =
-    currentRole === "TEACHER" || currentRole === "SCHOOL_ADMIN";
+  const canEditCurriculum = currentRole === "TEACHER";
 
   const canAddSubject = currentRole === "SCHOOL_ADMIN";
 

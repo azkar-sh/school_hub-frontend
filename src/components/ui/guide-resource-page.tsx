@@ -4,6 +4,7 @@ import { DemoModeBanner } from "@/components/ui/DemoModeBanner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useTranslations } from "next-intl";
 
 export interface GuideRow {
   label: string;
@@ -25,6 +26,8 @@ export function GuideResourcePage({
   action?: { label: string; href?: string };
   demo?: boolean;
 }) {
+  const t = useTranslations("Common.GuideResource");
+
   return (
     <div className="space-y-6">
       {demo && <DemoModeBanner />}
@@ -58,7 +61,7 @@ export function GuideResourcePage({
       <Card>
         <CardHeader className="border-b border-border/50">
           <CardTitle className="text-base">
-            {rows.length} records in this view
+            {t("recordsInView", { count: rows.length })}
           </CardTitle>
         </CardHeader>
         <CardContent className="divide-y divide-border/50 p-0">

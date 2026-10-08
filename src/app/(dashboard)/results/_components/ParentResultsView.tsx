@@ -24,6 +24,7 @@ import {
   Loader2,
   Award,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface ParentResultsViewProps {
   isDemoMode: boolean;
@@ -84,6 +85,7 @@ export function ParentResultsView({
   isLoading,
   parentChildrenResults,
 }: ParentResultsViewProps) {
+  const t = useTranslations("Results");
   // Build a uniform per-child list for both demo + live modes.
   const children: ChildBlock[] = React.useMemo(() => {
     if (isDemoMode) {
@@ -120,10 +122,10 @@ export function ParentResultsView({
 
       <div>
         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-          Results
+          {t("parentTitle")}
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Your child&apos;s assessment results and scores
+          {t("parentSubtitle")}
         </p>
       </div>
 
@@ -131,11 +133,11 @@ export function ParentResultsView({
       <Card className="border-primary/20 bg-primary/5 p-4">
         <div className="flex items-center justify-between gap-4">
           <p className="text-xs text-muted-foreground">
-            You can also view results per child from the Children page.
+            {t("parentNote")}
           </p>
           <Link href="/children">
             <Button variant="outline" size="sm" className="text-xs">
-              View Children
+              {t("viewChildren")}
               <ArrowRight className="w-3 h-3 ml-1" />
             </Button>
           </Link>
@@ -146,7 +148,7 @@ export function ParentResultsView({
       {!isDemoMode && isLoading && (
         <div className="flex items-center justify-center py-16 text-muted-foreground gap-2">
           <Loader2 className="w-5 h-5 animate-spin" />
-          <span className="text-sm">Loading results…</span>
+          <span className="text-sm">{t("loadingResults")}</span>
         </div>
       )}
 
@@ -154,10 +156,7 @@ export function ParentResultsView({
         <>
           {children.length === 0 ? (
             <Card className="py-14 text-center text-sm text-muted-foreground">
-              No results found.{" "}
-              {isDemoMode
-                ? ""
-                : "Link a child account to see their results."}
+              {t("noResults")}
             </Card>
           ) : (
             <div className="space-y-6">
@@ -173,15 +172,16 @@ export function ParentResultsView({
                           {child.name}
                         </CardTitle>
                         <CardDescription className="text-xs mt-0.5">
-                          Class {child.className} • {child.assessmentCount}{" "}
-                          graded assessment
-                          {child.assessmentCount !== 1 ? "s" : ""}
+                          {t("class")} {child.className} • {child.assessmentCount}{" "}
+                          {child.assessmentCount !== 1
+                            ? t("gradedAssessments")
+                            : t("gradedAssessment")}
                         </CardDescription>
                       </div>
                     </div>
                     <div className="text-right shrink-0">
                       <span className="text-[10px] uppercase font-semibold text-muted-foreground block">
-                        Average
+                        {t("average")}
                       </span>
                       <span className="text-2xl font-black text-primary">
                         {child.average}%
@@ -192,7 +192,7 @@ export function ParentResultsView({
                   <CardContent className="divide-y divide-border/50 p-0">
                     {child.results.length === 0 ? (
                       <div className="py-12 text-center text-sm text-muted-foreground">
-                        No graded assessments yet for this child.
+                        {t("noGradedForChild")}
                       </div>
                     ) : (
                       child.results.map((result) => {
@@ -239,7 +239,7 @@ export function ParentResultsView({
                               >
                                 {result.scorePercentage !== null
                                   ? `${result.scorePercentage}%`
-                                  : "Pending"}
+                                  : t("pending")}
                               </Badge>
                               <ArrowRight className="w-4 h-4 text-muted-foreground" />
                             </div>
@@ -253,9 +253,10 @@ export function ParentResultsView({
 
               {/* Summary footer */}
               <p className="text-xs text-muted-foreground text-center">
-                {totalResults} result
-                {totalResults !== 1 ? "s" : ""} across {children.length} child
-                {children.length !== 1 ? "ren" : ""}
+                {t("parentSummaryFooter", {
+                  total: totalResults,
+                  children: children.length,
+                })}
               </p>
             </div>
           )}

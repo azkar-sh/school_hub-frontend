@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import {
   Card,
   CardContent,
@@ -25,6 +26,8 @@ export function SubmissionsTableCard({
   currentRole,
   submissions,
 }: SubmissionsTableCardProps) {
+  const t = useTranslations("Submissions");
+
   return (
     <Card>
       <CardHeader>
@@ -32,16 +35,16 @@ export function SubmissionsTableCard({
           <FileSpreadsheet className="w-5 h-5 text-primary" />
           <span>
             {currentRole === "TEACHER"
-              ? "Recent Submissions Overview"
+              ? t("recentOverviewTeacher")
               : currentRole === "PARENT"
-                ? "Child Wards' Submissions"
-                : "Your Submissions"}
+                ? t("childSubmissionsParent")
+                : t("yourSubmissionsStudent")}
           </span>
         </CardTitle>
         <CardDescription>
           {currentRole === "TEACHER"
-            ? "Click any submission to review answers and grade short-answer questions"
-            : "Click any submission to review your answers and scores"}
+            ? t("tableDescTeacher")
+            : t("tableDescStudent")}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -53,14 +56,14 @@ export function SubmissionsTableCard({
                 <thead className="text-xs uppercase text-muted-foreground bg-muted/50 rounded-xl">
                   <tr>
                     <th className="p-3 font-semibold rounded-l-xl">
-                      {currentRole === "TEACHER" ? "Student" : "Assessment"}
+                      {currentRole === "TEACHER" ? t("student") : t("assessment")}
                     </th>
                     <th className="p-3 font-semibold">
-                      {currentRole === "TEACHER" ? "Assessment Title" : "Subject"}
+                      {currentRole === "TEACHER" ? t("assessmentTitle") : t("subject")}
                     </th>
-                    <th className="p-3 font-semibold">Submitted At</th>
-                    <th className="p-3 font-semibold">Status</th>
-                    <th className="p-3 font-semibold text-right">Score</th>
+                    <th className="p-3 font-semibold">{t("submittedAt")}</th>
+                    <th className="p-3 font-semibold">{t("status")}</th>
+                    <th className="p-3 font-semibold text-right">{t("score")}</th>
                     <th className="p-3 font-semibold rounded-r-xl w-8" />
                   </tr>
                 </thead>
@@ -103,7 +106,7 @@ export function SubmissionsTableCard({
                               className="bg-success/15 text-success gap-1"
                             >
                               <CheckCircle2 className="w-3 h-3" />
-                              Graded
+                              {t("graded")}
                             </Badge>
                           ) : (
                             <Badge
@@ -111,7 +114,7 @@ export function SubmissionsTableCard({
                               className="text-warning border-warning/30 gap-1"
                             >
                               <Clock className="w-3 h-3" />
-                              Pending Review
+                              {t("pendingReview")}
                             </Badge>
                           )}
                         </Link>
@@ -175,7 +178,7 @@ export function SubmissionsTableCard({
                           className="bg-success/15 text-success text-[10px] gap-1"
                         >
                           <CheckCircle2 className="w-3 h-3" />
-                          Graded
+                          {t("graded")}
                         </Badge>
                       ) : (
                         <Badge
@@ -183,7 +186,7 @@ export function SubmissionsTableCard({
                           className="text-warning border-warning/30 text-[10px] gap-1"
                         >
                           <Clock className="w-3 h-3" />
-                          Pending Review
+                          {t("pendingReview")}
                         </Badge>
                       )}
                       <ChevronRight className="w-3.5 h-3.5 text-muted-foreground ml-1" />
@@ -195,7 +198,7 @@ export function SubmissionsTableCard({
           </>
         ) : (
           <p className="p-3.5 text-sm text-muted-foreground text-center py-8">
-            No submissions match your search or filter.
+            {t("noSubmissionsMatch")}
           </p>
         )}
       </CardContent>

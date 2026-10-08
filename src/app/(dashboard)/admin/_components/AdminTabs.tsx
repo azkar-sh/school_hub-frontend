@@ -1,59 +1,63 @@
 import { Button } from "@/components/ui/button";
-import { Building2, Calendar, Users, UserPlus } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { Badge } from "@/components/ui/badge";
+import { Building2, HeartHandshake, LayoutDashboard } from "lucide-react";
 import { AdminTab } from "../hooks";
 
 interface AdminTabsProps {
   activeTab: AdminTab;
   onChangeTab: (tab: AdminTab) => void;
-  schoolsCount: number;
-  academicYearsCount: number;
+  campusesCount: number;
+  guardianshipsCount: number;
 }
 
 export function AdminTabs({
   activeTab,
   onChangeTab,
-  schoolsCount,
-  academicYearsCount,
+  campusesCount,
+  guardianshipsCount,
 }: AdminTabsProps) {
-  const t = useTranslations("Common.info");
   return (
-    <div className="flex items-center gap-2 border-b border-border/60 overflow-x-auto pb-2">
+    <div className="flex items-center gap-2 border-b border-border/60 overflow-x-auto pb-2 scrollbar-none">
       <Button
-        variant={activeTab === "schools" ? "role" : "ghost"}
+        variant={activeTab === "institution" ? "role" : "ghost"}
         size="sm"
-        onClick={() => onChangeTab("schools")}
-        className="gap-2 text-xs"
+        onClick={() => onChangeTab("institution")}
+        className="gap-2 text-xs sm:text-sm font-semibold rounded-xl"
       >
         <Building2 className="w-4 h-4" />
-        {t("schoolsCountTab", { count: schoolsCount })}
+        <span>Institution & Campuses</span>
+        <Badge
+          variant="secondary"
+          className="ml-1 text-[10px] px-1.5 py-0 h-5 font-bold"
+        >
+          {campusesCount}
+        </Badge>
       </Button>
+
       <Button
-        variant={activeTab === "academicYears" ? "role" : "ghost"}
+        variant={activeTab === "guardianship" ? "role" : "ghost"}
         size="sm"
-        onClick={() => onChangeTab("academicYears")}
-        className="gap-2 text-xs"
+        onClick={() => onChangeTab("guardianship")}
+        className="gap-2 text-xs sm:text-sm font-semibold rounded-xl"
       >
-        <Calendar className="w-4 h-4" />
-        {t("academicYearsCountTab", { count: academicYearsCount })}
+        <HeartHandshake className="w-4 h-4" />
+        <span>Parent-Student Guardianship</span>
+        <Badge
+          variant="secondary"
+          className="ml-1 text-[10px] px-1.5 py-0 h-5 font-bold"
+        >
+          {guardianshipsCount}
+        </Badge>
       </Button>
+
       <Button
-        variant={activeTab === "members" ? "role" : "ghost"}
+        variant={activeTab === "operations" ? "role" : "ghost"}
         size="sm"
-        onClick={() => onChangeTab("members")}
-        className="gap-2 text-xs"
+        onClick={() => onChangeTab("operations")}
+        className="gap-2 text-xs sm:text-sm font-semibold rounded-xl"
       >
-        <Users className="w-4 h-4" />
-        {t("schoolMembersTab")}
-      </Button>
-      <Button
-        variant={activeTab === "parents" ? "role" : "ghost"}
-        size="sm"
-        onClick={() => onChangeTab("parents")}
-        className="gap-2 text-xs"
-      >
-        <UserPlus className="w-4 h-4" />
-        {t("linkParentStudentTab")}
+        <LayoutDashboard className="w-4 h-4" />
+        <span>Operations Checklist</span>
       </Button>
     </div>
   );

@@ -22,6 +22,7 @@ import {
   TeacherSubjectResult,
   TeacherStudentResult,
 } from "../hooks";
+import { useTranslations } from "next-intl";
 
 interface TeacherResultsViewProps {
   isDemoMode: boolean;
@@ -61,6 +62,7 @@ export function TeacherResultsView({
   isLoading,
   teacherSubjects,
 }: TeacherResultsViewProps) {
+  const t = useTranslations("Results");
   const [subjectFilter, setSubjectFilter] = React.useState("ALL");
   const [classFilter, setClassFilter] = React.useState("ALL");
   const [selectedStudent, setSelectedStudent] =
@@ -146,10 +148,10 @@ export function TeacherResultsView({
 
       <div>
         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-          Assessment Results
+          {t("teacherTitle")}
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Student performance grouped by subject across your classes
+          {t("teacherSubtitle")}
         </p>
       </div>
 
@@ -158,14 +160,14 @@ export function TeacherResultsView({
         <div className="flex flex-col sm:flex-row items-center gap-4">
           <div className="w-full sm:flex-1">
             <label className="text-xs font-semibold text-muted-foreground mb-1 block">
-              Subject
+              {t("subject")}
             </label>
             <select
               className="w-full h-10 px-3 rounded-xl border border-input bg-background text-sm font-medium"
               value={subjectFilter}
               onChange={(e) => setSubjectFilter(e.target.value)}
             >
-              <option value="ALL">All Subjects</option>
+              <option value="ALL">{t("allSubjects")}</option>
               {subjectOptions.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.name}
@@ -175,14 +177,14 @@ export function TeacherResultsView({
           </div>
           <div className="w-full sm:flex-1">
             <label className="text-xs font-semibold text-muted-foreground mb-1 block">
-              Class
+              {t("class")}
             </label>
             <select
               className="w-full h-10 px-3 rounded-xl border border-input bg-background text-sm font-medium"
               value={classFilter}
               onChange={(e) => setClassFilter(e.target.value)}
             >
-              <option value="ALL">All Classes</option>
+              <option value="ALL">{t("allClasses")}</option>
               {classOptions.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -197,7 +199,7 @@ export function TeacherResultsView({
       {!isDemoMode && isLoading && (
         <div className="flex items-center justify-center py-16 text-muted-foreground gap-2">
           <Loader2 className="w-5 h-5 animate-spin" />
-          <span className="text-sm">Loading results…</span>
+          <span className="text-sm">{t("loadingResults")}</span>
         </div>
       )}
 
@@ -206,7 +208,7 @@ export function TeacherResultsView({
         <>
           {filteredSubjects.length === 0 ? (
             <Card className="py-14 text-center text-sm text-muted-foreground">
-              No results found for the selected filters.
+              {t("noResultsFound")}
             </Card>
           ) : (
             <div className="space-y-6">
@@ -227,14 +229,16 @@ export function TeacherResultsView({
                           </Badge>
                         </div>
                         <CardDescription className="text-xs mt-0.5">
-                          {subject.studentCount} student
-                          {subject.studentCount !== 1 ? "s" : ""}
+                          {subject.studentCount}{" "}
+                          {subject.studentCount !== 1
+                            ? t("students")
+                            : t("student")}
                         </CardDescription>
                       </div>
                     </div>
                     <div className="text-right">
                       <span className="text-[10px] uppercase font-semibold text-muted-foreground block">
-                        Average
+                        {t("average")}
                       </span>
                       <span
                         className={`text-2xl font-black ${scoreColor(subject.averageScore)}`}
@@ -249,13 +253,13 @@ export function TeacherResultsView({
                       <thead className="text-xs uppercase text-muted-foreground bg-muted/50">
                         <tr>
                           <th className="p-3 font-semibold rounded-l-xl">
-                            Student
+                            {t("student")}
                           </th>
                           <th className="p-3 font-semibold">
-                            Assessments
+                            {t("assessments")}
                           </th>
                           <th className="p-3 font-semibold text-right rounded-r-xl">
-                            Average
+                            {t("average")}
                           </th>
                         </tr>
                       </thead>
@@ -314,8 +318,9 @@ export function TeacherResultsView({
                 </CardTitle>
                 <CardDescription className="text-xs mt-0.5">
                   {selectedSubjectName} • {selectedStudent.assessmentCount}{" "}
-                  assessment
-                  {selectedStudent.assessmentCount !== 1 ? "s" : ""}
+                  {selectedStudent.assessmentCount !== 1
+                    ? t("assessments")
+                    : t("subject")}
                 </CardDescription>
               </div>
               <button
@@ -330,7 +335,7 @@ export function TeacherResultsView({
               <div className="p-4 rounded-2xl bg-muted/40 border border-border/50 flex items-center justify-between">
                 <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
                   <Award className="w-4 h-4 text-primary" />
-                  Average
+                  {t("average")}
                 </div>
                 <span
                   className={`text-3xl font-black ${scoreColor(selectedStudent.averageScore)}`}
@@ -342,7 +347,7 @@ export function TeacherResultsView({
               {/* Assessment list */}
               <div className="space-y-2">
                 <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  Assessments
+                  {t("assessments")}
                 </p>
                 {selectedStudent.assessments.map((a) => {
                   const date = formatDate(a.submittedAt);
@@ -382,7 +387,7 @@ export function TeacherResultsView({
                       >
                         {a.scorePercentage !== null
                           ? `${a.scorePercentage}%`
-                          : "Pending"}
+                          : t("pending")}
                       </Badge>
                     </div>
                   );

@@ -16,6 +16,28 @@ export interface User {
   createdAt?: string;
   updatedAt?: string;
   schoolMemberships?: SchoolMember[];
+  teachingAssignments?: TeachingAssignment[];
+  homeroomAssignments?: HomeroomAssignment[];
+  enrollments?: Enrollment[];
+  studentLinks?: ParentStudent[];
+  parentLinks?: ParentStudent[];
+}
+
+export interface PaginatedResponse<T> {
+  items: T[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
+export interface FindSchoolMembersQuery {
+  page?: number;
+  limit?: number;
+  search?: string;
+  role?: UserRole | "ALL";
 }
 
 export interface AuthResponse {
@@ -158,8 +180,62 @@ export interface ParentStudent {
   relationship: ParentRelationship;
   createdAt?: string;
   parent?: User;
-  student?: User;
+  student?: User & {
+    enrollments?: Array<{
+      class?: { id: string; name: string; grade: number; schoolId?: string };
+    }>;
+  };
 }
+
+export interface FindParentStudentsQuery {
+  search?: string;
+  classId?: string;
+  schoolId?: string;
+  relationship?: ParentRelationship;
+  page?: number;
+  limit?: number;
+}
+
+export interface GuardianLinkInfo {
+  id: string;
+  name: string;
+  email: string;
+  relationship: ParentRelationship;
+  linkCreatedAt?: string;
+}
+
+export interface StudentWithGuardians {
+  id: string;
+  name: string;
+  email: string;
+  guardians: GuardianLinkInfo[];
+}
+
+export interface ClassGuardianshipOverview {
+  id: string;
+  name: string;
+  grade: number;
+  schoolId: string;
+  totalStudents: number;
+  linkedCount: number;
+  students: StudentWithGuardians[];
+}
+
+export interface GuardianshipSummary {
+  totalStudents: number;
+  totalParents: number;
+  totalLinkedStudents: number;
+  totalUnlinkedStudents: number;
+  totalRelationships: number;
+  coveragePercentage: number;
+}
+
+export interface ParentStudentOverviewResponse {
+  classes: ClassGuardianshipOverview[];
+  unassignedStudents: StudentWithGuardians[];
+  summary: GuardianshipSummary;
+}
+
 
 /**
  * Shape returned by `GET /parent-students/children` — a parent's ward plus

@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Clock, CheckCircle2, User, BookOpen, Calendar } from "lucide-react";
 import { SubmissionRow } from "@/lib/mock-data";
+import { useTranslations } from "next-intl";
 
 interface SubmissionCardProps {
   currentRole: string;
@@ -17,6 +18,7 @@ interface SubmissionCardProps {
 }
 
 export function SubmissionCard({ currentRole, item }: SubmissionCardProps) {
+  const t = useTranslations("Submissions");
   const isTeacher = currentRole === "TEACHER" || currentRole === "SCHOOL_ADMIN";
   return (
     <Card className="relative flex flex-col justify-between hover:border-primary/50 transition-all">
@@ -31,7 +33,7 @@ export function SubmissionCard({ currentRole, item }: SubmissionCardProps) {
               className="bg-success/15 text-success gap-1"
             >
               <CheckCircle2 className="w-3 h-3" />
-              <span>Graded</span>
+              <span>{t("graded")}</span>
             </Badge>
           ) : (
             <Badge
@@ -39,7 +41,7 @@ export function SubmissionCard({ currentRole, item }: SubmissionCardProps) {
               className="text-warning border-warning/30 gap-1"
             >
               <Clock className="w-3 h-3" />
-              <span>Pending Review</span>
+              <span>{t("pendingReview")}</span>
             </Badge>
           )}
         </div>
@@ -52,7 +54,7 @@ export function SubmissionCard({ currentRole, item }: SubmissionCardProps) {
           {item.score !== null && (
             <span className="text-success font-semibold">
               {" "}
-              • Score: {item.score}%
+              • {t("score")}: {item.score}%
             </span>
           )}
         </CardDescription>
@@ -67,7 +69,7 @@ export function SubmissionCard({ currentRole, item }: SubmissionCardProps) {
           <Button variant="role" size="sm">
             {isTeacher
               ? item.status === "SUBMITTED"
-                ? "Grade"
+                ? t("grade")
                 : "View"
               : "View Result"}
           </Button>

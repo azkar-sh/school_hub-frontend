@@ -1,112 +1,173 @@
 "use client";
 
-import { DemoModeBanner } from "@/components/ui/DemoModeBanner";
+import * as React from "react";
 import { useAdminPage } from "./hooks";
 import { AdminHeader } from "./_components/AdminHeader";
 import { AdminTabs } from "./_components/AdminTabs";
-import { FeedbackBanner } from "./_components/FeedbackBanner";
-import { SchoolsTab } from "./_components/SchoolsTab";
-import { AcademicYearsTab } from "./_components/AcademicYearsTab";
-import { MembersTab } from "./_components/MembersTab";
-import { ParentLinkTab } from "./_components/ParentLinkTab";
+import { InstitutionTab } from "./_components/InstitutionTab";
+import { GuardianshipTab } from "./_components/GuardianshipTab";
+import { OperationsTab } from "./_components/OperationsTab";
+import { CreateSchoolModal } from "./_components/CreateSchoolModal";
+import { LinkGuardianModal } from "./_components/LinkGuardianModal";
+import { CheckCircle2, AlertCircle } from "lucide-react";
 
 export default function AdminPage() {
   const {
-    isDemoMode,
+    user,
     activeTab,
     setActiveTab,
     schools,
     selectedSchoolId,
     setSelectedSchoolId,
-    feedback,
+    schoolDetails,
+    classesList,
+    parentStudentOverview,
+    parentStudentLinks,
+    filteredLinks,
+    isLoadingLinks,
+    isLoadingOverview,
+    parentsList,
+    studentsList,
+    searchGuardians,
+    setSearchGuardians,
+    selectedClassFilter,
+    setSelectedClassFilter,
+    relationshipFilter,
+    setRelationshipFilter,
+    statusFilter,
+    setStatusFilter,
+    viewMode,
+    setViewMode,
+    showCreateSchoolModal,
+    setShowCreateSchoolModal,
     schoolName,
     setSchoolName,
-    ayName,
-    setAyName,
-    ayStartsAt,
-    setAyStartsAt,
-    ayEndsAt,
-    setAyEndsAt,
-    memberUserId,
-    setMemberUserId,
+    showLinkModal,
+    setShowLinkModal,
     linkParentId,
     setLinkParentId,
     linkStudentId,
     setLinkStudentId,
     linkRelationship,
     setLinkRelationship,
-    academicYears,
-    isLoading,
-    schoolMembers,
-    usersList,
+    feedback,
+    isSubmitting,
     handleCreateSchool,
-    handleCreateAcademicYear,
-    handleAddMember,
     handleLinkParentStudent,
+    handleUnlinkParentStudent,
+    handleOpenLinkForStudent,
   } = useAdminPage();
 
+  const activeSchool =
+    schoolDetails ??
+    (schools.find((s) => s.id === selectedSchoolId) as any);
+
   return (
-    <div className="space-y-6">
-      {/* Demo Mode Banner */}
-      {isDemoMode && <DemoModeBanner />}
+    <div className="space-y-6 max-w-7xl mx-auto pb-12">
+      {/* Executive Header */}
+      <AdminHeader
+        activeTab={activeTab}
+        onOpenCreateSchool={() => setShowCreateSchoolModal(true)}
+        onOpenLinkGuardian={() => {
+          setLinkStudentId("");
+          setShowLinkModal(true);
+        }}
+      />
 
-      <AdminHeader />
+      {/* Global Feedback Banner */}
+      {feedback && (
+        <div
+          className={`flex items-center gap-2 p-4 rounded-2xl text-xs font-semibold animate-in fade-in duration-200 ${
+            feedback.type === "error"
+              ? "bg-destructive/10 text-destructive border border-destructive/20"
+              : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+          }`}
+        >
+          {feedback.type === "error" ? (
+            <AlertCircle className="w-4 h-4 shrink-0" />
+          ) : (
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+          )}
+          <span>{feedback.message}</span>
+        </div>
+      )}
 
-      {feedback && <FeedbackBanner feedback={feedback} />}
-
+      {/* Modern Navigation Tabs */}
       <AdminTabs
         activeTab={activeTab}
         onChangeTab={setActiveTab}
-        schoolsCount={schools.length}
-        academicYearsCount={academicYears.length}
+        campusesCount={schools.length}
+        guardianshipsCount={parentStudentLinks.length}
       />
 
-      {activeTab === "schools" && (
-        <SchoolsTab
+      {/* Active Tab View */}
+      {activeTab === "institution" && activeSchool && (
+        <InstitutionTab
+          school={activeSchool}
+          schools={schools}
+          selectedSchoolId={selectedSchoolId}
+          onSelectSchool={setSelectedSchoolId}
+          onOpenCreateSchool={() => setShowCreateSchoolModal(true)}
+          currentUser={user}
+        />
+      )}
+
+      {activeTab === "guardianship" && (
+        <GuardianshipTab
+          links={filteredLinks}
+          totalParents={parentsList.length}
+          totalStudents={studentsList.length}
+          search={searchGuardians}
+          onSearchChange={setSearchGuardians}
+          onOpenLinkModal={() => {
+            setLinkStudentId("");
+            setShowLinkModal(true);
+          }}
+          onUnlink={handleUnlinkParentStudent}
+          isLoading={isLoadingLinks || isLoadingOverview}
+          overview={parentStudentOverview}
+          classesList={classesList}
+          selectedClassFilter={selectedClassFilter}
+          onClassFilterChange={setSelectedClassFilter}
+          relationshipFilter={relationshipFilter}
+          onRelationshipFilterChange={setRelationshipFilter}
+          statusFilter={statusFilter}
+          onStatusFilterChange={setStatusFilter}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+          onQuickLinkStudent={handleOpenLinkForStudent}
+        />
+      )}
+
+      {activeTab === "operations" && (
+        <OperationsTab
+          memberCount={activeSchool?._count?.members ?? 39}
+          classCount={activeSchool?._count?.classes ?? 2}
+          subjectCount={activeSchool?.subjects?.length ?? 6}
+          activeAcademicYear={
+            activeSchool?.academicYears?.find((ay: any) => ay.isActive)?.name ??
+            "2026/2027"
+          }
+        />
+      )}
+
+      {/* Register Campus Modal */}
+      {showCreateSchoolModal && (
+        <CreateSchoolModal
           schoolName={schoolName}
           onChangeSchoolName={setSchoolName}
-          onCreateSchool={handleCreateSchool}
-          isLoading={isLoading}
-          schools={schools}
-          selectedSchoolId={selectedSchoolId}
-          onSelectSchool={setSelectedSchoolId}
+          onSubmit={handleCreateSchool}
+          onClose={() => setShowCreateSchoolModal(false)}
+          isSubmitting={isSubmitting}
         />
       )}
 
-      {activeTab === "academicYears" && (
-        <AcademicYearsTab
-          schools={schools}
-          selectedSchoolId={selectedSchoolId}
-          onSelectSchool={setSelectedSchoolId}
-          ayName={ayName}
-          onChangeAyName={setAyName}
-          ayStartsAt={ayStartsAt}
-          onChangeAyStartsAt={setAyStartsAt}
-          ayEndsAt={ayEndsAt}
-          onChangeAyEndsAt={setAyEndsAt}
-          onCreateAcademicYear={handleCreateAcademicYear}
-          isLoading={isLoading}
-          academicYears={academicYears}
-        />
-      )}
-
-      {activeTab === "members" && (
-        <MembersTab
-          schools={schools}
-          selectedSchoolId={selectedSchoolId}
-          onSelectSchool={setSelectedSchoolId}
-          usersList={usersList}
-          memberUserId={memberUserId}
-          onChangeMemberUserId={setMemberUserId}
-          onAddMember={handleAddMember}
-          isLoading={isLoading}
-          schoolMembers={schoolMembers}
-        />
-      )}
-
-      {activeTab === "parents" && (
-        <ParentLinkTab
-          usersList={usersList}
+      {/* Link Guardian Modal */}
+      {showLinkModal && (
+        <LinkGuardianModal
+          parents={parentsList}
+          students={studentsList}
+          classes={classesList}
           linkParentId={linkParentId}
           onChangeLinkParentId={setLinkParentId}
           linkStudentId={linkStudentId}
@@ -114,7 +175,11 @@ export default function AdminPage() {
           linkRelationship={linkRelationship}
           onChangeLinkRelationship={setLinkRelationship}
           onSubmit={handleLinkParentStudent}
-          isLoading={isLoading}
+          onClose={() => {
+            setShowLinkModal(false);
+            setLinkStudentId("");
+          }}
+          isSubmitting={isSubmitting}
         />
       )}
     </div>

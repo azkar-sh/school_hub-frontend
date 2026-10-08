@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
 
 interface AssessmentsPaginationProps {
   meta: { page: number; totalPages: number };
@@ -11,6 +12,7 @@ export function AssessmentsPagination({
   onPageChange,
   isDemoMode,
 }: AssessmentsPaginationProps) {
+  const t = useTranslations("Assessments");
   if (isDemoMode || meta.totalPages <= 1) return null;
 
   return (
@@ -21,10 +23,10 @@ export function AssessmentsPagination({
         disabled={meta.page <= 1}
         onClick={() => onPageChange((p) => Math.max(1, p - 1))}
       >
-        Previous
+        {t("prevBtn")}
       </Button>
       <span className="text-xs text-muted-foreground">
-        Page {meta.page} of {meta.totalPages}
+        {t("pageOfLabel", { page: meta.page, total: meta.totalPages })}
       </span>
       <Button
         variant="outline"
@@ -32,7 +34,7 @@ export function AssessmentsPagination({
         disabled={meta.page >= meta.totalPages}
         onClick={() => onPageChange((p) => Math.min(meta.totalPages, p + 1))}
       >
-        Next
+        {t("nextBtn")}
       </Button>
     </div>
   );

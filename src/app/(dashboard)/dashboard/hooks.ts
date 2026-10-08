@@ -97,6 +97,7 @@ export interface LiveAssessment {
 
 interface LiveSubmission {
   id: string;
+  assessmentId?: string;
   status: string;
   score?: number | string | null;
   scorePercentage?: number | null;
@@ -295,7 +296,11 @@ export function useDashboardPage() {
       () =>
         schoolsApi
           .getMembers(selectedSchoolId)
-          .then((res) => (Array.isArray(res.data) ? res.data : [])),
+          .then((res) =>
+            Array.isArray(res.data)
+              ? res.data
+              : (res.data as any)?.items || [],
+          ),
       [selectedSchoolId],
       goLive && isAdmin,
     );
@@ -650,6 +655,7 @@ if (isStudent) {
     teacherPendingResults,
     teacherClassAverage,
     teacherIsLoading,
+    submissions,
     // student
     studentClass,
     studentQuizzesTaken,

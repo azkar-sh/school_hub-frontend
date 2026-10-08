@@ -23,6 +23,7 @@ import {
   StudentSubjectResult,
   StudentAssessmentResult,
 } from "../hooks";
+import { useTranslations } from "next-intl";
 
 interface StudentResultsViewProps {
   isDemoMode: boolean;
@@ -57,6 +58,7 @@ export function StudentResultsView({
   isLoading,
   studentSubjects,
 }: StudentResultsViewProps) {
+  const t = useTranslations("Results");
   const [selectedSubjectId, setSelectedSubjectId] =
     React.useState<string | null>(null);
 
@@ -76,17 +78,17 @@ export function StudentResultsView({
 
       <div>
         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-          My Results
+          {t("myResults")}
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Your subjects and average scores across graded assessments
+          {t("myResultsSubtitle")}
         </p>
       </div>
 
       {!isDemoMode && isLoading && (
         <div className="flex items-center justify-center py-16 text-muted-foreground gap-2">
           <Loader2 className="w-5 h-5 animate-spin" />
-          <span className="text-sm">Loading results…</span>
+          <span className="text-sm">{t("loadingResults")}</span>
         </div>
       )}
 
@@ -95,7 +97,7 @@ export function StudentResultsView({
         <>
           {subjects.length === 0 ? (
             <Card className="py-14 text-center text-sm text-muted-foreground">
-              No graded assessments yet.
+              {t("noGradedAssessments")}
             </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -121,8 +123,10 @@ export function StudentResultsView({
                             </Badge>
                           </div>
                           <CardDescription className="text-xs mt-0.5">
-                            {subject.assessmentCount} graded assessment
-                            {subject.assessmentCount !== 1 ? "s" : ""}
+                            {subject.assessmentCount}{" "}
+                            {subject.assessmentCount !== 1
+                              ? t("gradedAssessments")
+                              : t("gradedAssessment")}
                           </CardDescription>
                         </div>
                       </div>
@@ -132,7 +136,7 @@ export function StudentResultsView({
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <Award className="w-4 h-4 text-primary" />
-                          <span>Average Score</span>
+                          <span>{t("averageScore")}</span>
                         </div>
                         <span
                           className={`text-2xl font-black ${scoreColor(subject.averageScore)}`}
@@ -159,7 +163,7 @@ export function StudentResultsView({
               onClick={() => setSelectedSubjectId(null)}
             >
               <ArrowLeft className="w-4 h-4 mr-1" />
-              All Subjects
+              {t("allSubjects")}
             </Button>
           </div>
 
@@ -179,13 +183,15 @@ export function StudentResultsView({
                     </Badge>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    {selectedSubject.assessmentCount} graded assessment
-                    {selectedSubject.assessmentCount !== 1 ? "s" : ""}
+                    {selectedSubject.assessmentCount}{" "}
+                    {selectedSubject.assessmentCount !== 1
+                      ? t("gradedAssessments")
+                      : t("gradedAssessment")}
                   </p>
                 </div>
                 <div className="text-right">
                   <span className="text-[10px] uppercase font-semibold text-muted-foreground block">
-                    Average
+                    {t("average")}
                   </span>
                   <span
                     className={`text-3xl font-black ${scoreColor(selectedSubject.averageScore)}`}
@@ -199,15 +205,15 @@ export function StudentResultsView({
 
           <Card>
             <CardHeader className="border-b border-border/50">
-              <CardTitle className="text-base">Assessment History</CardTitle>
+              <CardTitle className="text-base">{t("assessmentHistory")}</CardTitle>
               <CardDescription className="text-xs">
-                Click an assessment to review your answers and grade
+                {t("assessmentHistoryDesc")}
               </CardDescription>
             </CardHeader>
             <CardContent className="divide-y divide-border/50 p-0">
               {selectedSubject.assessments.length === 0 ? (
                 <div className="py-14 text-center text-sm text-muted-foreground">
-                  No graded assessments for this subject.
+                  {t("noGradedForSubject")}
                 </div>
               ) : (
                 selectedSubject.assessments.map((a: StudentAssessmentResult) => {
@@ -244,7 +250,7 @@ export function StudentResultsView({
                         >
                           {a.scorePercentage !== null
                             ? `${a.scorePercentage}%`
-                            : "Pending"}
+                            : t("pending")}
                         </Badge>
                         <ArrowRight className="w-4 h-4 text-muted-foreground" />
                       </div>

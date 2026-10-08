@@ -17,8 +17,12 @@ import {
   CreateTeachingAssignmentDto,
   CreateTopicDto,
   EnrollStudentDto,
+  FindParentStudentsQuery,
+  FindSchoolMembersQuery,
   GradeSubmissionDto,
+  PaginatedResponse,
   ParentStudent,
+  ParentStudentOverviewResponse,
   ParentChildLink,
   Question,
   SaveAnswersDto,
@@ -117,8 +121,11 @@ export const schoolsApi = {
   findOne: (id: string) => apiClient.get<School>(`/schools/${id}`),
   addMember: (schoolId: string, data: AddSchoolMemberDto) =>
     apiClient.post<SchoolMember>(`/schools/${schoolId}/members`, data),
-  getMembers: (schoolId: string) =>
-    apiClient.get<SchoolMember[]>(`/schools/${schoolId}/members`),
+  getMembers: (schoolId: string, params?: FindSchoolMembersQuery) =>
+    apiClient.get<SchoolMember[] | PaginatedResponse<SchoolMember>>(
+      `/schools/${schoolId}/members`,
+      { params },
+    ),
 };
 
 // Academic Years API
@@ -203,7 +210,7 @@ export const assessmentsApi = {
   // subjectId/type accept single or array; repeat serialization matches Nest implicitConversion
   findForTeacher: (params?: { page?: number; limit?: number; search?: string; subjectId?: string | string[]; type?: string | string[] }) =>
     apiClient.get<Assessment[]>("/assessments/teacher", { params, paramsSerializer: { indexes: null } }),
-  findForStudent: (params?: { page?: number; limit?: number; search?: string; subjectId?: string | string[]; type?: string | string[] }) =>
+  findForStudent: (params?: { page?: number; limit?: number; search?: string; subjectId?: string | string[]; type?: string | string[]; status?: string | string[] }) =>
     apiClient.get<{ assessments: Assessment[]; meta: { page: number; limit: number; total: number; totalPages: number } }>("/assessments/student", { params, paramsSerializer: { indexes: null } }),
   findOne: (id: string) => apiClient.get<Assessment>(`/assessments/${id}`),
   findSubjectsForStudent: () => apiClient.get<Subject[]>("/assessments/student/subjects"),
@@ -244,10 +251,18 @@ export const submissionsApi = {
 export const parentStudentsApi = {
   link: (data: CreateParentStudentDto) =>
     apiClient.post<ParentStudent>("/parent-students", data),
+  findAll: (params?: FindParentStudentsQuery) =>
+    apiClient.get<ParentStudent[]>("/parent-students", { params }),
+  getOverview: (schoolId?: string) =>
+    apiClient.get<ParentStudentOverviewResponse>("/parent-students/overview", {
+      params: schoolId ? { schoolId } : undefined,
+    }),
   getChildren: (parentId?: string) =>
     apiClient.get<ParentChildLink[]>("/parent-students/children", {
       params: parentId ? { parentId } : undefined,
     }),
   getParents: (studentId: string) =>
     apiClient.get<User[]>(`/parent-students/parents/${studentId}`),
+  unlink: (parentId: string, studentId: string) =>
+    apiClient.delete(`/parent-students/${parentId}/${studentId}`),
 };

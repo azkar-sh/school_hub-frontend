@@ -9,6 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useTranslations } from 'next-intl';
 
 const LOCALES = ['en', 'id'] as const;
 type Locale = (typeof LOCALES)[number];
@@ -39,6 +40,7 @@ export default function LanguageSwitcher() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [locale, setLocale] = useState<Locale>(() => getInitialLocale());
+  const t = useTranslations('Common.Language');
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -60,7 +62,7 @@ export default function LanguageSwitcher() {
       <DropdownMenuTrigger
         disabled={isPending}
         className="flex items-center gap-1.5 h-9 px-2.5 text-xs font-semibold text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted transition-colors disabled:pointer-events-none disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-        aria-label="Switch language"
+        aria-label={t('switchLanguage')}
       >
         <Globe className="h-4 w-4" />
         <span className="hidden sm:inline">{localeMeta[locale].label}</span>

@@ -330,6 +330,40 @@ export function useNewAssessmentForm() {
     removeQuestionFromDraft(index);
   };
 
+  const handleMoveQuestionUp = (index: number) => {
+    if (index <= 0 || index >= draft.questions.length) return;
+    const newQuestions = [...draft.questions];
+    const prev = newQuestions[index - 1];
+    newQuestions[index - 1] = newQuestions[index];
+    newQuestions[index] = prev;
+    newQuestions.forEach((q, i) => {
+      q.order = i;
+    });
+    setQuestions(newQuestions);
+    if (editingIndex === index) {
+      setEditingIndex(index - 1);
+    } else if (editingIndex === index - 1) {
+      setEditingIndex(index);
+    }
+  };
+
+  const handleMoveQuestionDown = (index: number) => {
+    if (index < 0 || index >= draft.questions.length - 1) return;
+    const newQuestions = [...draft.questions];
+    const next = newQuestions[index + 1];
+    newQuestions[index + 1] = newQuestions[index];
+    newQuestions[index] = next;
+    newQuestions.forEach((q, i) => {
+      q.order = i;
+    });
+    setQuestions(newQuestions);
+    if (editingIndex === index) {
+      setEditingIndex(index + 1);
+    } else if (editingIndex === index + 1) {
+      setEditingIndex(index);
+    }
+  };
+
   const handleAddQuestion = () => {
     if (!qText.trim()) return;
 
@@ -533,6 +567,8 @@ export function useNewAssessmentForm() {
     handleFinalPublish,
     removeQuestionFromDraft,
     handleRemoveQuestion,
+    handleMoveQuestionUp,
+    handleMoveQuestionDown,
     editQuestionInDraft,
     editingIndex,
     handleStartEdit,
